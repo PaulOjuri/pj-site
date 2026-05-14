@@ -20,7 +20,7 @@ export default function WorkPage() {
   return (
     <>
       <Nav />
-      <main className="pt-32 pb-24">
+      <main id="main-content" className="pt-32 pb-24">
         <div className="container-page">
 
           {/* Page header */}

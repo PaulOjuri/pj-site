@@ -8,6 +8,7 @@ import { JournalTeaser } from '@/components/sections/JournalTeaser'
 import { ContactCTA } from '@/components/sections/ContactCTA'
 import { Divider } from '@/components/ui/Divider'
 import { getAllWork, getAllJournal } from '@/lib/content'
+import { JsonLd, personSchema, websiteSchema } from '@/lib/jsonld'
 
 export default function HomePage() {
   const featuredWorks = getAllWork()
@@ -31,8 +32,10 @@ export default function HomePage() {
 
   return (
     <>
+      <JsonLd data={personSchema()} />
+      <JsonLd data={websiteSchema()} />
       <Nav />
-      <main>
+      <main id="main-content">
         <Hero />
         <NowStrip />
         <SelectedWork works={featuredWorks} />

@@ -68,7 +68,7 @@ export default function AboutPage() {
   return (
     <>
       <Nav />
-      <main>
+      <main id="main-content">
 
         {/* Hero */}
         <section className="pt-32 pb-16 border-b border-subtle">

@@ -33,7 +33,7 @@ export default function ContactPage() {
   return (
     <>
       <Nav />
-      <main>
+      <main id="main-content">
 
         {/* Header */}
         <section className="pt-32 pb-16 border-b border-subtle">

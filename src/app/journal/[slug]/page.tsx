@@ -8,6 +8,7 @@ import { Tag } from '@/components/ui/Tag'
 import { Divider } from '@/components/ui/Divider'
 import { getJournalPost, getJournalSlugs, getAllJournal } from '@/lib/content'
 import { proseComponents } from '@/lib/prose-components'
+import { JsonLd, articleSchema } from '@/lib/jsonld'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -50,8 +51,9 @@ export default async function JournalPostPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd data={articleSchema({ title: frontmatter.title, excerpt: frontmatter.excerpt, slug, date: frontmatter.date, tags: frontmatter.tags })} />
       <Nav />
-      <main>
+      <main id="main-content">
 
         {/* Article header */}
         <header className="pt-32 pb-16 border-b border-subtle">

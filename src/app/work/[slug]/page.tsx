@@ -7,6 +7,7 @@ import { Tag } from '@/components/ui/Tag'
 import { Button } from '@/components/ui/Button'
 import { getWork, getWorkSlugs } from '@/lib/content'
 import { proseComponents } from '@/lib/prose-components'
+import { JsonLd, workSchema } from '@/lib/jsonld'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -37,8 +38,9 @@ export default async function CaseStudyPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd data={workSchema({ title: frontmatter.title, tagline: frontmatter.tagline, slug, year: frontmatter.year })} />
       <Nav />
-      <main>
+      <main id="main-content">
 
         {/* Hero header */}
         <header className="pt-32 pb-16 border-b border-subtle">

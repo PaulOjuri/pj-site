@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://paulojuri.com',
     siteName: 'Paulo Juri',
-    images: [{ url: '/og/default.png', width: 1200, height: 630 }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -25,7 +25,12 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 
@@ -46,6 +51,13 @@ export default function RootLayout({
       className={`${fontEditorial.variable} ${fontUI.variable} ${fontMono.variable}`}
     >
       <body>
+        {/* Skip to main content — keyboard accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[--z-top] focus:px-4 focus:py-2 focus:bg-ink focus:text-paper focus:label-caps"
+        >
+          Skip to content
+        </a>
         <LenisProvider>{children}</LenisProvider>
       </body>
     </html>
