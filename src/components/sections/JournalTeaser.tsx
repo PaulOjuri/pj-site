@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { Divider } from '@/components/ui/Divider'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 type Post = {
   slug: string
@@ -8,7 +11,6 @@ type Post = {
   readingTime: string
 }
 
-// Placeholder posts — replace with MDX reads in Phase 5
 const posts: Post[] = [
   {
     slug: 'why-privacy-is-a-design-problem',
@@ -31,8 +33,14 @@ const posts: Post[] = [
 ]
 
 export function JournalTeaser() {
+  const ref = useScrollReveal<HTMLElement>({ y: 24 })
+
   return (
-    <section className="container-page py-24" aria-labelledby="journal-heading">
+    <section
+      ref={ref}
+      className="container-page py-24"
+      aria-labelledby="journal-heading"
+    >
       <div className="flex items-end justify-between">
         <h2 id="journal-heading" className="text-heading">
           Journal

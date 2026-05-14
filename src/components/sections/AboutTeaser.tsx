@@ -1,19 +1,21 @@
-import Link from 'next/link'
+'use client'
+
 import { Button } from '@/components/ui/Button'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 export function AboutTeaser() {
+  const ref = useScrollReveal<HTMLElement>({ y: 30 })
+
   return (
     <section
+      ref={ref}
       className="bg-ink text-paper"
       aria-labelledby="about-teaser-heading"
     >
       <div className="container-page py-24 md:py-32">
         <div className="grid gap-12 md:grid-cols-2 md:gap-24">
           <div>
-            <h2
-              id="about-teaser-heading"
-              className="text-heading text-paper"
-            >
+            <h2 id="about-teaser-heading" className="text-heading text-paper">
               Engineer by training,&nbsp;
               <em>designer by conviction.</em>
             </h2>
@@ -30,7 +32,12 @@ export function AboutTeaser() {
               apps. I care about the 1% of details that make 100% of the
               difference.
             </p>
-            <Button href="/about" variant="outline" size="md" className="self-start border-paper/30 text-paper hover:bg-paper hover:text-ink">
+            <Button
+              href="/about"
+              variant="outline"
+              size="md"
+              className="self-start border-paper/30 text-paper hover:bg-paper hover:text-ink"
+            >
               More about me →
             </Button>
           </div>

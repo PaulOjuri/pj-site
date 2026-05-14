@@ -1,16 +1,19 @@
+'use client'
+
 import { Button } from '@/components/ui/Button'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 export function ContactCTA() {
+  const ref = useScrollReveal<HTMLElement>({ y: 24 })
+
   return (
     <section
+      ref={ref}
       className="container-page py-24 text-center md:py-32"
       aria-labelledby="cta-heading"
     >
       <p className="label-caps text-muted">Let&apos;s build something</p>
-      <h2
-        id="cta-heading"
-        className="text-heading mx-auto mt-4 max-w-2xl"
-      >
+      <h2 id="cta-heading" className="text-heading mx-auto mt-4 max-w-2xl">
         Have a project in mind?
       </h2>
       <p className="mx-auto mt-6 max-w-prose text-lg text-muted">

@@ -1,35 +1,30 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useRef, useEffect } from 'react'
 import { gsap } from '@/lib/gsap'
 import { Button } from '@/components/ui/Button'
 
+const HeroGL = dynamic(
+  () => import('@/components/three/HeroGL').then((m) => ({ default: m.HeroGL })),
+  { ssr: false },
+)
+
 export function Hero() {
   const headingRef = useRef<HTMLHeadingElement>(null)
-  const subRef = useRef<HTMLParagraphElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
+  const subRef     = useRef<HTMLParagraphElement>(null)
+  const ctaRef     = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.2 } })
+      const tl = gsap.timeline({
+        defaults: { ease: 'expo.out', duration: 1.2 },
+        delay: 0.2,
+      })
 
-      tl.fromTo(
-        headingRef.current,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0 },
-      )
-        .fromTo(
-          subRef.current,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0 },
-          '-=0.8',
-        )
-        .fromTo(
-          ctaRef.current,
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0 },
-          '-=0.7',
-        )
+      tl.fromTo(headingRef.current, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })
+        .fromTo(subRef.current,     { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, '-=0.8')
+        .fromTo(ctaRef.current,     { opacity: 0, y: 16 }, { opacity: 1, y: 0 }, '-=0.7')
     })
 
     return () => ctx.revert()
@@ -40,9 +35,16 @@ export function Hero() {
       className="relative flex min-h-dvh flex-col justify-end pb-16 pt-32"
       aria-labelledby="hero-heading"
     >
-      {/* WebGL canvas placeholder — replace with <HeroGL /> in Phase 2 */}
+      {/* WebGL background — lazy-loaded, SSR-safe */}
+      <HeroGL />
+
+      {/* Gradient overlay so text stays legible over the shader */}
       <div
-        className="pointer-events-none absolute inset-0 z-0"
+        className="pointer-events-none absolute inset-0 z-[1]"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(245,244,239,0.96) 0%, rgba(245,244,239,0.3) 50%, rgba(245,244,239,0.05) 100%)',
+        }}
         aria-hidden="true"
       />
 

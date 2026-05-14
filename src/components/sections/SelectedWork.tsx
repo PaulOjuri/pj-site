@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { Divider } from '@/components/ui/Divider'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 type WorkItem = {
   slug: string
@@ -9,7 +12,6 @@ type WorkItem = {
   description: string
 }
 
-// Placeholder data — replace with MDX frontmatter reads in Phase 3
 const works: WorkItem[] = [
   {
     slug: 'prism',
@@ -38,8 +40,14 @@ const works: WorkItem[] = [
 ]
 
 export function SelectedWork() {
+  const ref = useScrollReveal<HTMLElement>({ y: 24 })
+
   return (
-    <section className="container-page py-24" aria-labelledby="work-heading">
+    <section
+      ref={ref}
+      className="container-page py-24"
+      aria-labelledby="work-heading"
+    >
       <div className="flex items-end justify-between">
         <h2 id="work-heading" className="text-heading">
           Selected work
@@ -64,7 +72,6 @@ export function SelectedWork() {
               <div className="label-caps shrink-0 text-muted md:w-8">
                 {String(i + 1).padStart(2, '0')}
               </div>
-
               <div className="flex flex-1 flex-col gap-2 md:flex-row md:items-start md:justify-between md:gap-12">
                 <div className="flex-1">
                   <h3 className="text-subheading transition-colors duration-200 group-hover:text-accent">
@@ -72,7 +79,6 @@ export function SelectedWork() {
                   </h3>
                   <p className="mt-3 max-w-prose text-muted">{work.description}</p>
                 </div>
-
                 <div className="shrink-0 text-right">
                   <p className="label-caps text-muted">{work.category}</p>
                   <p className="label-caps mt-1 text-subtle">{work.year}</p>
