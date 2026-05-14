@@ -1,0 +1,34 @@
+---
+title: Virtual PO
+tagline: AI product ownership for teams that can't afford to move slowly.
+category: Product · AI · SaaS
+year: "2024"
+role: Product · Full-stack Engineering
+stack: [Next.js, TypeScript, OpenAI API, Supabase, Vercel]
+status: shipped
+order: 4
+featured: false
+accentColor: "#5B8DEF"
+---
+
+## The problem
+
+Early-stage startups rarely have a dedicated product manager. The CEO does strategy, engineers do roadmap, designers do user research — and the gap between customer feedback and shipping decisions stays permanently wide.
+
+Virtual PO was an experiment: what if an AI assistant could close that gap? Not replace product thinking, but do the structured legwork — turning raw customer interviews into prioritised feature requests, mapping them to a roadmap, flagging contradictions.
+
+## What it does
+
+Product managers spend a lot of time on artefacts: user stories, acceptance criteria, PRDs, prioritisation frameworks. These are valuable precisely because they force clarity — but they're also time-consuming to write well.
+
+Virtual PO takes raw inputs — interview transcripts, support tickets, sales call notes — and produces structured outputs: RICE-scored feature candidates, draft user stories, dependency maps. A PM reviews and edits rather than writing from scratch.
+
+## Technical approach
+
+The interesting engineering problem was prompt architecture. A single LLM call produces plausible output but not reliable output. We broke the pipeline into stages: extract (pull raw signals from unstructured text), classify (map to existing themes or create new ones), score (apply the chosen framework), and draft (generate the artefact).
+
+Each stage is a separate call with a constrained output schema. Failures are localised. The result is auditable — you can see exactly how a feature request became a user story.
+
+## Lessons
+
+AI-generated artefacts need human seams. The product only worked when reviewers felt genuinely in control of the output — when it felt like a very good first draft, not a finished decision. Features that reduced that sense of control (bulk approval, auto-merge) were consistently rejected in testing, even when the output was correct.

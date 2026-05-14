@@ -1,0 +1,42 @@
+---
+title: Alfera Technik
+tagline: Nigeria's laptop brand, built for the world.
+category: Web · Brand · E-commerce
+year: "2025"
+role: Design · Engineering · Brand Direction
+client: Alfera Technik
+stack: [HTML, CSS, JavaScript, Cloudflare Pages, PyMuPDF]
+status: live
+liveUrl: https://alferatechnik.com
+order: 2
+featured: true
+accentColor: "#C9A84C"
+---
+
+## The brief
+
+Alfera makes laptops, tablets, smartphones, and TVs — designed in Nigeria, built for a global market. They needed a digital presence that matched their ambition: not a "made in Africa" story, but a premium tech brand that happened to be African-led.
+
+The brief had one clear instruction: no compromises on quality. This site had to stand next to Apple and Nothing without flinching.
+
+## The design direction
+
+The palette is graphite and gold — dark backgrounds that make product photography pop, gold accents that reference craft without kitsch. Typography runs Syne for display and DM Sans for body: confident, geometric, contemporary.
+
+Every section was designed to work at two speeds: a three-second scroll for someone browsing on mobile, and a fifteen-minute read for a buyer doing due diligence before a $600 purchase.
+
+## Product documentation
+
+Four product PDFs totalling 200+ pages. I built a Python pipeline using PyMuPDF to extract every product image, filtered by dimension to remove UI chrome and icons, and organised the output into per-model directories.
+
+The result: a spec section for each device that actually shows what you're buying — interface diagrams, hardware renders, dimension drawings — not stock photography.
+
+## The transfer
+
+The site launched on Cloudflare Pages, then migrated from `paulojuri.com/alfera` to its own domain at `alferatechnik.com`. That involved Cloudflare API calls to configure custom domains, Namecheap DNS updates, and debugging a CNAME conflict that was causing Error 521s.
+
+It also involved fixing a `robots.txt` conflict where Cloudflare's AI scraper management was silently prepending a `ClaudeBot: Disallow` rule before the user-defined allow rules.
+
+## What I learned
+
+Product websites for hardware are a different problem to SaaS. The customer is making a considered purchase. Every word and image either builds or erodes confidence. Removing three bad photos did more for conversion than adding ten good ones.

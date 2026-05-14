@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Divider } from '@/components/ui/Divider'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
-type WorkItem = {
+export type WorkItem = {
   slug: string
   title: string
   category: string
@@ -12,34 +12,7 @@ type WorkItem = {
   description: string
 }
 
-const works: WorkItem[] = [
-  {
-    slug: 'prism',
-    title: 'Prism',
-    category: 'Product · Browser Extension',
-    year: '2025',
-    description:
-      'Privacy-first browsing analytics that gives users ownership of their own data.',
-  },
-  {
-    slug: 'alfera',
-    title: 'Alfera Technik',
-    category: 'Web · Brand',
-    year: '2025',
-    description:
-      "Nigeria's first laptop brand. Built the digital presence from scratch — editorial site, product pages, e-commerce.",
-  },
-  {
-    slug: 'carbonwise',
-    title: 'CarbonWise',
-    category: 'Product · SaaS',
-    year: '2024',
-    description:
-      'Carbon footprint tracking and offset marketplace for SMEs across Europe.',
-  },
-]
-
-export function SelectedWork() {
+export function SelectedWork({ works }: { works: WorkItem[] }) {
   const ref = useScrollReveal<HTMLElement>({ y: 24 })
 
   return (

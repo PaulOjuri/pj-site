@@ -1,0 +1,45 @@
+---
+title: Prism
+tagline: Privacy-first browsing analytics — your data, finally yours.
+category: Product · Browser Extension
+year: "2025"
+role: Founder · Product · Engineering · Design
+stack: [Chrome MV3, TypeScript, React, Node.js, Supabase, Cloudflare Workers]
+status: live
+liveUrl: https://prism.paulojuri.com
+order: 1
+featured: true
+accentColor: "#7C6FCD"
+---
+
+## The problem
+
+Every browser extension that calls itself "privacy-first" still phones home. Tracking blockers log what they block. Habit trackers log your habits. The data lives on someone else's server, monetised in ways buried in ToS page 47.
+
+I wanted a tool that told me how I actually spend time online — without trading that information to anyone.
+
+## What Prism does
+
+Prism is a Chrome extension that records every page visit locally, classifies it by category using an on-device model, and syncs encrypted data to a dashboard only you can read. No third-party analytics. No data broker integrations. No ads.
+
+Key capabilities:
+
+- **On-device classification** — pages categorised without a server call
+- **Blocking engine** — standard and strict modes; per-site overrides
+- **Fingerprint shield** — spoofs canvas, audio, and font enumeration APIs
+- **Encrypted sync** — end-to-end encrypted via a user-held sync token
+- **Inbox** — AI-generated insights surfaced weekly, processed locally
+
+## Process
+
+The first version took three weeks and had one job: capture visits without breaking anything. I shipped it to five people I trusted to tell me when it broke.
+
+Version two added the blocking engine. That required understanding how trackers actually work — not categories of trackers, but specific network request patterns, script injection techniques, and first-party relay tricks.
+
+The hardest part was the consent model. The extension has to ask for permission to observe your browsing. Getting that UX right — honest, not scary, not dismissable — took longer than the blocking engine itself.
+
+## What I learned
+
+Browser extensions in Manifest V3 are genuinely hostile to privacy tooling. Service workers sleep aggressively. Background script state evaporates. Every persistent feature requires a workaround.
+
+The bigger lesson: building in public is a forcing function. Having five real users in week one meant I couldn't hide behind "it's not ready yet."

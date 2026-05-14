@@ -1,0 +1,36 @@
+---
+title: CarbonWise
+tagline: Carbon tracking that doesn't require a sustainability PhD.
+category: Product · SaaS
+year: "2024"
+role: Product · Full-stack Engineering · UX
+stack: [React, Node.js, PostgreSQL, Chart.js, Stripe, REST APIs]
+status: shipped
+order: 3
+featured: true
+accentColor: "#4A9B7F"
+---
+
+## Context
+
+European SMEs face increasing pressure to report Scope 1, 2, and 3 emissions — from investors, from enterprise customers, and soon from regulation. Most of the tools that exist are built for Fortune 500 compliance teams, not a 40-person manufacturing company with one finance manager.
+
+CarbonWise was an attempt to bridge that gap.
+
+## The product
+
+A web dashboard where SMEs connect their data sources — energy bills, fleet records, supply chain invoices — and get an emission footprint with enough granularity to actually act on it.
+
+The core loop: connect → measure → reduce → offset. The offset piece integrated a marketplace of vetted carbon credit projects. The goal was to make the whole cycle manageable inside a single afternoon per quarter.
+
+## The hard parts
+
+**Data normalisation.** Energy bills come in seventeen formats across European countries. Fleet data lives in spreadsheets, telematics APIs, or nowhere. We ended up building a flexible ingest layer that could handle CSV uploads, API pulls, and manual entry with equal dignity.
+
+**Explaining uncertainty.** Emission factors have ranges. When you tell a business their footprint is "between 180 and 240 tonnes CO₂e," they want a single number. Learning to communicate meaningful uncertainty without triggering decision paralysis was a genuine design problem.
+
+**Scope 3 is genuinely hard.** Upstream and downstream emissions require supplier data that most suppliers don't have. We scoped Scope 3 to "best available estimate" and were honest about it.
+
+## Outcome
+
+Shipped to 12 pilot companies across Belgium, Netherlands, and Germany. Average session length was 24 minutes on first login — which told us the onboarding was actually working: people were exploring, not leaving.

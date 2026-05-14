@@ -1,0 +1,36 @@
+---
+title: Nigeria EMR
+tagline: Electronic medical records for clinics running on intermittent power and 2G.
+category: Product · Healthcare · Web
+year: "2023"
+role: Product · Design · Engineering
+stack: [React, IndexedDB, Service Workers, Node.js, PostgreSQL, PWA]
+status: shipped
+order: 5
+featured: false
+accentColor: "#C8773A"
+---
+
+## The constraint
+
+Nigerian primary health centres see 80–200 patients per day. Many run on generator power that cuts out unpredictably. Network connectivity oscillates between 2G and nothing. The existing record-keeping is paper.
+
+Any digital solution has to work offline-first — not as a fallback mode, but as the primary mode, with sync happening opportunistically when connectivity returns.
+
+## The product
+
+A Progressive Web App for patient registration, consultation recording, drug dispensing, and basic reporting. Designed for clinical officers and nurses — not doctors, not administrators — who have never used software in a clinical context before.
+
+The UX had to work with one hand (the other holds a pen). It had to be legible in direct sunlight on a budget Android tablet. It had to tolerate being closed mid-form without losing data.
+
+## Offline architecture
+
+Patient records are written to IndexedDB on creation. A service worker manages the sync queue: every write gets a local timestamp and a pending flag. When connectivity returns, pending records sync in order. Conflicts (same patient edited on two devices) are resolved by last-write-wins with a merge log.
+
+The tricky part: drug dispensing has to check stock levels, which can't be trivially resolved offline. We handled this with optimistic dispensing (allow it, flag for reconciliation) rather than blocking on connectivity — a deliberate clinical tradeoff documented with the facility manager.
+
+## What I learned
+
+Designing for unreliable infrastructure sharpens every decision. You cannot hide complexity behind "just refresh the page." Every edge case — what if the power cuts mid-save? what if two nurses register the same patient? — has to be designed for, not hoped away.
+
+The most important UX win: a persistent sync status indicator in the corner of every screen. Nurses told us it was the most trusted part of the interface. They could see the data was safe even when the internet wasn't.
