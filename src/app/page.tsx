@@ -7,7 +7,7 @@ import { AboutTeaser } from '@/components/sections/AboutTeaser'
 import { JournalTeaser } from '@/components/sections/JournalTeaser'
 import { ContactCTA } from '@/components/sections/ContactCTA'
 import { Divider } from '@/components/ui/Divider'
-import { getAllWork } from '@/lib/content'
+import { getAllWork, getAllJournal } from '@/lib/content'
 
 export default function HomePage() {
   const featuredWorks = getAllWork()
@@ -20,6 +20,15 @@ export default function HomePage() {
       description: w.frontmatter.tagline,
     }))
 
+  const recentPosts = getAllJournal()
+    .slice(0, 3)
+    .map((p) => ({
+      slug: p.slug,
+      title: p.frontmatter.title,
+      date: p.frontmatter.date,
+      readingTime: p.frontmatter.readingTime,
+    }))
+
   return (
     <>
       <Nav />
@@ -29,7 +38,7 @@ export default function HomePage() {
         <SelectedWork works={featuredWorks} />
         <Divider />
         <AboutTeaser />
-        <JournalTeaser />
+        <JournalTeaser posts={recentPosts} />
         <Divider />
         <ContactCTA />
       </main>

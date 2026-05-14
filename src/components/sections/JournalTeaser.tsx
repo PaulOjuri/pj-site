@@ -4,35 +4,14 @@ import Link from 'next/link'
 import { Divider } from '@/components/ui/Divider'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
-type Post = {
+export type JournalItem = {
   slug: string
   title: string
   date: string
   readingTime: string
 }
 
-const posts: Post[] = [
-  {
-    slug: 'why-privacy-is-a-design-problem',
-    title: 'Why privacy is a design problem',
-    date: 'Apr 2025',
-    readingTime: '7 min',
-  },
-  {
-    slug: 'building-in-public',
-    title: 'On building in public without burning out',
-    date: 'Mar 2025',
-    readingTime: '5 min',
-  },
-  {
-    slug: 'the-product-engineer',
-    title: 'The product engineer is not a myth',
-    date: 'Feb 2025',
-    readingTime: '6 min',
-  },
-]
-
-export function JournalTeaser() {
+export function JournalTeaser({ posts }: { posts: JournalItem[] }) {
   const ref = useScrollReveal<HTMLElement>({ y: 24 })
 
   return (
@@ -66,7 +45,12 @@ export function JournalTeaser() {
                 {post.title}
               </h3>
               <div className="label-caps shrink-0 text-muted">
-                <span>{post.date}</span>
+                <span>
+                  {new Date(post.date).toLocaleDateString('en-GB', {
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </span>
                 <span className="mx-3 text-subtle">·</span>
                 <span>{post.readingTime}</span>
               </div>
