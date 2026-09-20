@@ -4,7 +4,7 @@ export function personSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: 'Paulo Juri',
+    name: 'Paul Ojuri',
     url: BASE,
     jobTitle: 'Product Engineer & Designer',
     sameAs: [
@@ -19,9 +19,9 @@ export function websiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Paulo Juri',
+    name: 'Paul Ojuri',
     url: BASE,
-    author: { '@type': 'Person', name: 'Paulo Juri' },
+    author: { '@type': 'Person', name: 'Paul Ojuri' },
   }
 }
 
@@ -46,8 +46,8 @@ export function articleSchema({
     url: `${BASE}/journal/${slug}`,
     datePublished: date,
     keywords: tags.join(', '),
-    author: { '@type': 'Person', name: 'Paulo Juri', url: BASE },
-    publisher: { '@type': 'Person', name: 'Paulo Juri', url: BASE },
+    author: { '@type': 'Person', name: 'Paul Ojuri', url: BASE },
+    publisher: { '@type': 'Person', name: 'Paul Ojuri', url: BASE },
   }
 }
 
@@ -69,7 +69,7 @@ export function workSchema({
     description: tagline,
     url: `${BASE}/work/${slug}`,
     dateCreated: year,
-    creator: { '@type': 'Person', name: 'Paulo Juri', url: BASE },
+    creator: { '@type': 'Person', name: 'Paul Ojuri', url: BASE },
   }
 }
 

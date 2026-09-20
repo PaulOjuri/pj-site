@@ -1,88 +1,151 @@
 'use client'
+import { motion, useReducedMotion } from 'framer-motion'
 
-import dynamic from 'next/dynamic'
-import { useRef, useEffect } from 'react'
-import { gsap } from '@/lib/gsap'
-import { Button } from '@/components/ui/Button'
-
-const HeroGL = dynamic(
-  () => import('@/components/three/HeroGL').then((m) => ({ default: m.HeroGL })),
-  { ssr: false },
-)
+const EASE = [0.22, 1, 0.36, 1] as const
 
 export function Hero() {
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  const subRef     = useRef<HTMLParagraphElement>(null)
-  const ctaRef     = useRef<HTMLDivElement>(null)
+  const reduced = useReducedMotion()
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        defaults: { ease: 'expo.out', duration: 1.2 },
-        delay: 0.2,
-      })
-
-      tl.fromTo(headingRef.current, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })
-        .fromTo(subRef.current,     { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, '-=0.8')
-        .fromTo(ctaRef.current,     { opacity: 0, y: 16 }, { opacity: 1, y: 0 }, '-=0.7')
-    })
-
-    return () => ctx.revert()
-  }, [])
+  const fade = (delay: number) => ({
+    initial: reduced ? { opacity: 0 } : { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 1, ease: EASE, delay },
+  })
 
   return (
     <section
-      className="relative flex min-h-dvh flex-col justify-end pb-16 pt-32"
-      aria-labelledby="hero-heading"
+      aria-label="Hero"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
     >
-      {/* WebGL background — lazy-loaded, SSR-safe */}
-      <HeroGL />
-
-      {/* Gradient overlay so text stays legible over the shader */}
+      {/* Subtle gradient overlay */}
       <div
-        className="pointer-events-none absolute inset-0 z-[1]"
-        style={{
-          background:
-            'linear-gradient(to top, rgba(245,244,239,0.96) 0%, rgba(245,244,239,0.3) 50%, rgba(245,244,239,0.05) 100%)',
-        }}
         aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(ellipse at 30% 50%, rgba(201, 168, 76, 0.03) 0%, transparent 60%)',
+          pointerEvents: 'none',
+        }}
       />
 
-      <div className="container-page relative z-10">
-        <h1
-          ref={headingRef}
-          id="hero-heading"
-          className="text-display max-w-5xl"
-          style={{ opacity: 0 }}
+      <div className="container-site" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Eyebrow */}
+        <motion.p
+          {...fade(0.2)}
+          className="font-mono"
+          style={{
+            fontSize: '0.8rem',
+            letterSpacing: '0.12em',
+            color: 'var(--accent)',
+            marginBottom: 'clamp(2rem, 4vw, 4rem)',
+            textTransform: 'uppercase',
+          }}
         >
-          Building at the&nbsp;
-          <em>intersection</em>
-          <br className="hidden md:block" /> of code, craft,
-          <br className="hidden md:block" /> and&nbsp;culture.
-        </h1>
+          Product Engineer &amp; Designer
+        </motion.p>
 
-        <p
-          ref={subRef}
-          className="mt-8 max-w-lg text-lg text-muted md:text-xl"
-          style={{ opacity: 0 }}
+        {/* Headline */}
+        <motion.h1
+          {...fade(0.4)}
+          className="font-display"
+          style={{
+            fontSize: 'clamp(3.5rem, 10vw, 9rem)',
+            lineHeight: 0.95,
+            letterSpacing: '-0.03em',
+            color: 'var(--text)',
+            maxWidth: '14ch',
+            marginBottom: 'clamp(2rem, 4vw, 3.5rem)',
+          }}
         >
-          Product engineer and designer. I turn ambiguous ideas into software
-          people actually want to use.
-        </p>
+          I build things
+          <br />
+          people{' '}
+          <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>want</em>
+          <br />
+          to use.
+        </motion.h1>
 
-        <div
-          ref={ctaRef}
-          className="mt-10 flex flex-wrap items-center gap-4"
-          style={{ opacity: 0 }}
+        {/* Subtext */}
+        <motion.p
+          {...fade(0.7)}
+          style={{
+            fontSize: 'clamp(1.1rem, 1.4vw, 1.3rem)',
+            color: 'var(--text-muted)',
+            maxWidth: '52ch',
+            lineHeight: 1.7,
+            fontWeight: 300,
+            marginBottom: '3rem',
+          }}
         >
-          <Button href="/work" variant="primary" size="lg">
-            View work
-          </Button>
-          <Button href="/contact" variant="ghost" size="lg">
-            Get in touch →
-          </Button>
-        </div>
+          Six years shipping across fintech, healthtech, and consumer software.
+          From the first wireframe to production infrastructure.
+        </motion.p>
+
+        {/* CTA links */}
+        <motion.div
+          {...fade(0.9)}
+          style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}
+        >
+          <a
+            href="#work"
+            className="font-mono"
+            style={{
+              fontSize: '0.8rem',
+              letterSpacing: '0.1em',
+              color: 'var(--bg)',
+              background: 'var(--accent)',
+              padding: '12px 28px',
+              textTransform: 'uppercase',
+              transition: 'background 300ms',
+            }}
+            onMouseEnter={(e) => {
+              ;(e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent-hover)'
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent)'
+            }}
+          >
+            View Work
+          </a>
+          <a
+            href="#contact"
+            className="font-mono"
+            style={{
+              fontSize: '0.8rem',
+              letterSpacing: '0.1em',
+              color: 'var(--text-muted)',
+              textTransform: 'uppercase',
+              transition: 'color 300ms',
+            }}
+            onMouseEnter={(e) => {
+              ;(e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent)'
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-muted)'
+            }}
+          >
+            Get in Touch
+          </a>
+        </motion.div>
       </div>
+
+      {/* Bottom line */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          borderTop: '1px solid var(--line)',
+        }}
+      />
     </section>
   )
 }

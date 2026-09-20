@@ -1,29 +1,30 @@
 import type { Metadata } from 'next'
-import { Nav } from '@/components/layout/Nav'
-import { Footer } from '@/components/layout/Footer'
-import { Divider } from '@/components/ui/Divider'
+import { SiteFooter } from '@/components/sections/SiteFooter'
 import { ContactForm } from '@/components/sections/ContactForm'
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description:
-    "Let's work together. Tell me about your project and I'll get back to you within a day or two.",
+  description: "Let's work together. Tell me about your project and I'll get back to you within a day or two.",
 }
 
 const faqs = [
   {
+    n: '01',
     q: 'How quickly do you reply?',
-    a: 'Within one business day. If the project sounds like a good fit I\'ll suggest a short call to talk through the details.',
+    a: "Within one business day. I'll usually suggest a short call to talk through the details.",
   },
   {
+    n: '02',
     q: 'Do you work with clients outside Belgium?',
-    a: 'Yes — most of my work is remote. I\'ve worked with teams in Nigeria, Switzerland, Germany, and the Netherlands.',
+    a: "Yes. Most of my work is remote. I've worked with teams in Nigeria, Switzerland, Germany, and the Netherlands.",
   },
   {
-    q: 'What\'s your minimum engagement?',
-    a: 'No hard minimum. A focused two-week audit can be as valuable as a six-month build. Tell me what you need and we\'ll figure out what makes sense.',
+    n: '03',
+    q: "What's your minimum engagement?",
+    a: "No hard minimum. A focused two-week audit can be as valuable as a six-month build. Tell me what you need and we'll figure out what makes sense.",
   },
   {
+    n: '04',
     q: 'Do you do equity or deferred payment?',
     a: 'Occasionally, for the right project. It has to be something I genuinely believe in.',
   },
@@ -32,92 +33,134 @@ const faqs = [
 export default function ContactPage() {
   return (
     <>
-      <Nav />
-      <main id="main-content">
+      {/* Masthead */}
+      <section
+        className="container-page"
+        style={{
+          paddingTop: 'clamp(10rem, 20vw, 16rem)',
+          paddingBottom: 0,
+        }}
+      >
+        <div
+          style={{
+            paddingBottom: '2rem',
+            borderBottom: '1px solid var(--line)',
+          }}
+        >
+          <p className="label-caps" style={{ color: 'var(--accent)', marginBottom: '1.5rem' }}>Contact</p>
+          <h1
+            className="font-display"
+            style={{
+              fontSize: 'clamp(3rem, 8vw, 7rem)',
+              letterSpacing: '-0.03em',
+              lineHeight: 0.95,
+              color: 'var(--text)',
+              marginBottom: '1.5rem',
+            }}
+          >
+            Let&apos;s build
+            <br />
+            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>something good.</em>
+          </h1>
 
-        {/* Header */}
-        <section className="pt-32 pb-16 border-b border-subtle">
-          <div className="container-page grid gap-12 md:grid-cols-2 md:gap-24">
-            <div>
-              <p className="label-caps text-muted mb-4">Contact</p>
-              <h1 className="text-heading">
-                Let&apos;s build{' '}
-                <em>something good.</em>
-              </h1>
-            </div>
-            <div className="flex flex-col justify-end gap-4">
-              <p className="text-lg leading-relaxed text-muted">
-                I take on a small number of projects each quarter. Tell me what
-                you&apos;re working on and I&apos;ll let you know if I can help.
-              </p>
-              <div className="flex flex-col gap-2 mt-4">
-                <a
-                  href="mailto:hello@paulojuri.com"
-                  className="label-caps text-ink hover:text-accent transition-colors"
-                >
-                  hello@paulojuri.com
-                </a>
-                <a
-                  href="https://linkedin.com/in/paulojuri"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="label-caps text-muted hover:text-ink transition-colors"
-                >
-                  LinkedIn →
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Form + FAQ */}
-        <div className="container-page py-16 md:py-24">
-          <div className="grid gap-16 md:grid-cols-2 md:gap-24">
-
-            {/* Form */}
-            <div>
-              <p className="label-caps text-muted mb-8">Send a message</p>
-              <ContactForm />
-            </div>
-
-            {/* FAQ */}
-            <div>
-              <p className="label-caps text-muted mb-8">FAQ</p>
-              <dl className="divide-y divide-subtle">
-                {faqs.map(({ q, a }) => (
-                  <div key={q} className="py-6 flex flex-col gap-2">
-                    <dt className="font-medium text-ink">{q}</dt>
-                    <dd className="text-muted leading-relaxed">{a}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-
+          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+            <a
+              href="mailto:hello@paulojuri.com"
+              className="label-caps"
+              style={{ color: 'var(--text)', transition: 'color 200ms' }}
+            >
+              hello@paulojuri.com
+            </a>
+            <a
+              href="https://linkedin.com/in/paulojuri"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="label-caps"
+              style={{ color: 'var(--text-muted)', transition: 'color 200ms' }}
+            >
+              LinkedIn &rarr;
+            </a>
           </div>
         </div>
 
-        <Divider />
+        <p
+          style={{
+            fontSize: 'var(--text-base)',
+            lineHeight: 1.8,
+            color: 'var(--text-muted)',
+            maxWidth: '52ch',
+            paddingBlock: '2rem',
+            fontWeight: 300,
+          }}
+        >
+          Tell me what you&apos;re working on. I read every message and reply within a day.
+        </p>
+      </section>
 
-        {/* Availability note */}
-        <div className="container-page py-12">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <span
-                className="inline-block w-2 h-2 rounded-full bg-green-500"
-                aria-hidden="true"
-              />
-              <p className="label-caps text-muted">
-                Available for new projects — Q3 2025
-              </p>
-            </div>
-            <p className="label-caps text-subtle">
-              Response time: &lt; 24 hours
+      {/* Form + FAQ */}
+      <section
+        className="container-page"
+        style={{ paddingTop: 'var(--section-md)', paddingBottom: 'var(--section-lg)' }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(3rem, 6vw, 6rem)',
+          }}
+        >
+          {/* Form */}
+          <div>
+            <p className="label-caps" style={{ color: 'var(--accent)', marginBottom: '2rem' }}>
+              Send a message
+            </p>
+            <ContactForm />
+          </div>
+
+          {/* FAQ */}
+          <div>
+            <p className="label-caps" style={{ color: 'var(--accent)', marginBottom: '2rem' }}>
+              FAQ
+            </p>
+            <dl style={{ borderTop: '1px solid var(--line)' }}>
+              {faqs.map(({ n, q, a }) => (
+                <div key={n} style={{ borderBottom: '1px solid var(--line)', padding: '1.5rem 0' }}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'baseline' }}>
+                    <span className="label-caps" style={{ color: 'var(--text-faint)', width: '2rem', flexShrink: 0 }}>
+                      {n}
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <dt style={{ fontSize: '1rem', letterSpacing: '-0.01em', lineHeight: 1.3, color: 'var(--text)', fontWeight: 400 }}>
+                        {q}
+                      </dt>
+                      <dd style={{ fontSize: 'var(--text-base)', lineHeight: 1.75, color: 'var(--text-muted)', fontWeight: 300 }}>
+                        {a}
+                      </dd>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* Availability strip */}
+      <section className="container-page" style={{ paddingBlock: '2rem', borderTop: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+            <p className="label-caps" style={{ color: 'var(--text-muted)' }}>
+              Available for new projects from Q3 2026
             </p>
           </div>
+          <p className="label-caps" style={{ color: 'var(--text-faint)' }}>
+            Response time: &lt; 24 hours
+          </p>
         </div>
+      </section>
 
-      </main>
-      <Footer />
+      <SiteFooter />
     </>
   )
 }

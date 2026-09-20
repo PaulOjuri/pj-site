@@ -14,6 +14,7 @@ export type WorkFrontmatter = {
   stack: string[]
   status: 'live' | 'shipped' | 'archived'
   liveUrl?: string
+  productPageUrl?: string
   coverImage?: string
   accentColor?: string
   order: number

@@ -1,188 +1,344 @@
 import type { Metadata } from 'next'
-import { Nav } from '@/components/layout/Nav'
-import { Footer } from '@/components/layout/Footer'
-import { Button } from '@/components/ui/Button'
-import { Tag } from '@/components/ui/Tag'
-import { Divider } from '@/components/ui/Divider'
+import Link from 'next/link'
+import { SiteFooter } from '@/components/sections/SiteFooter'
 
 export const metadata: Metadata = {
   title: 'About',
-  description:
-    'Product engineer and designer. Six years building across fintech, healthtech, and consumer software.',
+  description: 'Product engineer and designer. Six years building across fintech, healthtech, and consumer software.',
 }
 
-const skills = [
-  'Product strategy',
-  'UX design',
-  'TypeScript',
-  'React / Next.js',
-  'Node.js',
-  'PostgreSQL',
-  'Chrome extensions',
-  'WebGL / Three.js',
-  'Cloudflare',
-  'AI integrations',
-  'PWA / offline-first',
-  'Systems design',
+const stats = [
+  { n: '6+', label: 'Years building' },
+  { n: '20+', label: 'Projects shipped' },
+  { n: '4', label: 'Countries' },
+  { n: '100%', label: 'Client ownership' },
 ]
 
-const timeline = [
+const experience = [
   {
-    year: '2025',
+    year: '2025 -- now',
     title: 'Prism',
     role: 'Founder',
-    description:
-      'Building a privacy-first browsing analytics extension. MV3, on-device classification, encrypted sync.',
+    description: 'Building a privacy-first browsing analytics extension. MV3, on-device classification, encrypted sync.',
   },
   {
-    year: '2024–25',
+    year: '2024 -- 25',
     title: 'Freelance',
     role: 'Product Engineer & Designer',
-    description:
-      'Independent work across hardware brands, climate tech, and AI tooling. Clients in Nigeria, Belgium, and Switzerland.',
+    description: 'Independent work across hardware brands, climate tech, and AI tooling. Clients in Nigeria, Belgium, and Switzerland.',
   },
   {
-    year: '2023–24',
+    year: '2023 -- 24',
     title: 'CarbonWise',
     role: 'Lead Product Engineer',
-    description:
-      'Built the core product from scratch — carbon tracking, offset marketplace, SME onboarding flow.',
+    description: 'Built the core product from scratch: carbon tracking, offset marketplace, SME onboarding flow.',
   },
   {
-    year: '2022–23',
+    year: '2022 -- 23',
     title: 'Healthcare NGO',
     role: 'Product & Engineering Lead',
-    description:
-      'Offline-first EMR for Nigerian primary health centres. IndexedDB sync, PWA, designed for 2G and intermittent power.',
+    description: 'Offline-first EMR for Nigerian primary health centres. IndexedDB sync, PWA, designed for 2G and intermittent power.',
   },
   {
-    year: '2020–22',
+    year: '2020 -- 22',
     title: 'Early career',
     role: 'Software Engineer',
-    description:
-      'Full-stack roles across fintech and e-commerce. Learned what shipping to real users actually means.',
+    description: 'Full-stack roles across fintech and e-commerce. Learned what shipping to real users actually means.',
+  },
+]
+
+const skills = [
+  {
+    label: 'Engineering',
+    items: ['TypeScript', 'React', 'Next.js', 'Node.js', 'PostgreSQL', 'Supabase', 'Chrome MV3', 'PWA', 'Cloudflare Workers', 'WebGL'],
+  },
+  {
+    label: 'Design',
+    items: ['UX research', 'Information architecture', 'Interaction design', 'Figma', 'Design systems', 'Typography'],
+  },
+  {
+    label: 'Strategy',
+    items: ['Product strategy', 'Technical consulting', 'Systems design', 'AI integrations', 'Due diligence'],
+  },
+]
+
+const principles = [
+  {
+    n: '01',
+    title: 'Clarity before code',
+    body: 'A week spent understanding the problem saves a month of refactoring. I ask more questions than most engineers and fewer than most consultants.',
+  },
+  {
+    n: '02',
+    title: 'Ship something real',
+    body: 'Prototypes lie. The only honest feedback is from something a real person used to do a real thing. I bias toward getting something in front of users early.',
+  },
+  {
+    n: '03',
+    title: 'Own the outcome',
+    body: "I take responsibility for product decisions, not just implementation. If a feature I built isn't working, that's my problem too.",
   },
 ]
 
 export default function AboutPage() {
   return (
     <>
-      <Nav />
-      <main id="main-content">
-
-        {/* Hero */}
-        <section className="pt-32 pb-16 border-b border-subtle">
-          <div className="container-page grid gap-12 md:grid-cols-2 md:gap-24">
-            <div>
-              <p className="label-caps text-muted mb-4">About</p>
-              <h1 className="text-heading">
-                I build products people{' '}
-                <em>actually want to use.</em>
-              </h1>
-            </div>
-            <div className="flex flex-col justify-end gap-6">
-              <p className="text-lg leading-relaxed text-muted">
-                Product engineer and designer based in Belgium. I work across
-                the full stack — from the first wireframe to production
-                infrastructure — with a preference for early-stage work where
-                every decision still matters.
-              </p>
-              <p className="text-lg leading-relaxed text-muted">
-                I care about the craft. Not as an aesthetic preference but as a
-                practical bet: software that feels right gets used. Software
-                that doesn&apos;t, doesn&apos;t.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Skills */}
-        <section className="container-page py-16 border-b border-subtle">
-          <p className="label-caps text-muted mb-8">Skills & tools</p>
-          <div className="flex flex-wrap gap-2">
-            {skills.map((s) => (
-              <Tag key={s}>{s}</Tag>
-            ))}
-          </div>
-        </section>
-
-        {/* Timeline */}
-        <section className="container-page py-16 md:py-24" aria-labelledby="timeline-heading">
-          <p className="label-caps text-muted mb-12" id="timeline-heading">
-            Experience
+      {/* Opening statement */}
+      <section
+        style={{
+          paddingTop: 'clamp(10rem, 20vw, 16rem)',
+          paddingBottom: 'clamp(5rem, 10vw, 8rem)',
+          background: 'var(--bg)',
+        }}
+      >
+        <div className="container-page">
+          <p className="label-caps" style={{ color: 'var(--accent)', marginBottom: '2rem' }}>
+            About
           </p>
-          <ol className="divide-y divide-subtle">
-            {timeline.map((item) => (
-              <li
-                key={item.year + item.title}
-                className="grid grid-cols-1 gap-4 py-10 md:grid-cols-[10rem_1fr] md:gap-12"
+          <h1
+            className="font-display"
+            style={{
+              fontSize: 'clamp(2.75rem, 7vw, 6.5rem)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.0,
+              color: 'var(--text)',
+              maxWidth: '18ch',
+            }}
+          >
+            I make software that feels like it was made{' '}
+            <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>for humans.</em>
+          </h1>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              gap: '2rem',
+              marginTop: '3rem',
+              paddingTop: '2rem',
+              borderTop: '1px solid var(--line)',
+              maxWidth: '80ch',
+            }}
+          >
+            <p style={{ fontSize: 'var(--text-base)', lineHeight: 1.8, color: 'var(--text-muted)', fontWeight: 300 }}>
+              Six years building across fintech, healthtech, and consumer software.
+              I work across the full stack, from the first wireframe to production
+              infrastructure, with a preference for early-stage work where every
+              decision still matters.
+            </p>
+            <p style={{ fontSize: 'var(--text-base)', lineHeight: 1.8, color: 'var(--text-muted)', fontWeight: 300 }}>
+              I care about the craft. Not as an aesthetic preference but as a
+              practical bet: software that feels right gets used. Software that
+              doesn&apos;t, doesn&apos;t.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section style={{ background: 'var(--bg-elevated)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
+        <div
+          className="container-page"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1px',
+            background: 'var(--line)',
+          }}
+        >
+          {stats.map(({ n, label }) => (
+            <div
+              key={label}
+              style={{
+                background: 'var(--bg-elevated)',
+                padding: 'clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.5rem)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+            >
+              <span
+                className="font-display"
+                style={{
+                  fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1,
+                  color: 'var(--accent)',
+                }}
               >
-                <div>
-                  <p className="label-caps text-muted">{item.year}</p>
+                {n}
+              </span>
+              <span className="label-caps" style={{ color: 'var(--text-faint)' }}>
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Experience */}
+      <section className="container-page" style={{ paddingBlock: 'var(--section-lg)' }}>
+        <div style={{ borderBottom: '1px solid var(--line)', paddingBottom: '1rem', marginBottom: '2.5rem' }}>
+          <p className="label-caps" style={{ color: 'var(--accent)' }}>Experience</p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {experience.map((item) => (
+            <div
+              key={item.title + item.year}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(90px, 130px) minmax(100px, 160px) 1fr',
+                gap: 'clamp(1rem, 3vw, 3rem)',
+                alignItems: 'start',
+                paddingBlock: '1.75rem',
+                borderBottom: '1px solid var(--line)',
+              }}
+            >
+              <span className="label-caps" style={{ color: 'var(--text-faint)', paddingTop: '0.15rem' }}>
+                {item.year}
+              </span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--accent)', paddingTop: '0.15rem' }}>
+                {item.title}
+              </span>
+              <div>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text)', marginBottom: '0.4rem', fontWeight: 400 }}>
+                  {item.role}
+                </p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.65, fontWeight: 300 }}>
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Skills */}
+      <section style={{ background: 'var(--bg-elevated)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
+        <div className="container-page" style={{ paddingBlock: 'var(--section-md)' }}>
+          <div style={{ borderBottom: '1px solid var(--line)', paddingBottom: '1rem', marginBottom: '2.5rem' }}>
+            <p className="label-caps" style={{ color: 'var(--accent)' }}>Capabilities</p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {skills.map(({ label, items }) => (
+              <div key={label} style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <div style={{ width: '6rem', flexShrink: 0 }}>
+                  <span className="label-caps" style={{ color: 'var(--accent)' }}>{label}</span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <h2 className="text-subheading">{item.title}</h2>
-                  <p className="label-caps text-accent">{item.role}</p>
-                  <p className="mt-2 max-w-prose text-muted leading-relaxed">
-                    {item.description}
-                  </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {items.map((item) => (
+                    <span
+                      key={item}
+                      className="label-caps"
+                      style={{
+                        padding: '4px 12px',
+                        borderRadius: 99,
+                        color: 'var(--text-muted)',
+                        border: '1px solid var(--line-strong)',
+                        background: 'var(--bg)',
+                      }}
+                    >
+                      {item}
+                    </span>
+                  ))}
                 </div>
-              </li>
+              </div>
             ))}
-          </ol>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        <Divider />
+      {/* Principles */}
+      <section className="container-page" style={{ paddingBlock: 'var(--section-lg)' }}>
+        <div style={{ borderBottom: '1px solid var(--line)', paddingBottom: '1rem', marginBottom: 'clamp(3rem, 6vw, 5rem)' }}>
+          <p className="label-caps" style={{ color: 'var(--accent)' }}>How I work</p>
+        </div>
 
-        {/* Principles */}
-        <section className="bg-ink text-paper">
-          <div className="container-page py-24 md:py-32">
-            <p className="label-caps text-paper/40 mb-12">How I work</p>
-            <div className="grid gap-12 md:grid-cols-3">
-              {[
-                {
-                  n: '01',
-                  title: 'Clarity before code',
-                  body: 'A week spent understanding the problem saves a month of refactoring. I ask more questions than most engineers and fewer than most consultants.',
-                },
-                {
-                  n: '02',
-                  title: 'Ship something real',
-                  body: "Prototypes lie. The only honest feedback is from something a real person used to do a real thing. I bias toward getting something in front of users early and fixing what's wrong.",
-                },
-                {
-                  n: '03',
-                  title: 'Own the outcome',
-                  body: 'I take responsibility for product decisions, not just implementation. If a feature I built isn\'t working, that\'s my problem too.',
-                },
-              ].map((p) => (
-                <div key={p.n} className="flex flex-col gap-4">
-                  <p className="label-caps text-paper/30">{p.n}</p>
-                  <h3 className="text-xl font-sans text-paper">{p.title}</h3>
-                  <p className="text-paper/60 leading-relaxed">{p.body}</p>
-                </div>
-              ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(3.5rem, 7vw, 6rem)' }}>
+          {principles.map(({ n, title, body }) => (
+            <div key={n} style={{ maxWidth: '56ch' }}>
+              <span
+                className="font-display"
+                style={{ fontSize: '2rem', color: 'var(--accent)', opacity: 0.3, lineHeight: 1 }}
+              >
+                {n}
+              </span>
+              <h3
+                className="font-display"
+                style={{
+                  fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.1,
+                  color: 'var(--text)',
+                  marginTop: '0.75rem',
+                  marginBottom: '1rem',
+                }}
+              >
+                {title}
+              </h3>
+              <p
+                style={{
+                  fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
+                  lineHeight: 1.75,
+                  color: 'var(--text-muted)',
+                  borderLeft: '2px solid var(--accent)',
+                  paddingLeft: '1rem',
+                  fontWeight: 300,
+                }}
+              >
+                {body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section
+        style={{
+          background: 'var(--bg-elevated)',
+          borderTop: '1px solid var(--line)',
+        }}
+      >
+        <div className="container-page" style={{ paddingBlock: 'var(--section-md)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <p
+              className="font-display"
+              style={{
+                fontSize: 'clamp(1.5rem, 3.5vw, 2.75rem)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+                color: 'var(--text)',
+                maxWidth: '28ch',
+              }}
+            >
+              If you&apos;ve read this far, we&apos;re probably{' '}
+              <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>a good fit.</em>
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <Link
+                href="/contact"
+                className="label-caps"
+                style={{ color: 'var(--accent)', transition: 'color 200ms' }}
+              >
+                Get in touch &rarr;
+              </Link>
+              <Link
+                href="/work"
+                className="label-caps"
+                style={{ color: 'var(--text-faint)', transition: 'color 200ms' }}
+              >
+                See my work &rarr;
+              </Link>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA */}
-        <section className="container-page py-24 text-center">
-          <h2 className="text-heading max-w-xl mx-auto mb-8">
-            Want to work together?
-          </h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button href="/contact" variant="primary" size="lg">
-              Get in touch
-            </Button>
-            <Button href="/work" variant="outline" size="lg">
-              See my work
-            </Button>
-          </div>
-        </section>
-
-      </main>
-      <Footer />
+      <SiteFooter />
     </>
   )
 }

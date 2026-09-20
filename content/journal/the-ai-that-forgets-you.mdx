@@ -1,0 +1,71 @@
+---
+title: The AI That Forgets You
+date: "2026-04-23"
+excerpt: Every AI assistant you've used starts fresh each conversation. Ad networks have had an uninterrupted record of you for 20 years. That gap is not an accident.
+tags: [ai, privacy, memory]
+readingTime: 8 min
+---
+
+Every conversation with an AI assistant starts at zero.
+
+You explain who you are. What you're trying to do. The context that matters. You might do this briefly, or you might spend five minutes setting the scene. Then you get a useful answer. The conversation ends. The next time you open a new chat, you do it again.
+
+Ad networks have had an uninterrupted, continuously updated record of your behavior since around 2005. No gaps. No resets. A persistent profile built from every page you've loaded on every device, cross-referenced, enriched, and sold.
+
+That asymmetry is not an accident. It is structural. And understanding why it exists is the first step to imagining something better.
+
+## Why AI companies build systems that forget
+
+There are three honest reasons AI assistants are stateless, and only one of them is about you.
+
+The technical reason is simplicity. Stateless systems are easier to build, easier to scale, and easier to reason about. Each request is independent. There is no persistent state to manage, no synchronization problem across sessions, no version history to maintain. It is architecturally cleaner to start fresh.
+
+The legal reason is liability. Memory creates exposure. A company that stores what you said last month, and then something goes wrong - a data breach, a regulatory inquiry, a lawsuit - has a record that can be subpoenaed. A company that stores nothing has nothing to hand over. The privacy regulations in Europe and increasingly elsewhere treat stored personal data as a liability that requires justification. Forgetting is the legally conservative choice.
+
+The business reason is ambiguity. AI companies are still figuring out what they are and what they're building toward. Building persistent memory into a product before you understand the product is a way to create technical debt that's very hard to unwind. Starting stateless keeps options open.
+
+None of these reasons are primarily about making a better tool for you. They are about what is easier and safer for the company building the tool.
+
+## What continuity would actually mean
+
+Think about the most useful people in your life. A doctor who has treated you for years. A mentor who's known you across multiple jobs. A good friend who remembers what you said you were worried about last time you spoke.
+
+Their usefulness is not just a function of their knowledge or judgment. It is a function of the accumulated context they hold about you specifically. They can ask the question that cuts to the heart of things because they know enough of your history to recognize what actually matters. They notice when something is different because they have a baseline. They don't need you to re-explain your situation every time you need help.
+
+An AI with genuine continuity would work like this. Not a chatbot that "remembers" the last five messages of a conversation. Something that has the shape of who you are over time. What you've been working on. What you've struggled with. What kinds of help have been useful to you before.
+
+The difference between this and what currently exists is not a minor feature improvement. It is a different category of tool. One is a search engine with a better interface. The other is something closer to a thinking partner.
+
+Most people have never used anything like the second thing. Ad networks have been building the data foundation for it for two decades, and using it to show you slightly more targeted banner ads.
+
+## Memory that works for you vs memory used against you
+
+The distinction matters because these two things look superficially similar and are fundamentally different.
+
+Ad network memory accumulates passively, without your knowledge or meaningful consent, in a database you can't see, operated by a company whose interests diverge from yours. It is used to predict your behavior well enough to influence it. The memory serves the advertiser, not you.
+
+Memory that works for you would accumulate with your knowledge, in storage you control, accessible only to systems you've authorized. It would serve your interests because you're the only party with access. There is no advertiser to sell insights to. There is no third party to breach it. The data is yours in a meaningful sense, not just a legal one.
+
+The technology to build this is not exotic. Local storage, on-device AI inference, encrypted sync between your own devices - these are all available. The reason this is not what AI assistants currently do is not capability. It is incentive structure.
+
+Building AI on top of user data you control gives you users who trust you and a product that's genuinely useful. It does not give you a data asset you can train on, sell access to, or use to differentiate yourself in the market. From a venture-backed technology company's perspective, user-controlled memory is almost all cost and almost no asset.
+
+That is a real tension. It is also why the thing that would be most useful to you is the thing that's least likely to be built by companies whose business model depends on being in the middle of the data relationship.
+
+## What persistent AI context could look like
+
+Here's a concrete version.
+
+You've been working through a decision for the past two months. Not in a single extended conversation, but in the way you actually think: scattered notes, occasional searches, intermittent late-night thinking, a couple of conversations that touched on it. The decision is about your career. Or your health. Or a significant financial choice.
+
+A persistent AI with access to that context - notes you've written, searches you've run, articles you've read - would know the history of your thinking without you explaining it. It would remember that you raised and dismissed a particular option three weeks ago and why. It would notice that your reading has shifted in a direction you maybe haven't consciously recognized yet. It could help you think more clearly about a complex situation, not because it's smarter than you, but because it's been paying attention in a way you haven't been able to.
+
+That's not a fantasy. That's just what a continuous context window, filled with your own data, in a system you control, would actually enable.
+
+The data to build it exists. It is sitting in your browser history, your notes, your search queries. The pieces to process it locally exist. What doesn't exist yet, at scale, is the design commitment to keep it yours.
+
+The AI that forgets you is not forgetting by accident. It is forgetting by design. The interesting question is whether the design can change, and who will build the thing that does.
+
+Ad networks remembered you for 20 years and used that memory against you. The alternative is not AI that forgets. It is AI that remembers in a way that you control.
+
+That version is worth building.

@@ -1,45 +1,206 @@
-import type { Metadata } from 'next'
+'use client'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Nav } from '@/components/layout/Nav'
-import { Footer } from '@/components/layout/Footer'
-import { Button } from '@/components/ui/Button'
 
-export const metadata: Metadata = {
-  title: '404 — Page not found',
+const EASE = [0.22, 1, 0.36, 1] as const
+
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+function useScramble(text: string) {
+  const [display, setDisplay] = useState(() =>
+    text.split('').map((c) => (c === ' ' ? ' ' : CHARS[Math.floor(Math.random() * CHARS.length)])).join('')
+  )
+
+  useEffect(() => {
+    let iteration = 0
+    const id = setInterval(() => {
+      setDisplay(
+        text.split('').map((char, i) => {
+          if (char === ' ') return ' '
+          if (i < Math.floor(iteration)) return char
+          return CHARS[Math.floor(Math.random() * CHARS.length)]
+        }).join('')
+      )
+      iteration += 0.4
+      if (iteration >= text.length) {
+        clearInterval(id)
+        setDisplay(text)
+      }
+    }, 40)
+    return () => clearInterval(id)
+  }, [text])
+
+  return display
 }
 
 export default function NotFound() {
+  const scrambled = useScramble('404')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 100)
+    return () => clearTimeout(t)
+  }, [])
+
   return (
-    <>
-      <Nav />
-      <main className="flex min-h-dvh flex-col items-center justify-center px-6 text-center">
-        <p className="label-caps text-muted mb-4">404</p>
-        <h1 className="text-heading max-w-xl mb-6">
-          This page doesn&apos;t exist.{' '}
-          <em>Yet.</em>
-        </h1>
-        <p className="text-lg text-muted max-w-sm mb-10">
-          You might have followed a broken link, or the page has moved. Either
-          way, nothing to see here.
+    <main
+      style={{
+        minHeight: '100dvh',
+        background: 'var(--bg)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        padding: 'clamp(1.25rem, 5vw, 6rem)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Giant ghost number */}
+      <p
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          right: '-0.05em',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          fontSize: 'clamp(12rem, 35vw, 40rem)',
+          lineHeight: 0.85,
+          fontFamily: 'var(--font-display-stack), Impact, sans-serif',
+          textTransform: 'uppercase',
+          color: 'var(--text)',
+          opacity: 0.04,
+          userSelect: 'none',
+          pointerEvents: 'none',
+          letterSpacing: '-0.04em',
+        }}
+      >
+        {scrambled}
+      </p>
+
+      {/* Content */}
+      <div
+        style={{
+          position: 'relative',
+          maxWidth: '600px',
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? 'translateY(0)' : 'translateY(20px)',
+          transition: `opacity 0.7s cubic-bezier(${EASE.join(',')}), transform 0.7s cubic-bezier(${EASE.join(',')})`,
+        }}
+      >
+        <p
+          className="font-mono"
+          style={{
+            fontSize: '0.65rem',
+            letterSpacing: '0.15em',
+            color: 'var(--accent)',
+            marginBottom: '1.5rem',
+          }}
+        >
+          ERROR — PAGE NOT FOUND
         </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Button href="/" variant="primary" size="md">
-            Go home
-          </Button>
-          <Button href="/work" variant="outline" size="md">
-            See my work
-          </Button>
+
+        <h1
+          className="font-display"
+          style={{
+            fontSize: 'clamp(2.5rem, 6vw, 6rem)',
+            lineHeight: 0.92,
+            letterSpacing: '-0.02em',
+            color: 'var(--text)',
+            marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)',
+          }}
+        >
+          THIS PAGE
+          <br />
+          DOESN&apos;T EXIST.
+          <br />
+          <span style={{ color: 'var(--accent)' }}>YET.</span>
+        </h1>
+
+        <p
+          style={{
+            fontSize: '1rem',
+            color: 'var(--text-muted)',
+            lineHeight: 1.7,
+            maxWidth: '40ch',
+            marginBottom: 'clamp(2rem, 4vw, 3rem)',
+          }}
+        >
+          You followed a broken link, or wandered somewhere unbuilt. Either way — nothing here.
+          But the rest of the site is worth seeing.
+        </p>
+
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <Link
+            href="/"
+            className="font-mono"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.75rem',
+              letterSpacing: '0.1em',
+              color: 'var(--bg)',
+              background: 'var(--text)',
+              padding: '0.8rem 1.5rem',
+              textDecoration: 'none',
+              transition: 'background 200ms, color 200ms',
+            }}
+            onMouseEnter={(e) => {
+              ;(e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent)'
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget as HTMLAnchorElement).style.background = 'var(--text)'
+            }}
+          >
+            GO HOME →
+          </Link>
+
+          <Link
+            href="/#work"
+            className="font-mono"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.75rem',
+              letterSpacing: '0.1em',
+              color: 'var(--text-muted)',
+              border: '1px solid var(--line)',
+              padding: '0.8rem 1.5rem',
+              textDecoration: 'none',
+              transition: 'border-color 200ms, color 200ms',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.borderColor = 'var(--text-faint)'
+              el.style.color = 'var(--text)'
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.borderColor = 'var(--line)'
+              el.style.color = 'var(--text-muted)'
+            }}
+          >
+            SEE MY WORK
+          </Link>
         </div>
 
-        {/* Large ghost number */}
+        {/* Hidden detail for the curious */}
         <p
-          className="absolute inset-0 flex items-center justify-center text-[20rem] font-sans font-bold text-subtle/20 select-none pointer-events-none -z-10 leading-none"
-          aria-hidden="true"
+          className="font-mono"
+          style={{
+            marginTop: '3rem',
+            fontSize: '0.58rem',
+            letterSpacing: '0.08em',
+            color: 'var(--text-faint)',
+            opacity: 0.4,
+          }}
+          title="You found the hidden message. Nice instinct."
         >
-          404
+          HTTP 404 · paulojuri.com · 2026
         </p>
-      </main>
-      <Footer />
-    </>
+      </div>
+    </main>
   )
 }

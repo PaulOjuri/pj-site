@@ -1,0 +1,306 @@
+/* ─── Luxciti Design Tokens ─────────────────────────────────── */
+
+.luxciti {
+  /* Colour palette */
+  --lc-sand:        #EFE7D6;
+  --lc-sand-deep:   #E4D8C2;
+  --lc-ivory:       #FAF6EC;
+  --lc-cream:       #F3EDDF;
+  --lc-gold:        #B3935C;
+  --lc-gold-deep:   #8E7038;
+  --lc-gold-light:  #D8C69C;
+  --lc-espresso:    #433B30;
+  --lc-mocha:       #8B7D69;
+
+  /* Gold gradient */
+  --lc-gold-gradient: linear-gradient(118deg, #9D8049 0%, #C7AE7C 28%, #E6D7AC 47%, #B3935C 64%, #7C6231 100%);
+
+  /* Easing */
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Typography */
+  --lc-font-serif:  var(--font-lc-serif), 'Cormorant Garamond', Georgia, serif;
+  --lc-font-sans:   var(--font-lc-sans), 'Jost', system-ui, sans-serif;
+  --lc-font-script: var(--font-lc-script), 'Pinyon Script', cursive;
+
+  /* Spacing */
+  --lc-space-1:   0.5rem;
+  --lc-space-2:   1rem;
+  --lc-space-3:   1.5rem;
+  --lc-space-4:   2rem;
+  --lc-space-6:   3rem;
+  --lc-space-8:   4rem;
+  --lc-space-12:  6rem;
+  --lc-space-16:  8rem;
+  --lc-space-24: 12rem;
+
+  /* Base styles */
+  font-family: var(--lc-font-sans);
+  color: var(--lc-espresso);
+  background-color: var(--lc-sand);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Typography Utilities ──────────────────────────────────── */
+
+.lc-serif {
+  font-family: var(--lc-font-serif);
+}
+
+.lc-script {
+  font-family: var(--lc-font-script);
+}
+
+.lc-eyebrow {
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--lc-gold-deep);
+}
+
+/* ─── Gold Text Shimmer ─────────────────────────────────────── */
+
+@keyframes lc-shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.lc-gold-text {
+  background: linear-gradient(118deg, #9D8049 0%, #C7AE7C 28%, #E6D7AC 47%, #B3935C 64%, #7C6231 100%) 0 / 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: lc-shimmer 7s linear infinite;
+}
+
+/* ─── Button ────────────────────────────────────────────────── */
+
+.lc-btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--lc-gold);
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--lc-espresso);
+  padding: 1rem 2rem;
+  transition: all 500ms var(--ease-silk);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.lc-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--lc-gold-gradient);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-silk);
+  z-index: 0;
+}
+
+.lc-btn:hover::before {
+  opacity: 1;
+}
+
+.lc-btn span,
+.lc-btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+.lc-btn:hover {
+  color: var(--lc-espresso);
+  border-color: transparent;
+}
+
+/* ─── Gold Rule ─────────────────────────────────────────────── */
+
+.lc-gold-rule {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(118deg, #9D8049 0%, #C7AE7C 28%, #E6D7AC 47%, #B3935C 64%, #7C6231 100%);
+  opacity: 0.5;
+  border: none;
+}
+
+/* ─── Film Grain Overlay ────────────────────────────────────── */
+
+.lc-grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── Section Backgrounds ───────────────────────────────────── */
+
+.lc-bg-sand       { background-color: var(--lc-sand); }
+.lc-bg-sand-deep  { background-color: var(--lc-sand-deep); }
+.lc-bg-ivory      { background-color: var(--lc-ivory); }
+.lc-bg-cream      { background-color: var(--lc-cream); }
+.lc-bg-espresso   { background-color: var(--lc-espresso); }
+
+/* ─── Nav Hover Underline ───────────────────────────────────── */
+
+.lc-nav-link {
+  position: relative;
+  text-decoration: none;
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: inherit;
+  padding-bottom: 2px;
+}
+
+.lc-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  height: 1px;
+  background: var(--lc-gold-gradient);
+  transition: left 300ms var(--ease-silk), right 300ms var(--ease-silk);
+}
+
+.lc-nav-link:hover::after {
+  left: 0;
+  right: 0;
+}
+
+/* ─── Drop Cap ──────────────────────────────────────────────── */
+
+.lc-drop-cap::first-letter {
+  font-family: var(--lc-font-serif);
+  font-size: 4.5em;
+  font-weight: 300;
+  line-height: 0.85;
+  float: left;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--lc-gold-deep);
+}
+
+/* ─── Polaroid Frame ────────────────────────────────────────── */
+
+.lc-polaroid {
+  background-color: var(--lc-cream);
+  padding: 0.75rem 0.75rem 2.5rem;
+  box-shadow: 0 4px 24px rgba(67, 59, 48, 0.12);
+}
+
+/* ─── Input Gold Underline ──────────────────────────────────── */
+
+.lc-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--lc-gold-light);
+  outline: none;
+  width: 100%;
+  padding: 0.5rem 0;
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.9rem;
+  color: var(--lc-espresso);
+  transition: border-color 300ms var(--ease-silk);
+}
+
+.lc-input::placeholder {
+  color: var(--lc-mocha);
+  opacity: 0.7;
+}
+
+.lc-input:focus {
+  border-bottom-color: var(--lc-gold);
+}
+
+/* ─── Gold Decorative Frame ─────────────────────────────────── */
+
+.lc-award-frame {
+  position: relative;
+  padding: 2.5rem 3rem;
+  border: 1px solid var(--lc-gold-light);
+  text-align: center;
+}
+
+.lc-award-frame::before,
+.lc-award-frame::after {
+  content: '✦';
+  position: absolute;
+  color: var(--lc-gold);
+  font-size: 1rem;
+}
+
+.lc-award-frame::before {
+  top: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lc-sand);
+  padding: 0 0.5rem;
+}
+
+.lc-award-frame::after {
+  bottom: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lc-sand);
+  padding: 0 0.5rem;
+}
+
+/* ─── Scroll Reveal Base ────────────────────────────────────── */
+
+.lc-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 900ms var(--ease-silk), transform 900ms var(--ease-silk);
+}
+
+.lc-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-gold-text {
+    animation: none;
+  }
+
+  .lc-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .lc-btn::before {
+    transition: none;
+  }
+
+  .lc-nav-link::after {
+    transition: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

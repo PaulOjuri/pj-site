@@ -1,4 +1,6 @@
 import { ImageResponse } from 'next/og'
+
+export const dynamic = 'force-static'
 import { getWork, getWorkSlugs } from '@/lib/content'
 
 export const size = { width: 1200, height: 630 }

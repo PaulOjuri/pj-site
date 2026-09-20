@@ -1,0 +1,67 @@
+---
+title: Your Browser is a Stock Exchange (And You're Not the Trader)
+date: "2026-04-03"
+excerpt: Every time you load a webpage, an invisible auction runs in under 100ms. Hundreds of companies bid on you. You don't get a cut.
+tags: [privacy, ad-tech, tracking]
+readingTime: 9 min
+---
+
+You open a news article. The page loads. You start reading.
+
+In the 100 milliseconds between your click and the first pixel appearing, something happened that you didn't see and weren't asked about. Your browser participated in an auction. The commodity being traded was you.
+
+This is real-time bidding, and it is the engine behind most of the advertising on the web. It is also, by design, one of the largest data distribution systems ever built. The advertising is almost incidental.
+
+## How the auction works
+
+When you land on a page, the publisher's ad server fires a "bid request" to a supply-side platform (SSP). The SSP's job is to find buyers. It packages up what it knows about you - your IP address, browser fingerprint or cookie ID, inferred location, inferred demographics, the URL you're visiting - and broadcasts that package to dozens or hundreds of demand-side platforms (DSPs) simultaneously.
+
+Each DSP represents an advertiser. They receive your profile, check it against their targeting parameters, calculate what your attention is worth to their client, and submit a bid. The highest bid wins. The winning ad gets served. The whole exchange takes less time than a human blink.
+
+There are two things worth sitting with here.
+
+First: the bid request goes to everyone. Not just the winner. Every DSP in the auction pool receives a copy of your profile the moment the auction opens. The winner pays. The losers just... have your data. There is no mechanism to take it back. There is no requirement to delete it. The auction is built on broadcasting your profile to the maximum number of buyers and hoping one of them pays. Data spillage is not a bug in this system. It is the system.
+
+Second: what's in a bid request is more detailed than most people imagine. Not just "someone in London is reading a cooking website." The request can contain inferred age range, gender, income bracket, political leanings, health interests, relationship status, and a stable identifier that links this moment to thousands of other moments across thousands of other sites. The SSP assembled that profile. It just transmitted it to 200 companies who didn't have it before.
+
+## The header bidding evolution
+
+In the early days of RTB, publishers ran auctions sequentially. They'd offer the impression to one ad network, wait for a response, then move on to the next. It was slow and inefficient - the publisher rarely got the best price because bidders didn't compete simultaneously.
+
+Header bidding changed that. Instead of sequential auctions, publishers started running a single unified auction with all their demand partners at once. A piece of JavaScript sits in the page header, fires bid requests to every SSP and exchange simultaneously before the page even loads, and awards the impression to the highest bidder across all of them.
+
+This made publishers more money. It also made the data problem significantly worse. Where a sequential auction might expose your profile to a handful of buyers per page load, header bidding exposes it to all of them, all at once. Participation in the auction pool expanded. A single page load now routinely triggers bid requests to 50-80 companies. Some publishers run more.
+
+The industry framed header bidding as a publisher empowerment story. It was also a surveillance expansion story. Both are true.
+
+## The data doesn't stay in the auction
+
+The standard industry defense of RTB is that it's just advertising. Companies see what ad to show you and then forget about you. The data flows through and nothing sticks.
+
+This is not how it works in practice.
+
+DSPs have strong financial incentives to build persistent profiles. A buyer who knows your full browsing history can bid more accurately, which means they win more auctions, which means they get more impressions, which means they generate more revenue. The data is the competitive moat. Of course they keep it.
+
+Research has documented this repeatedly. Studies submitting controlled bid requests to RTB auctions and tracking the downstream behavior of the recipients found data being shared beyond auction participants, stored, and used for targeting that had nothing to do with the original auction. The IAB's own technical standards include fields that have no function except persistent user identification across auctions.
+
+The RTB system was designed with enough data in each bid request to make targeting possible, which means it was designed with enough data in each bid request to build surveillance infrastructure. The two are not separable.
+
+## What you can actually do
+
+The uncomfortable reality is that there is no clean opt-out from RTB. The consent mechanisms that exist - opt-out cookies, consent strings in the IAB Transparency and Consent Framework - are partial, technical, and frequently ignored by the companies they're supposed to bind.
+
+What does meaningfully reduce RTB exposure:
+
+**Block third-party cookies.** They're not the only tracking mechanism, but they're the most common stable identifier used in bid requests. Firefox and Safari block them by default now. Chrome says it will but keeps delaying. If you're on Chrome, an extension like uBlock Origin gives you substantial coverage.
+
+**Use a privacy-respecting DNS or VPN.** Your IP address appears in every bid request. A residential IP address is geographically precise enough to identify your neighborhood. A VPN swaps it for a shared IP that's much harder to profile against.
+
+**Reduce fingerprinting surface.** Browser fingerprinting is the RTB industry's answer to cookie blocking - a stable identifier assembled from your browser version, screen resolution, installed fonts, canvas rendering, and dozens of other signals. Brave Browser randomizes many of these. Firefox with `privacy.resistFingerprinting` enabled does too.
+
+**Consider a browser extension built for this.** Prism was built specifically to give you visibility into what's happening in your browser - which trackers are present, which auctions are being triggered, what data is being sent. Knowing the shape of the problem is the first step to doing something about it.
+
+The broader point is this: the web's advertising infrastructure was designed to trade in your data before you had any idea that was happening. The consent frameworks bolted on afterward are inadequate by design, because adequate consent would break the business model. Protecting yourself requires tools that weren't built by the people doing the trading.
+
+Your browser is a stock exchange. You are both the venue and the commodity. The traders have been in the room for 20 years. You just found out the auction exists.
+
+That asymmetry is solvable. But not by trusting the exchange to fix it.

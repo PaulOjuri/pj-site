@@ -1,0 +1,69 @@
+---
+title: The Prompt You Never Typed
+date: "2026-04-16"
+excerpt: Your browser history is the richest context document that exists about you. Ad networks have been reading it for decades. AI hasn't started yet.
+tags: [ai, privacy, data]
+readingTime: 9 min
+---
+
+There's a version of AI that already knows you. Not because you told it anything, but because it has access to the record of everything you've looked at, searched for, and read for the past decade.
+
+That version doesn't exist yet. But the data does.
+
+Your browser history is not a list of URLs. It is a running autobiography. Every health symptom you searched at 2am. Every apartment you looked at before you moved. The news stories you read during a hard month. The job listings you opened and closed without applying. The questions you typed and deleted before you even hit enter.
+
+Ad networks have been reading that autobiography for 20 years. They've just been using it to sell you things. The question is what happens when AI gets access to the same source.
+
+## The richest context that exists
+
+Language models are good at completing context. Give a model enough information about a situation and it can reason about it, find patterns in it, generate useful things from it.
+
+The practical bottleneck is context quality. A model that knows you asked one question right now can help with that question. A model that knows your interests, your concerns, your thinking patterns, your history of what you found useful and what you didn't - that model can do something categorically different. Not just answer questions, but notice things you didn't think to ask.
+
+Your browser history is the richest available source of that kind of context. Richer than what you've told any AI assistant, because you haven't edited it. Richer than your social media, because it includes things you looked at but never posted about. Richer than your email, because it includes your questions before they became conversations.
+
+A week of browser history contains revealed preferences that would take hours to explain in a prompt. Your reading patterns tell you something about how you think. The sites you return to repeatedly, the ones you open and close in 30 seconds, the topics you circle back to across months - this is behavioral signal at a resolution that no interview or survey could capture.
+
+The reason AI hasn't used it is not that it isn't valuable. It's that accessing it requires either sitting in your browser or having you hand it over. Neither is trivial.
+
+## AI for you vs AI against you
+
+The difference between a useful AI with access to your data and a harmful one is simple: who controls it.
+
+Ad networks had access to your browser data for 20 years and used it to target and manipulate. They built profiles of your psychology - what makes you anxious, what makes you want things, when you're vulnerable - and sold access to those profiles to whoever would pay. The data worked against you because the incentive structure pointed away from you.
+
+An AI that uses the same data in your interest would work completely differently. It would surface connections you hadn't made. It would notice when you've been reading about a topic for months and offer to help you think it through. It would tell you when a product you're looking at has a privacy problem, based on the context it has about what you care about. It would answer the question behind the question, because it knows enough about your situation to recognize that the literal question isn't really the question.
+
+The distinction is not sentimental. It is structural. Who holds the data determines who the AI serves. If your browser data lives on a company's server, the AI trained on it serves that company's interests when they diverge from yours. If it stays in your browser, under your control, the AI can only be pointed in one direction: toward you.
+
+This is the design problem behind almost every AI assistant that's been built so far. The model is hosted remotely. Your data travels to it. The company has access to the data. The incentive structure is therefore not aligned with your interests, regardless of what the privacy policy says.
+
+## The browser as an AI input
+
+What would it actually look like if AI used your browser history in your interest?
+
+Not surveillance. Not a feed of targeted content. Something more like a thinking partner that's been paying attention.
+
+You've been reading about a medical symptom for three weeks across a dozen different searches. An AI with that context could notice the pattern, surface the most credible sources you haven't found yet, and flag that it might be worth talking to a doctor - without you having to articulate that you're worried about your health, which you might not have done.
+
+You're looking at apartments in a new city. An AI that knows your search history knows your stated budget, the neighborhoods you've looked at, the things you filtered for. It can compare against what you're currently viewing without you having to re-explain the context. It has the context because you generated it.
+
+You spend a lot of time on a particular technical topic. An AI that can see the shape of your reading history could recommend resources at exactly the right level, because it can see what you already know.
+
+None of this requires sending your data anywhere. The model can run locally. The context can stay in the browser. The computation happens on your device. The AI serves you because the data never leaves you.
+
+## How Prism thinks about this
+
+Prism's starting point is that your browser data is yours. Not ours. Not an asset we're sitting on.
+
+We built Prism to run in your browser, which means the data about your browsing never needs to leave it. The analysis happens locally. The insights surface to you. Nothing goes to a server to be aggregated with other users' data, trained on, or sold.
+
+The AI capabilities we're building follow the same logic. We're not building a system that hoovers up your history to improve a model that everyone uses. We're building tools that use your context to serve you specifically, on your device, without that context becoming anyone else's asset.
+
+This is a harder engineering problem than the cloud approach. Local inference is constrained. Privacy-preserving design requires more care than the alternative. But the alternative is building the thing that looks like an AI for you while being an AI about you.
+
+The ad industry taught us what happens when someone else controls your behavioral data. It took 20 years and we're still unwinding it.
+
+We're not interested in running the same play and calling it something new.
+
+The prompt you never typed is already in your browser. The question is who gets to read it.

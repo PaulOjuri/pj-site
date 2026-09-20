@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
-import { Nav } from '@/components/layout/Nav'
-import { Footer } from '@/components/layout/Footer'
-import { Divider } from '@/components/ui/Divider'
+import Link from 'next/link'
+import { SiteFooter } from '@/components/sections/SiteFooter'
 import { library } from '@/lib/library'
+import { BookShelf } from '@/components/sections/BookShelf'
 
 export const metadata: Metadata = {
   title: 'Library',
-  description:
-    "Books I've read, am reading, or keep on the shelf because they earned the space.",
+  description: "Books I've read, am reading, or keep on the shelf because they earned the space.",
 }
 
 export default function LibraryPage() {
@@ -15,114 +14,99 @@ export default function LibraryPage() {
 
   return (
     <>
-      <Nav />
-      <main id="main-content">
-
-        {/* Header */}
-        <section className="pt-32 pb-16 border-b border-subtle">
-          <div className="container-page grid gap-12 md:grid-cols-2 md:gap-24">
-            <div>
-              <p className="label-caps text-muted mb-4">Library</p>
-              <h1 className="text-heading">
-                {totalBooks} books,{' '}
-                <em>{library.length} shelves.</em>
-              </h1>
-            </div>
-            <div className="flex flex-col justify-end gap-4">
-              <p className="text-lg leading-relaxed text-muted">
-                Books I've read, am reading, or keep around because they changed
-                how I think about something. No ratings — if it's here, it was
-                worth the time.
-              </p>
-              {/* Category jump links */}
-              <nav aria-label="Jump to category">
-                <ul className="flex flex-wrap gap-x-6 gap-y-2">
-                  {library.map((cat) => (
-                    <li key={cat.id}>
-                      <a
-                        href={`#${cat.id}`}
-                        className="label-caps text-muted hover:text-ink transition-colors underline underline-offset-4 decoration-subtle hover:decoration-ink"
-                      >
-                        {cat.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </section>
-
-        {/* Categories */}
-        <div className="container-page py-16 md:py-24 space-y-24">
-          {library.map((category, catIdx) => (
-            <section
-              key={category.id}
-              id={category.id}
-              aria-labelledby={`cat-${category.id}`}
-              className="scroll-mt-24"
+      {/* Header */}
+      <section
+        style={{
+          paddingTop: 'clamp(10rem, 20vw, 16rem)',
+          paddingBottom: 'clamp(3rem, 6vw, 5rem)',
+          borderBottom: '1px solid var(--line)',
+        }}
+      >
+        <div
+          className="container-page"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 4rem)',
+          }}
+        >
+          <div>
+            <p className="label-caps" style={{ color: 'var(--accent)', marginBottom: '1.5rem' }}>Library</p>
+            <h1
+              className="font-display"
+              style={{
+                fontSize: 'clamp(2.5rem, 6vw, 5.5rem)',
+                letterSpacing: '-0.03em',
+                lineHeight: 1.05,
+                color: 'var(--text)',
+              }}
             >
-              {/* Category header */}
-              <div className="grid gap-4 md:grid-cols-[1fr_2fr] md:gap-16 mb-10">
-                <div>
-                  <p className="label-caps text-subtle mb-1">
-                    {String(catIdx + 1).padStart(2, '0')}
-                  </p>
-                  <h2
-                    id={`cat-${category.id}`}
-                    className="text-subheading"
-                  >
-                    {category.label}
-                  </h2>
-                  <p className="label-caps text-subtle mt-2">
-                    {category.books.length}{' '}
-                    {category.books.length === 1 ? 'book' : 'books'}
-                  </p>
-                </div>
-                <p className="text-muted leading-relaxed md:pt-7">
-                  {category.description}
-                </p>
-              </div>
+              {totalBooks} books,{' '}
+              <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{library.length} shelves.</em>
+            </h1>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '1.5rem' }}>
+            <p style={{ fontSize: 'clamp(1rem, 1.3vw, 1.2rem)', lineHeight: 1.7, color: 'var(--text-muted)', fontWeight: 300 }}>
+              Books I&apos;ve read, am reading, or keep around because they changed
+              how I think about something. No ratings. If it&apos;s here, it was
+              worth the time.
+            </p>
+            <Link
+              href="/library/walk"
+              className="label-caps"
+              style={{
+                color: 'var(--bg)',
+                background: 'var(--accent)',
+                padding: '10px 20px',
+                width: 'fit-content',
+                transition: 'background 300ms',
+              }}
+            >
+              Walk in &rarr;
+            </Link>
 
-              <Divider />
-
-              {/* Book list */}
-              <ol className="divide-y divide-subtle">
-                {category.books.map((book) => (
-                  <li
-                    key={`${book.title}-${book.author}`}
-                    className="grid grid-cols-1 gap-3 py-8 md:grid-cols-[1fr_auto] md:gap-16 md:items-start"
-                  >
-                    <div className="flex flex-col gap-1.5">
-                      <h3 className="text-lg font-sans font-medium text-ink">
-                        {book.title}
-                      </h3>
-                      <p className="label-caps text-accent">{book.author}</p>
-                      {book.note && (
-                        <p className="mt-2 text-muted leading-relaxed max-w-prose">
-                          {book.note}
-                        </p>
-                      )}
-                    </div>
+            <nav aria-label="Jump to category">
+              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                {library.map((cat) => (
+                  <li key={cat.id}>
+                    <a
+                      href={`#${cat.id}`}
+                      className="label-caps"
+                      style={{
+                        color: 'var(--text-muted)',
+                        transition: 'color 200ms',
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '3px',
+                        textDecorationColor: 'var(--line-strong)',
+                      }}
+                    >
+                      {cat.label}
+                    </a>
                   </li>
                 ))}
-              </ol>
-            </section>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      {/* Shelves */}
+      <section className="container-page" style={{ paddingBlock: 'clamp(4rem, 8vw, 6rem)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4rem, 8vw, 6rem)' }}>
+          {library.map((category, idx) => (
+            <BookShelf key={category.id} category={category} index={idx} />
           ))}
         </div>
+      </section>
 
-        <Divider />
+      {/* Footer note */}
+      <section className="container-page" style={{ paddingBottom: '3rem', borderTop: '1px solid var(--line)', paddingTop: '2rem' }}>
+        <p className="label-caps" style={{ color: 'var(--text-faint)' }}>
+          Updated as I finish things.
+        </p>
+      </section>
 
-        {/* Footer note */}
-        <div className="container-page py-12">
-          <p className="label-caps text-subtle max-w-prose">
-            This list is pulled from my shelves — two photos, taken May 2025.
-            I add to it as I finish things.
-          </p>
-        </div>
-
-      </main>
-      <Footer />
+      <SiteFooter />
     </>
   )
 }

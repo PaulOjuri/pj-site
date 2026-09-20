@@ -1,12 +1,14 @@
 ---
 title: Prism
-tagline: Privacy-first browsing analytics — your data, finally yours.
+tagline: Privacy-first browsing analytics. Your data, finally yours.
 category: Product · Browser Extension
 year: "2025"
 role: Founder · Product · Engineering · Design
 stack: [Chrome MV3, TypeScript, React, Node.js, Supabase, Cloudflare Workers]
 status: live
 liveUrl: https://prism.paulojuri.com
+productPageUrl: https://paulojuri.com/projects/prism/
+coverImage: /images/work/prism-dashboard.png
 order: 1
 featured: true
 accentColor: "#7C6FCD"
@@ -14,29 +16,67 @@ accentColor: "#7C6FCD"
 
 ## The problem
 
+Every page you visit drops trackers that build a profile of who you are — your interests, habits, health concerns, finances — and sells it to anyone willing to pay. You never see it. You never agreed to it.
+
 Every browser extension that calls itself "privacy-first" still phones home. Tracking blockers log what they block. Habit trackers log your habits. The data lives on someone else's server, monetised in ways buried in ToS page 47.
 
-I wanted a tool that told me how I actually spend time online — without trading that information to anyone.
+I wanted a tool that told me how I actually spend time online, without trading that information to anyone.
 
 ## What Prism does
 
-Prism is a Chrome extension that records every page visit locally, classifies it by category using an on-device model, and syncs encrypted data to a dashboard only you can read. No third-party analytics. No data broker integrations. No ads.
+Prism captures your browser data first, encrypts it in a wallet only you own, and uses AI to turn it into clarity and control. No third-party analytics. No data broker integrations. No ads.
 
-Key capabilities:
+**Key stats:**
+- 150+ trackers identified across advertising, analytics, social, fingerprinting, and marketing categories
+- 10 signals captured per page: URL, title, time spent, scroll depth, topics, category, cookies, and tracker signals
+- 0 raw data sent to AI: the assistant works from anonymised summaries only
+- AES-256 wallet encryption with PBKDF2 key derivation — the key never leaves your device
 
-- **On-device classification** — pages categorised without a server call
-- **Blocking engine** — standard and strict modes; per-site overrides
-- **Fingerprint shield** — spoofs canvas, audio, and font enumeration APIs
-- **Encrypted sync** — end-to-end encrypted via a user-held sync token
-- **Inbox** — AI-generated insights surfaced weekly, processed locally
+## How it works
+
+**1. Install the Chrome extension** — Add Prism to Chrome. No account needed yet.
+
+**2. Complete the consent flow** — On first launch, Prism walks you through a GDPR consent screen. You choose exactly what to share: browsing data, AI processing, notifications. Every choice is logged with a timestamp.
+
+**3. Create your dashboard account** — Sign up at the Prism dashboard. This is where your encrypted data wallet lives: interest graph, AI insights, tracker exposure score, and consent manager.
+
+**4. Generate a sync token** — A one-time secret key unique to your account. Shown once only, stored in the extension only.
+
+**5. Paste the token into the extension** — Extension and wallet are paired. Done.
+
+**6. Browse normally** — Extension runs silently. Every page is logged, queued locally, and synced in encrypted batches.
+
+**7. Open your wallet and act on what you see** — Dashboard shows which companies collect your data, your interest profile as ad networks see it, AI-generated insights, and a conversational assistant.
+
+## Features
+
+**Cookie transparency**: Every cookie on every site you visit is analysed, identified, and explained in plain English. Who set it, what it infers about you, whether it's shared with third parties, how long it lives.
+
+**Consent Control Centre**: Block individual trackers, auto-reject consent banners, delete cookies on demand, and set global privacy preferences — all from one dashboard.
+
+**Your data wallet**: A PIN-protected vault that holds everything Prism has learned about your browsing. Interest graph, time patterns, shopping intents, content profile — all computed locally, encrypted with a key only you hold. Export it anytime, delete it instantly.
+
+**AI assistant**: A daily briefing, proactive insights, and a conversational assistant powered by Claude, all contextualised by your wallet. It knows your interests, your trackers, your consent history.
+
+**Per-site profiles**: Drill into any site and see exactly what it knows about you. Which companies receive your data, what each cookie does, your per-site consent settings, and a one-click option to delete all data from that site.
+
+**On-device classification**: Pages categorised without a server call.
+
+**Blocking engine**: Standard and strict modes; per-site overrides.
+
+**Fingerprint shield**: Spoofs canvas, audio, and font enumeration APIs.
 
 ## Process
 
 The first version took three weeks and had one job: capture visits without breaking anything. I shipped it to five people I trusted to tell me when it broke.
 
-Version two added the blocking engine. That required understanding how trackers actually work — not categories of trackers, but specific network request patterns, script injection techniques, and first-party relay tricks.
+Version two added the blocking engine. That required understanding how trackers actually work: not categories of trackers, but specific network request patterns, script injection techniques, and first-party relay tricks.
 
-The hardest part was the consent model. The extension has to ask for permission to observe your browsing. Getting that UX right — honest, not scary, not dismissable — took longer than the blocking engine itself.
+The hardest part was the consent model. The extension has to ask for permission to observe your browsing. Getting that UX right (honest, not scary, not dismissable) took longer than the blocking engine itself.
+
+## Privacy commitments
+
+All browsing data is stored in your personal encrypted wallet. Never sold, shared, or used for advertising. Granular consent collected for every data type before capturing anything. Each consent decision is timestamped and logged. Withdraw any consent at any time — processing stops immediately. Right to erasure: deletion is immediate and permanent.
 
 ## What I learned
 

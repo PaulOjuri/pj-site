@@ -1,128 +1,266 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Nav } from '@/components/layout/Nav'
-import { Footer } from '@/components/layout/Footer'
-import { Tag } from '@/components/ui/Tag'
-import { Divider } from '@/components/ui/Divider'
+import { SiteFooter } from '@/components/sections/SiteFooter'
 import { getAllWork } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Work',
-  description:
-    'Selected projects — browser extensions, SaaS products, editorial websites, and more.',
+  description: 'Selected projects: browser extensions, SaaS products, editorial websites, and more.',
 }
 
+const projectColors: Record<string, string> = {
+  prism:         '#7C3AED',
+  applyai:       '#C8553D',
+  alfera:        '#C9A84C',
+  'nigeria-emr': '#059669',
+  'virtual-po':  '#5B8DEF',
+  carbonwise:    '#4A9B7F',
+}
+
+function statusInfo(s: string) {
+  if (s === 'live')     return { dot: '#22c55e', label: 'Live' }
+  if (s === 'building') return { dot: '#F59E0B', label: 'Building' }
+  return                       { dot: '#6B7280', label: 'Shipped' }
+}
+
+function pad(n: number) { return String(n).padStart(2, '0') }
+
 export default function WorkPage() {
-  const works = getAllWork()
-  const featured = works.filter((w) => w.frontmatter.featured)
-  const rest = works.filter((w) => !w.frontmatter.featured)
+  const works     = getAllWork()
+  const featured  = works.filter((w) => w.frontmatter.featured)
+  const rest      = works.filter((w) => !w.frontmatter.featured)
+  const liveCount = works.filter((w) => w.frontmatter.status === 'live').length
 
   return (
     <>
-      <Nav />
-      <main id="main-content" className="pt-32 pb-24">
-        <div className="container-page">
-
-          {/* Page header */}
-          <header className="mb-16 max-w-2xl">
-            <p className="label-caps text-muted mb-4">Selected work</p>
-            <h1 className="text-heading">
-              Things I&apos;ve built,{' '}
-              <em>shipped, and learned from.</em>
-            </h1>
-          </header>
-
-          <Divider />
-
-          {/* Featured projects */}
-          <ol
-            className="divide-y divide-subtle"
-            aria-label="Featured projects"
+      {/* Masthead */}
+      <section
+        className="container-page"
+        style={{ paddingTop: 'clamp(10rem, 20vw, 16rem)', paddingBottom: 'clamp(3rem, 6vw, 5rem)' }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <p className="label-caps" style={{ color: 'var(--accent)' }}>Selected Work</p>
+          <h1
+            className="font-display"
+            style={{
+              fontSize: 'clamp(2.75rem, 6vw, 5.5rem)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1,
+              color: 'var(--text)',
+              maxWidth: '22ch',
+            }}
           >
-            {featured.map((work, i) => (
-              <li key={work.slug}>
-                <Link
-                  href={`/work/${work.slug}`}
-                  className="group grid grid-cols-1 gap-6 py-12 md:grid-cols-[3rem_1fr_auto] md:gap-10 md:py-14"
-                >
-                  {/* Index */}
-                  <span className="label-caps text-muted self-start pt-1 hidden md:block">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
+            Products, tools, and systems I&apos;ve shipped since 2020.
+          </h1>
+          <div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+            <p className="label-caps" style={{ color: 'var(--text-faint)' }}>
+              {works.length} projects
+            </p>
+            <p className="label-caps" style={{ color: 'var(--accent)' }}>
+              {liveCount} live
+            </p>
+          </div>
+        </div>
+      </section>
 
-                  {/* Body */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h2 className="text-subheading transition-colors duration-200 group-hover:text-accent">
-                        {work.frontmatter.title}
-                      </h2>
-                      <Tag>{work.frontmatter.status}</Tag>
-                    </div>
-                    <p className="max-w-prose text-muted">
-                      {work.frontmatter.tagline}
-                    </p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {work.frontmatter.stack.slice(0, 5).map((s) => (
-                        <Tag key={s}>{s}</Tag>
-                      ))}
-                      {work.frontmatter.stack.length > 5 && (
-                        <Tag>+{work.frontmatter.stack.length - 5} more</Tag>
-                      )}
-                    </div>
-                  </div>
+      {/* Featured projects */}
+      <section style={{ borderTop: '1px solid var(--line)' }}>
+        {featured.map((work, i) => {
+          const color  = projectColors[work.slug] ?? 'var(--accent)'
+          const status = statusInfo(work.frontmatter.status)
 
-                  {/* Meta */}
-                  <div className="flex flex-col items-start gap-1 md:items-end md:text-right self-start">
-                    <p className="label-caps text-muted">
-                      {work.frontmatter.category}
-                    </p>
-                    <p className="label-caps text-subtle">
-                      {work.frontmatter.year}
-                    </p>
-                    <span className="label-caps text-accent mt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      Read case study →
+          return (
+            <Link
+              key={work.slug}
+              href={`/work/${work.slug}`}
+              style={{
+                display: 'block',
+                borderBottom: '1px solid var(--line)',
+                textDecoration: 'none',
+                color: 'inherit',
+                transition: 'background 300ms',
+              }}
+            >
+              <div
+                className="container-page"
+                style={{
+                  paddingBlock: 'clamp(3rem, 6vw, 5rem)',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                  gap: 'clamp(2rem, 4vw, 4rem)',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                    <span
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: status.dot,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span className="label-caps" style={{ color: 'var(--text-faint)' }}>
+                      {work.frontmatter.category} &middot; {status.label}
                     </span>
                   </div>
-                </Link>
-              </li>
-            ))}
-          </ol>
 
-          {/* Other projects */}
-          {rest.length > 0 && (
-            <>
-              <div className="mt-16 mb-8">
-                <p className="label-caps text-muted">Other projects</p>
+                  <h2
+                    className="font-display"
+                    style={{
+                      fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+                      letterSpacing: '-0.03em',
+                      lineHeight: 1.05,
+                      color: 'var(--text)',
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    {work.frontmatter.title}
+                  </h2>
+
+                  <p
+                    style={{
+                      fontSize: 'var(--text-base)',
+                      lineHeight: 1.75,
+                      color: 'var(--text-muted)',
+                      maxWidth: '48ch',
+                      marginBottom: '1.5rem',
+                      fontWeight: 300,
+                    }}
+                  >
+                    {work.frontmatter.tagline}
+                  </p>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    {work.frontmatter.stack.slice(0, 5).map((s) => (
+                      <span
+                        key={s}
+                        className="label-caps"
+                        style={{
+                          padding: '3px 10px',
+                          borderRadius: 99,
+                          color: 'var(--text-faint)',
+                          border: '1px solid var(--line-strong)',
+                        }}
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+
+                  <span className="label-caps" style={{ color }}>
+                    View case study &rarr;
+                  </span>
+                </div>
+
+                {/* Accent block */}
+                <div
+                  style={{
+                    background: color,
+                    height: 'clamp(200px, 30vw, 320px)',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    justifyContent: 'space-between',
+                    padding: '1.5rem',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      fontSize: 'clamp(4rem, 8vw, 7rem)',
+                      fontFamily: 'var(--font-display-stack), Georgia, serif',
+                      letterSpacing: '-0.05em',
+                      color: 'rgba(0,0,0,0.08)',
+                      lineHeight: 1,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {work.frontmatter.title}
+                  </span>
+                  <span className="label-caps" style={{ color: 'rgba(0,0,0,0.35)', position: 'relative' }}>
+                    {pad(i + 1)}
+                  </span>
+                  <span className="label-caps" style={{ color: 'rgba(0,0,0,0.35)', position: 'relative' }}>
+                    {work.frontmatter.year}
+                  </span>
+                </div>
               </div>
-              <Divider />
-              <ol className="divide-y divide-subtle" aria-label="Other projects">
-                {rest.map((work) => (
-                  <li key={work.slug}>
-                    <Link
-                      href={`/work/${work.slug}`}
-                      className="group flex flex-col gap-3 py-8 md:flex-row md:items-center md:justify-between md:gap-12"
-                    >
-                      <div className="flex flex-col gap-1">
-                        <h2 className="text-xl font-sans transition-colors duration-200 group-hover:text-accent">
-                          {work.frontmatter.title}
-                        </h2>
-                        <p className="text-muted">{work.frontmatter.tagline}</p>
-                      </div>
-                      <div className="label-caps shrink-0 text-muted md:text-right">
-                        <span>{work.frontmatter.category}</span>
-                        <span className="mx-2 text-subtle">·</span>
-                        <span>{work.frontmatter.year}</span>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </>
-          )}
+            </Link>
+          )
+        })}
+      </section>
 
+      {/* Other projects */}
+      {rest.length > 0 && (
+        <section className="container-page" style={{ paddingBlock: 'var(--section-md)' }}>
+          <div style={{ borderBottom: '1px solid var(--line)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+            <p className="label-caps" style={{ color: 'var(--accent)' }}>Other work</p>
+          </div>
+
+          {rest.map((work, i) => {
+            const color  = projectColors[work.slug] ?? 'var(--accent)'
+            const status = statusInfo(work.frontmatter.status)
+
+            return (
+              <Link
+                key={work.slug}
+                href={`/work/${work.slug}`}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2.5rem 1fr auto auto',
+                  gap: '1rem',
+                  alignItems: 'center',
+                  paddingBlock: '1.25rem',
+                  borderBottom: '1px solid var(--line)',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <span className="label-caps" style={{ color: 'var(--text-faint)' }}>
+                  {pad(featured.length + i + 1)}
+                </span>
+                <div>
+                  <p style={{ fontSize: '1rem', color: 'var(--text)', fontWeight: 400 }}>
+                    {work.frontmatter.title}
+                  </p>
+                  <p className="label-caps" style={{ color: 'var(--text-faint)', marginTop: '0.25rem' }}>
+                    {work.frontmatter.category}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: status.dot }} />
+                  <span className="label-caps" style={{ color: 'var(--text-faint)' }}>{status.label}</span>
+                </div>
+                <span className="label-caps" style={{ color }}>
+                  {work.frontmatter.year} &rarr;
+                </span>
+              </Link>
+            )
+          })}
+        </section>
+      )}
+
+      {/* Footer strip */}
+      <section className="container-page" style={{ paddingBlock: '2rem', borderTop: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <p className="label-caps" style={{ color: 'var(--text-faint)' }}>
+            {works.length} projects since 2020 &middot; {liveCount} still live
+          </p>
+          <Link href="/contact" className="label-caps" style={{ color: 'var(--accent)' }}>
+            Start a project &rarr;
+          </Link>
         </div>
-      </main>
-      <Footer />
+      </section>
+
+      <SiteFooter />
     </>
   )
 }

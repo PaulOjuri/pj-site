@@ -1,0 +1,25 @@
+{
+  "_comment": "Edit this file to update the live status displayed in the sidebar and meta bar. No CMS needed.",
+  "status": "available",
+  "availableFrom": "Q3 2026",
+  "project": {
+    "name": "Prism",
+    "slug": "prism",
+    "url": "https://paulojuri.com/work/prism",
+    "description": "Privacy-first browser analytics"
+  },
+  "location": {
+    "city": "Turnhout",
+    "country": "Belgium",
+    "timezone": "Europe/Brussels",
+    "flag": "🇧🇪"
+  },
+  "contact": {
+    "email": "hello@paulojuri.com",
+    "responseTime": "< 24 hours"
+  },
+  "social": {
+    "github": "https://github.com/paulojuri",
+    "linkedin": "https://linkedin.com/in/paulojuri"
+  }
+}

@@ -1,64 +1,37 @@
-import type { Metadata, Viewport } from 'next'
-import { fontEditorial, fontUI, fontMono } from '@/lib/fonts'
-import { LenisProvider } from '@/components/layout/LenisProvider'
+import type { Metadata } from 'next'
+import { fontDisplay, fontBody, fontMono } from '@/lib/fonts'
+import { SiteHeader } from '@/components/SiteHeader'
+import { SiteLenis } from '@/components/SiteLenis'
 import '@/app/globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://paulojuri.com'),
   title: {
-    default: 'Paulo Juri — Product Engineer & Designer',
-    template: '%s · Paulo Juri',
+    default: 'Paul Ojuri — Product Engineer & Designer',
+    template: '%s · Paul Ojuri',
   },
-  description:
-    'Product engineer and designer building at the intersection of code, craft, and culture.',
+  description: 'Product engineer and designer building software people actually want to use.',
   openGraph: {
     type: 'website',
-    locale: 'en_US',
     url: 'https://paulojuri.com',
-    siteName: 'Paulo Juri',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@paulojuri',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+    images: [{ url: '/og.png', width: 1200, height: 630 }],
   },
 }
 
-export const viewport: Viewport = {
-  themeColor: '#F5F4EF',
-  width: 'device-width',
-  initialScale: 1,
-}
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${fontEditorial.variable} ${fontUI.variable} ${fontMono.variable}`}
+      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable}`}
     >
       <body>
-        {/* Skip to main content — keyboard accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[--z-top] focus:px-4 focus:py-2 focus:bg-ink focus:text-paper focus:label-caps"
-        >
+        <a href="#main-content" className="skip-link">
           Skip to content
         </a>
-        <LenisProvider>{children}</LenisProvider>
+        <SiteLenis>
+          <SiteHeader />
+          <main id="main-content">{children}</main>
+        </SiteLenis>
       </body>
     </html>
   )

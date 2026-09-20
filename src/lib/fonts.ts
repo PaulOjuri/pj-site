@@ -1,30 +1,22 @@
-import { DM_Mono, DM_Sans, Playfair_Display } from 'next/font/google'
+import { Playfair_Display, Inter, JetBrains_Mono } from 'next/font/google'
 
-/**
- * Editorial serif — Playfair Display (swap for self-hosted woff2 later).
- * To use a custom font: replace with localFont from 'next/font/local'
- * pointing to /public/fonts/editorial.woff2
- */
-export const fontEditorial = Playfair_Display({
+export const fontDisplay = Playfair_Display({
   subsets: ['latin'],
-  variable: '--font-editorial',
+  variable: '--font-display-stack',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
 })
 
-/** UI sans-serif — DM Sans */
-export const fontUI = DM_Sans({
+export const fontBody = Inter({
   subsets: ['latin'],
-  variable: '--font-ui-stack',
+  variable: '--font-body-stack',
   display: 'swap',
-  weight: ['300', '400', '500', '600'],
+  weight: ['300', '400', '500'],
 })
 
-/** Monospace — DM Mono */
-export const fontMono = DM_Mono({
+export const fontMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono-stack',
   display: 'swap',
-  weight: ['300', '400', '500'],
+  weight: ['400'],
 })

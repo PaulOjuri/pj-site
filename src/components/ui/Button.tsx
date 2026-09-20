@@ -1,75 +1,78 @@
-import { forwardRef } from 'react'
+'use client'
 import Link from 'next/link'
 
-type Variant = 'primary' | 'ghost' | 'outline' | 'text'
-type Size = 'sm' | 'md' | 'lg'
-
-type ButtonBaseProps = {
-  variant?: Variant
-  size?: Size
-  className?: string
+interface ButtonProps {
+  href?: string
+  variant?: 'primary' | 'outline' | 'ghost' | 'text'
+  size?: 'sm' | 'md' | 'lg'
   children: React.ReactNode
+  onClick?: () => void
+  type?: 'button' | 'submit' | 'reset'
+  disabled?: boolean
+  className?: string
+  external?: boolean
 }
 
-type ButtonAsButton = ButtonBaseProps &
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { href?: never }
+export function Button({
+  href,
+  variant = 'primary',
+  size = 'md',
+  children,
+  onClick,
+  type = 'button',
+  disabled,
+  className = '',
+  external,
+}: ButtonProps) {
+  const baseStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'var(--font-mono-stack), monospace',
+    fontSize: size === 'sm' ? '0.65rem' : size === 'lg' ? '0.8rem' : '0.72rem',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    fontWeight: 400,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.5 : 1,
+    borderRadius: '2px',
+    padding:
+      size === 'sm' ? '8px 16px' : size === 'lg' ? '16px 32px' : '11px 24px',
+    transition: 'background 200ms, color 200ms, border-color 200ms',
+    textDecoration: 'none',
+    border: variant === 'outline' ? '1px solid var(--line-strong)' : 'none',
+    background:
+      variant === 'primary'
+        ? 'var(--accent)'
+        : variant === 'outline'
+        ? 'transparent'
+        : 'transparent',
+    color:
+      variant === 'primary'
+        ? 'var(--bg)'
+        : 'var(--text)',
+  }
 
-type ButtonAsLink = ButtonBaseProps & { href: string; external?: boolean }
-
-type ButtonProps = ButtonAsButton | ButtonAsLink
-
-const variantClasses: Record<Variant, string> = {
-  primary:
-    'bg-ink text-paper hover:bg-accent transition-colors duration-300',
-  ghost:
-    'bg-transparent text-ink hover:text-accent transition-colors duration-200',
-  outline:
-    'border border-ink text-ink hover:bg-ink hover:text-paper transition-colors duration-300',
-  text:
-    'bg-transparent text-ink underline underline-offset-4 decoration-subtle hover:decoration-accent transition-colors duration-200',
-}
-
-const sizeClasses: Record<Size, string> = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-base',
-  lg: 'px-8 py-4 text-lg',
-}
-
-const base =
-  'inline-flex items-center gap-2 font-medium font-ui cursor-pointer rounded-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-3'
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button(props, ref) {
-    const { variant = 'primary', size = 'md', className = '', children } = props
-
-    const classes = `${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`
-
-    if ('href' in props && props.href) {
-      const { href, external, ...rest } = props
-      if (external) {
-        return (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={classes}
-          >
-            {children}
-          </a>
-        )
-      }
-      return (
-        <Link href={href} className={classes}>
-          {children}
-        </Link>
-      )
-    }
-
-    const { href: _href, external: _ext, ...btnProps } = props as ButtonAsLink
+  if (href) {
+    const linkProps = external
+      ? { target: '_blank', rel: 'noopener noreferrer' }
+      : {}
     return (
-      <button ref={ref} className={classes} {...(btnProps as ButtonAsButton)}>
+      <Link href={href} style={baseStyle} className={className} {...linkProps}>
         {children}
-      </button>
+      </Link>
     )
-  },
-)
+  }
+
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      style={baseStyle}
+      className={className}
+    >
+      {children}
+    </button>
+  )
+}

@@ -1,0 +1,389 @@
+/* ─── Luxciti Design Tokens — Brand Colour v2 ──────────────── */
+
+.luxciti {
+  /* ── Foundations ── */
+  --lc-ivory:       #FAF6F0;  /* 45% — page canvas, default section background */
+  --lc-blush:       #F5E6E0;  /* 25% — alternating bands, overlays, card fills */
+
+  /* ── Accents ── */
+  --lc-gold:        #C9A86C;  /*  7% — buttons, hairlines, icons, monogram */
+  --lc-rose:        #C4896F;  /*  1% — hover, decorative accents. NOT text. */
+
+  /* ── Ink ── */
+  --lc-charcoal:    #3C3530;  /*  2% — headings, body, nav, footer */
+
+  /* ── Derived (same hue families, lightness/alpha adjusted) ── */
+  --lc-ivory-hi:    #FDFBF8;                    /* card surfaces sitting on blush */
+  --lc-blush-deep:  #EBDCD7;                    /* borders and dividers on blush */
+  --lc-ink-70:      rgba(60, 53, 48, 0.70);     /* body copy */
+  --lc-ink-45:      rgba(60, 53, 48, 0.45);     /* captions, meta, placeholders */
+  --lc-gold-hair:   rgba(201, 168, 108, 0.45);  /* 1px rules */
+  --lc-gold-wash:   rgba(201, 168, 108, 0.10);  /* hover fills, focus rings */
+  --lc-scrim:       linear-gradient(to top, rgba(60,53,48,0.72) 0%, rgba(60,53,48,0) 62%);
+
+  /* ── Gold gradient (champagne-family only) ── */
+  --lc-gold-gradient: linear-gradient(118deg, #A08652 0%, #C9A86C 35%, #D4BA88 55%, #C9A86C 75%, #8A7244 100%);
+
+  /* ── Easing ── */
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Typography ── */
+  --lc-font-serif:  var(--font-lc-serif), 'Cormorant Garamond', Georgia, serif;
+  --lc-font-sans:   var(--font-lc-sans), 'Jost', system-ui, sans-serif;
+  --lc-font-script: var(--font-lc-script), 'Pinyon Script', cursive;
+
+  /* ── Spacing ── */
+  --lc-space-1:   0.5rem;
+  --lc-space-2:   1rem;
+  --lc-space-3:   1.5rem;
+  --lc-space-4:   2rem;
+  --lc-space-6:   3rem;
+  --lc-space-8:   4rem;
+  --lc-space-12:  6rem;
+  --lc-space-16:  8rem;
+  --lc-space-24: 12rem;
+
+  /* ── Base styles ── */
+  font-family: var(--lc-font-sans);
+  color: var(--lc-charcoal);
+  background-color: var(--lc-ivory);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Typography Utilities ──────────────────────────────────── */
+
+.lc-serif {
+  font-family: var(--lc-font-serif);
+}
+
+.lc-script {
+  font-family: var(--lc-font-script);
+}
+
+.lc-eyebrow {
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--lc-ink-70);
+}
+
+/* ─── Gold Text Shimmer ─────────────────────────────────────── */
+
+@keyframes lc-shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.lc-gold-text {
+  background: var(--lc-gold-gradient) 0 / 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: lc-shimmer 7s linear infinite;
+}
+
+/* ─── Button — Primary (solid gold, charcoal label) ─────────── */
+
+.lc-btn-primary {
+  display: inline-block;
+  background: var(--lc-gold);
+  border: 1px solid var(--lc-gold);
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--lc-charcoal);
+  padding: 1rem 2rem;
+  transition: background-color 250ms var(--ease-silk), border-color 250ms var(--ease-silk);
+  cursor: pointer;
+  position: relative;
+}
+
+.lc-btn-primary:hover {
+  background-color: var(--lc-rose);
+  border-color: var(--lc-rose);
+  color: var(--lc-charcoal);
+}
+
+.lc-btn-primary:focus-visible {
+  outline: 2px solid var(--lc-gold);
+  outline-offset: 2px;
+}
+
+/* ─── Button — Secondary (outline, charcoal label) ──────────── */
+
+.lc-btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--lc-gold);
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--lc-charcoal);
+  padding: 1rem 2rem;
+  transition: background-color 250ms var(--ease-silk), color 250ms var(--ease-silk);
+  cursor: pointer;
+  position: relative;
+}
+
+.lc-btn:hover {
+  background-color: var(--lc-gold-wash);
+  color: var(--lc-charcoal);
+}
+
+.lc-btn:focus-visible {
+  outline: 2px solid var(--lc-gold);
+  outline-offset: 2px;
+}
+
+.lc-btn span,
+.lc-btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Button on dark backgrounds ────────────────────────────── */
+
+.lc-btn-on-dark {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--lc-gold);
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--lc-ivory);
+  padding: 1rem 2rem;
+  transition: background-color 250ms var(--ease-silk), color 250ms var(--ease-silk);
+  cursor: pointer;
+}
+
+.lc-btn-on-dark:hover {
+  background-color: var(--lc-gold-wash);
+  color: var(--lc-ivory);
+}
+
+.lc-btn-on-dark:focus-visible {
+  outline: 2px solid var(--lc-gold);
+  outline-offset: 2px;
+}
+
+/* ─── Gold Rule ─────────────────────────────────────────────── */
+
+.lc-gold-rule {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: var(--lc-gold-hair);
+  border: none;
+}
+
+/* ─── Film Grain Overlay ────────────────────────────────────── */
+
+.lc-grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── Section Backgrounds ───────────────────────────────────── */
+
+.lc-bg-ivory      { background-color: var(--lc-ivory); }
+.lc-bg-blush      { background-color: var(--lc-blush); }
+.lc-bg-blush-deep { background-color: var(--lc-blush-deep); }
+.lc-bg-ivory-hi   { background-color: var(--lc-ivory-hi); }
+.lc-bg-charcoal   { background-color: var(--lc-charcoal); }
+
+/* ─── Nav Hover Underline ───────────────────────────────────── */
+
+.lc-nav-link {
+  position: relative;
+  text-decoration: none;
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: inherit;
+  padding-bottom: 2px;
+}
+
+.lc-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  height: 1px;
+  background: var(--lc-gold);
+  transition: left 250ms var(--ease-silk), right 250ms var(--ease-silk);
+}
+
+.lc-nav-link:hover::after {
+  left: 0;
+  right: 0;
+}
+
+.lc-nav-link:focus-visible {
+  outline: 2px solid var(--lc-gold);
+  outline-offset: 2px;
+}
+
+/* ─── Drop Cap ──────────────────────────────────────────────── */
+
+.lc-drop-cap::first-letter {
+  font-family: var(--lc-font-serif);
+  font-size: 4.5em;
+  font-weight: 300;
+  line-height: 0.85;
+  float: left;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--lc-charcoal);
+}
+
+/* ─── Polaroid Frame ────────────────────────────────────────── */
+
+.lc-polaroid {
+  background-color: var(--lc-ivory-hi);
+  padding: 0.75rem 0.75rem 2.5rem;
+  box-shadow: 0 4px 16px rgba(60, 53, 48, 0.08);
+}
+
+/* ─── Input Gold Underline ──────────────────────────────────── */
+
+.lc-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--lc-gold-hair);
+  outline: none;
+  width: 100%;
+  padding: 0.5rem 0;
+  font-family: var(--lc-font-sans);
+  font-weight: 300;
+  font-size: 0.9rem;
+  color: var(--lc-charcoal);
+  transition: border-color 250ms var(--ease-silk);
+}
+
+.lc-input::placeholder {
+  color: var(--lc-ink-45);
+}
+
+.lc-input:focus {
+  border-bottom-color: var(--lc-gold);
+}
+
+.lc-input:focus-visible {
+  outline: 2px solid var(--lc-gold);
+  outline-offset: 2px;
+}
+
+/* ─── Gold Decorative Frame ─────────────────────────────────── */
+
+.lc-award-frame {
+  position: relative;
+  padding: 2.5rem 3rem;
+  border: 1px solid var(--lc-gold-hair);
+  text-align: center;
+}
+
+.lc-award-frame::before,
+.lc-award-frame::after {
+  content: '\2726';
+  position: absolute;
+  color: var(--lc-gold);
+  font-size: 1rem;
+}
+
+.lc-award-frame::before {
+  top: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lc-ivory);
+  padding: 0 0.5rem;
+}
+
+.lc-award-frame::after {
+  bottom: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lc-ivory);
+  padding: 0 0.5rem;
+}
+
+/* ─── Scroll Reveal Base ────────────────────────────────────── */
+
+.lc-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 700ms var(--ease-silk), transform 700ms var(--ease-silk);
+}
+
+.lc-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Photography treatment (desaturate blue/green) ─────────── */
+
+.lc-photo-warm {
+  filter: saturate(0.82) sepia(0.06);
+}
+
+.lc-photo-warm::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--lc-blush);
+  mix-blend-mode: multiply;
+  opacity: 0.10;
+  pointer-events: none;
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-gold-text {
+    animation: none;
+  }
+
+  .lc-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ─── Focus visible globally ────────────────────────────────── */
+
+.luxciti a:focus-visible,
+.luxciti button:focus-visible,
+.luxciti input:focus-visible,
+.luxciti select:focus-visible,
+.luxciti textarea:focus-visible {
+  outline: 2px solid var(--lc-gold);
+  outline-offset: 2px;
+}

@@ -1,0 +1,297 @@
+/* ============================================================
+   paulojuri.com — Design Tokens
+   Source of truth: design-system/MASTER.md
+   Do not hand-edit without syncing back to MASTER.md
+   ============================================================ */
+
+@layer base {
+
+  /* --- Color: Dark mode (default) --- */
+  :root {
+    --bg:           oklch(8% 0.005 270);
+    --bg-raised:    oklch(12% 0.006 270);
+    --bg-sunken:    oklch(5% 0.004 270);
+
+    --ink-1:        oklch(98% 0.005 270);
+    --ink-2:        oklch(78% 0.01 270);
+    --ink-3:        oklch(58% 0.012 270);
+    --ink-4:        oklch(38% 0.012 270);
+
+    --line:         oklch(20% 0.008 270);
+
+    --accent:       oklch(65% 0.20 32);
+    --accent-dim:   oklch(55% 0.18 32);
+    --accent-glow:  oklch(65% 0.20 32 / 0.15);
+  }
+
+  /* --- Color: Light mode --- */
+  [data-theme="light"] {
+    --bg:           oklch(98% 0.003 90);
+    --bg-raised:    oklch(95% 0.005 90);
+    --bg-sunken:    oklch(93% 0.006 90);
+
+    --ink-1:        oklch(12% 0.008 270);
+    --ink-2:        oklch(32% 0.01 270);
+    --ink-3:        oklch(52% 0.012 270);
+    --ink-4:        oklch(70% 0.012 270);
+
+    --line:         oklch(85% 0.008 270);
+
+    /* Accent unchanged — passes 4.5:1 on both bg values */
+    --accent:       oklch(65% 0.20 32);
+    --accent-dim:   oklch(55% 0.18 32);
+    --accent-glow:  oklch(65% 0.20 32 / 0.15);
+  }
+
+  /* --- Typography: Families --- */
+  :root {
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body:    "Geist", system-ui, sans-serif;
+    --font-mono:    "Geist Mono", "Menlo", monospace;
+
+    /* Fraunces variable axes (tuned per project via [data-project]) */
+    --fraunces-wght: 400;
+    --fraunces-wonk: 1;
+    --fraunces-soft: 0;
+    --geist-wght: 400;
+  }
+
+  /* --- Type Scale (ratio 1.250, base 16px) --- */
+  :root {
+    --text-2xs:  0.75rem;    /*  12px — legal, timestamps, sub-labels */
+    --text-xs:   0.875rem;   /*  14px — captions, metadata, table cells */
+    --text-sm:   1rem;       /*  16px — base body copy */
+    --text-md:   1.125rem;   /*  18px — large body, intro paragraphs */
+    --text-lg:   1.25rem;    /*  20px — sub-headings, card titles */
+    --text-xl:   1.5rem;     /*  24px — section labels, prominent UI */
+    --text-2xl:  1.875rem;   /*  30px — h3 range */
+    --text-3xl:  2.375rem;   /*  38px — h2 range */
+    --text-4xl:  3rem;       /*  48px — h1 on interior pages */
+    --text-5xl:  3.75rem;    /*  60px — h1 on about, project titles */
+    --text-6xl:  4.75rem;    /*  76px — hero sub-headlines */
+    --text-7xl:  6rem;       /*  96px — hero headline desktop */
+    --text-8xl:  7.5rem;     /* 120px — display, large viewport */
+    --text-9xl:  9.5rem;     /* 152px — max display, clamp() locked */
+  }
+
+  /* --- Line Heights --- */
+  :root {
+    --leading-body:    1.6;
+    --leading-ui:      1.2;
+    --leading-display: 1.05;
+    --leading-mono:    1.5;
+  }
+
+  /* --- Letter Spacing --- */
+  :root {
+    --tracking-display:  -0.03em;  /* Fraunces 60px+ */
+    --tracking-heading:  -0.02em;  /* Geist 24–48px */
+    --tracking-body:      0em;
+    --tracking-caps:      0.08em;  /* all-caps labels */
+  }
+
+  /* --- Spacing Scale (base-4) --- */
+  :root {
+    --space-1:   0.25rem;    /*   4px */
+    --space-2:   0.5rem;     /*   8px */
+    --space-3:   0.75rem;    /*  12px */
+    --space-4:   1rem;       /*  16px */
+    --space-6:   1.5rem;     /*  24px */
+    --space-8:   2rem;       /*  32px */
+    --space-12:  3rem;       /*  48px */
+    --space-16:  4rem;       /*  64px */
+    --space-24:  6rem;       /*  96px */
+    --space-32:  8rem;       /* 128px */
+    --space-48:  12rem;      /* 192px */
+    --space-64:  16rem;      /* 256px */
+  }
+
+  /* --- Border Radius --- */
+  :root {
+    --radius-none: 0;
+    --radius-sm:   4px;
+    --radius-md:   8px;
+    --radius-lg:   14px;
+    --radius-xl:   24px;
+    --radius-full: 9999px;
+  }
+
+  /* --- Shadow & Elevation (dark-hued in both modes) --- */
+  :root {
+    --shadow-sm:
+      0 1px 2px oklch(0% 0 0 / 0.3),
+      0 1px 4px oklch(0% 0 0 / 0.2);
+
+    --shadow-md:
+      0 4px 8px oklch(0% 0 0 / 0.25),
+      0 8px 24px oklch(0% 0 0 / 0.15);
+
+    --shadow-lg:
+      0 8px 16px oklch(0% 0 0 / 0.2),
+      0 24px 48px oklch(0% 0 0 / 0.15),
+      0 48px 96px oklch(0% 0 0 / 0.1);
+  }
+
+  /* --- Z-Index Layers --- */
+  :root {
+    --z-content:  0;
+    --z-raised:   10;
+    --z-dropdown: 20;
+    --z-sticky:   30;
+    --z-overlay:  40;
+    --z-modal:    50;
+    --z-cursor:   60;
+    --z-top:      70;
+  }
+
+  /* --- Easing --- */
+  :root {
+    /* Elements entering the frame */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    /* Elements transitioning state */
+    --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+    /* Spring-like for interactive feedback (not for layout shifts) */
+    --ease-spring: linear(
+      0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%,
+      0.723 12.9%, 0.938 16.7%, 1.017, 1.077,
+      1.121, 1.149 24.3%, 1.159, 1.163 26.2%,
+      1.151 28.2%, 1.088 33.2%, 1.022 38.3%,
+      0.990 41.2%, 0.970 44.1%, 0.958 47%,
+      0.955 50.2%, 0.966 61.5%, 1.000 72.1%,
+      1.010 82.8%, 0.997 100%
+    );
+  }
+
+  /* --- Duration Scale (ms) --- */
+  :root {
+    --duration-micro:  80ms;
+    --duration-short:  160ms;
+    --duration-base:   240ms;
+    --duration-long:   360ms;
+    --duration-slow:   560ms;
+    --duration-slower: 880ms;
+  }
+
+  /* --- Grid --- */
+  :root {
+    --gutter:        clamp(1rem, 3vw, 3rem);
+    --max-width:     1440px;
+    --content-width: 1280px;
+    --prose-width:   65ch;
+    --sidebar-width: 88px;         /* collapsed */
+    --sidebar-expanded: 280px;     /* hover expanded */
+  }
+
+}
+
+/* ============================================================
+   Per-project theme scaffolds
+   Scoped to [data-project] — never bleeds into the global shell
+   ============================================================ */
+
+/* Prism — indigo-blue, technical, precise */
+[data-project="prism"] {
+  --project-bg:          oklch(9% 0.012 255);
+  --project-bg-raised:   oklch(14% 0.015 255);
+  --project-ink-1:       oklch(96% 0.008 255);
+  --project-ink-2:       oklch(74% 0.015 255);
+  --project-accent:      oklch(68% 0.22 255);
+  --project-accent-glow: oklch(68% 0.22 255 / 0.12);
+  --fraunces-wonk: 1;
+  --fraunces-wght: 500;
+}
+
+/* ApplyAI — sage green, methodical, confident */
+[data-project="applyai"] {
+  --project-bg:          oklch(8% 0.008 145);
+  --project-bg-raised:   oklch(13% 0.010 145);
+  --project-ink-1:       oklch(97% 0.006 145);
+  --project-ink-2:       oklch(75% 0.012 145);
+  --project-accent:      oklch(67% 0.20 145);
+  --project-accent-glow: oklch(67% 0.20 145 / 0.12);
+  --fraunces-wonk: 0;
+  --fraunces-wght: 400;
+}
+
+/* Alfera Technik — graphite/gold, premium, architectural */
+[data-project="alfera"] {
+  --project-bg:          oklch(7% 0.006 45);
+  --project-bg-raised:   oklch(12% 0.008 45);
+  --project-ink-1:       oklch(97% 0.004 60);
+  --project-ink-2:       oklch(76% 0.008 60);
+  --project-accent:      oklch(72% 0.18 72);
+  --project-accent-glow: oklch(72% 0.18 72 / 0.12);
+  --fraunces-wonk: 0;
+  --fraunces-wght: 700;
+}
+
+/* CarbonWise — deep teal, calm, considered */
+[data-project="carbonwise"] {
+  --project-bg:          oklch(8% 0.010 165);
+  --project-bg-raised:   oklch(13% 0.012 165);
+  --project-ink-1:       oklch(97% 0.005 165);
+  --project-ink-2:       oklch(76% 0.010 165);
+  --project-accent:      oklch(66% 0.19 165);
+  --project-accent-glow: oklch(66% 0.19 165 / 0.12);
+  --fraunces-wonk: 0;
+  --fraunces-wght: 300;
+}
+
+/* Virtual PO — cool slate, systematic, AI-adjacent */
+[data-project="virtual-po"] {
+  --project-bg:          oklch(8% 0.007 220);
+  --project-bg-raised:   oklch(12% 0.009 220);
+  --project-ink-1:       oklch(97% 0.005 220);
+  --project-ink-2:       oklch(75% 0.010 220);
+  --project-accent:      oklch(66% 0.20 220);
+  --project-accent-glow: oklch(66% 0.20 220 / 0.12);
+  --fraunces-wonk: 1;
+  --fraunces-wght: 300;
+}
+
+/* Nigeria EMR — warm amber, grounded, human */
+[data-project="nigeria-emr"] {
+  --project-bg:          oklch(7% 0.004 30);
+  --project-bg-raised:   oklch(12% 0.005 30);
+  --project-ink-1:       oklch(97% 0.004 50);
+  --project-ink-2:       oklch(76% 0.006 50);
+  --project-accent:      oklch(68% 0.18 50);
+  --project-accent-glow: oklch(68% 0.18 50 / 0.12);
+  --fraunces-wonk: 0;
+  --fraunces-wght: 600;
+}
+
+/* ============================================================
+   Animated border keyframes
+   Rule: never more than one animated border on screen at once
+   ============================================================ */
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-beam-spin {
+  to { --angle: 360deg; }
+}
+
+@keyframes border-pulse-breathe {
+  0%, 100% { border-color: var(--line); }
+  50%       { border-color: var(--accent); }
+}
+
+/* ============================================================
+   Reduced motion override — always last in this file
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto !important;
+  }
+}
