@@ -1,0 +1,319 @@
+{
+ "date": "2026-09-21",
+ "tagger_version": "1",
+ "n": 3000,
+ "rating_band": [
+  1400,
+  2200
+ ],
+ "min_popularity": 50,
+ "seed": 260703,
+ "precision_floor": 0.7,
+ "themes": [
+  {
+   "theme": "fork",
+   "motifs": [
+    "fork"
+   ],
+   "support": 358,
+   "tagged": 315,
+   "tp": 224,
+   "fp": 91,
+   "fn": 134,
+   "precision": 0.711,
+   "recall": 0.626,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "pin",
+   "motifs": [
+    "pin"
+   ],
+   "support": 239,
+   "tagged": 40,
+   "tp": 25,
+   "fp": 15,
+   "fn": 214,
+   "precision": 0.625,
+   "recall": 0.105,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "skewer",
+   "motifs": [
+    "skewer"
+   ],
+   "support": 61,
+   "tagged": 63,
+   "tp": 47,
+   "fp": 16,
+   "fn": 14,
+   "precision": 0.746,
+   "recall": 0.77,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "discoveredAttack",
+   "motifs": [
+    "discovered_attack",
+    "discovered_check"
+   ],
+   "support": 177,
+   "tagged": 122,
+   "tp": 93,
+   "fp": 29,
+   "fn": 84,
+   "precision": 0.762,
+   "recall": 0.525,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "doubleCheck",
+   "motifs": [
+    "double_check"
+   ],
+   "support": 27,
+   "tagged": 16,
+   "tp": 16,
+   "fp": 0,
+   "fn": 11,
+   "precision": 1.0,
+   "recall": 0.593,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "backRankMate",
+   "motifs": [
+    "back_rank"
+   ],
+   "support": 17,
+   "tagged": 34,
+   "tp": 17,
+   "fp": 17,
+   "fn": 0,
+   "precision": 0.5,
+   "recall": 1.0,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "smotheredMate",
+   "motifs": [
+    "smothered_mate"
+   ],
+   "support": 3,
+   "tagged": 3,
+   "tp": 3,
+   "fp": 0,
+   "fn": 0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "hangingPiece",
+   "motifs": [
+    "hanging_piece"
+   ],
+   "support": 97,
+   "tagged": 203,
+   "tp": 85,
+   "fp": 118,
+   "fn": 12,
+   "precision": 0.419,
+   "recall": 0.876,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "trappedPiece",
+   "motifs": [
+    "trapped_piece"
+   ],
+   "support": 64,
+   "tagged": 28,
+   "tp": 9,
+   "fp": 19,
+   "fn": 55,
+   "precision": 0.321,
+   "recall": 0.141,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "sacrifice",
+   "motifs": [
+    "sacrifice"
+   ],
+   "support": 299,
+   "tagged": 256,
+   "tp": 212,
+   "fp": 44,
+   "fn": 87,
+   "precision": 0.828,
+   "recall": 0.709,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "deflection",
+   "motifs": [
+    "deflection"
+   ],
+   "support": 175,
+   "tagged": 103,
+   "tp": 39,
+   "fp": 64,
+   "fn": 136,
+   "precision": 0.379,
+   "recall": 0.223,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "capturingDefender",
+   "motifs": [
+    "removal_of_defender"
+   ],
+   "support": 25,
+   "tagged": 40,
+   "tp": 6,
+   "fp": 34,
+   "fn": 19,
+   "precision": 0.15,
+   "recall": 0.24,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "clearance",
+   "motifs": [
+    "clearance"
+   ],
+   "support": 52,
+   "tagged": 2,
+   "tp": 0,
+   "fp": 2,
+   "fn": 52,
+   "precision": 0.0,
+   "recall": 0.0,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "intermezzo",
+   "motifs": [
+    "zwischenzug"
+   ],
+   "support": 49,
+   "tagged": 100,
+   "tp": 34,
+   "fp": 66,
+   "fn": 15,
+   "precision": 0.34,
+   "recall": 0.694,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "promotion",
+   "motifs": [
+    "promotion"
+   ],
+   "support": 86,
+   "tagged": 71,
+   "tp": 71,
+   "fp": 0,
+   "fn": 15,
+   "precision": 1.0,
+   "recall": 0.826,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "underPromotion",
+   "motifs": [
+    "underpromotion"
+   ],
+   "support": 0,
+   "tagged": 0,
+   "tp": 0,
+   "fp": 0,
+   "fn": 0,
+   "precision": null,
+   "recall": null,
+   "scoring_eligible": false
+  },
+  {
+   "theme": "mate",
+   "motifs": [
+    "mate_in_n"
+   ],
+   "support": 425,
+   "tagged": 424,
+   "tp": 423,
+   "fp": 1,
+   "fn": 2,
+   "precision": 0.998,
+   "recall": 0.995,
+   "scoring_eligible": true
+  },
+  {
+   "theme": "xRayAttack",
+   "motifs": [
+    "x_ray"
+   ],
+   "support": 20,
+   "tagged": 0,
+   "tp": 0,
+   "fp": 0,
+   "fn": 20,
+   "precision": null,
+   "recall": 0.0,
+   "scoring_eligible": false
+  }
+ ],
+ "tag_counts": {
+  "absolute_pin": 37,
+  "back_rank": 34,
+  "clearance": 2,
+  "deflection": 103,
+  "discovered_attack": 90,
+  "discovered_check": 33,
+  "double_check": 16,
+  "fork": 315,
+  "hanging_piece": 203,
+  "knight_fork": 132,
+  "mate_in_n": 424,
+  "overloaded_piece": 53,
+  "pawn_fork": 16,
+  "pin": 40,
+  "promotion": 71,
+  "queen_fork": 109,
+  "relative_pin": 3,
+  "removal_of_defender": 40,
+  "royal_fork": 244,
+  "sacrifice": 256,
+  "skewer": 63,
+  "smothered_mate": 3,
+  "trapped_piece": 28,
+  "zwischenzug": 100
+ },
+ "eligible_motifs": [
+  "discovered_attack",
+  "discovered_check",
+  "double_check",
+  "fork",
+  "knight_fork",
+  "mate_in_n",
+  "pawn_fork",
+  "promotion",
+  "queen_fork",
+  "royal_fork",
+  "sacrifice",
+  "skewer"
+ ],
+ "unimplemented": [
+  "absolute_pin",
+  "desperado",
+  "knight_fork",
+  "overloaded_piece",
+  "pawn_fork",
+  "perpetual",
+  "queen_fork",
+  "relative_pin",
+  "royal_fork",
+  "stalemate_trick"
+ ]
+}

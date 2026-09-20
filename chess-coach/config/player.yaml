@@ -1,0 +1,55 @@
+# Player identity, availability and goals. Answers to CHESS_COACH_SPEC.md §19.
+# Still unanswered: repertoire (§19 Q3, see repertoire.yaml) and OTB games not on FIDE (Q4).
+
+player:
+  name: "Paul Ojuri"
+  fide_id: 260703
+  federation: BEL
+  birth_year: 1994
+  contact_email: "paulojuri05@gmail.com"   # goes into the API User-Agent, per chess.com's request
+
+identities:
+  chesscom: "darkknightxvi"
+  lichess: "segunojuri"
+
+# Seed values from ratings.fide.com/profile/260703 on 2026-09-20. The FIDE ingester
+# overwrites these once it has fetched a rating list; `manual_override` wins over both
+# for results known before FIDE publishes them.
+fide_seed:
+  standard: 1795
+  rapid: null
+  blitz: 1862
+  standard_inactive: true
+  blitz_inactive: true
+  title: null
+manual_override: {}
+
+availability:
+  hours_per_week: 8           # Mon 2h, every other day 1h (answered 2026-09-20)
+  hours_by_day: {mon: 2, tue: 1, wed: 1, thu: 1, fri: 1, sat: 1, sun: 1}
+  free_days: [mon, tue, wed, thu, fri, sat, sun]
+  timezone: "Europe/Brussels"
+  home_city: "Turnhout"       # for the tournament calendar radius
+
+goals:
+  target_title: CM
+  horizon_months: 24
+  route: wacc_u2000           # FIDE World Amateur U2000 podium (answered 2026-09-20); 2200 tracked as secondary
+
+coaching:
+  existing_coach: none        # §19 Q7: none
+  blitz_cap_games_per_week: 20
+
+public_mode:
+  # Repo and site are PUBLIC (answered 2026-09-20). Spec §12 defaults: private sections never
+  # reach published artifacts; they stay in coach.db (gitignored) and render only locally.
+  overview: true
+  games: true
+  openings: true
+  plan: true
+  title: true
+  leaks: true
+  session_tilt: false
+  time_of_day: false
+  game_notes: false
+  drill_history: false
