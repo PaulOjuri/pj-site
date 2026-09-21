@@ -1,6 +1,6 @@
 # chess-coach (Tier 1)
 
-Offline pipeline behind `paulojuri.com/chess`. Spec: `../CHESS_COACH_SPEC.md`. Status: **M3 (tagging and leaks)**; M1–M2 accepted.
+Offline pipeline behind `paulojuri.com/chess`. Spec: `../CHESS_COACH_SPEC.md`. Status: **M6 done** (M1–M6 live at paulojuri.com/chess); M7 polish pending.
 
 ## Setup
 
@@ -64,3 +64,27 @@ Drop OTB PGNs in `data/otb/`. A sidecar `name.yaml` next to `name.pgn` can add `
 ## Dedup rule
 
 `dedup_key = sha1(movetext | YYYY-MM-DD)`. Same `(source, source_id)` is always skipped. A `dedup_key` collision only counts as a duplicate when an OTB game is involved: that is the "entered the same game twice" case. Two online bullet games with identical short move sequences on the same day are real, distinct games.
+
+## Automation
+
+The pipeline runs on the owner's Mac (the 400MB database and the engine work live here), scheduled
+by launchd (`launchd/*.plist`, install with `scripts/install-launchd.sh`):
+
+| cadence | when | what |
+|---|---|---|
+| hourly | every hour | `coach run hourly`: ingest (3 conditional requests), sync site results, analyse ≤40 new games, tag, 60 tablebase probes; publish + build + deploy + commit only if something changed |
+| nightly | 03:15 | same with bigger budgets, always publishes, evaluates finished cycles |
+| weekly | Sunday 21:00 | nightly + next week's plan |
+| monthly | 1st, 04:00 | FIDE lists, tagger validation report, full re-tag, title recompute |
+
+`scripts/run.sh` holds a lock (and yields to a manual `coach analyse`), runs under `caffeinate`,
+then `npm run build`, `wrangler pages deploy`, and commits `public/chess/data` + `reports/` +
+`config/` to git. Logs: `data/logs/`. GitHub Actions (`.github/workflows/chess-ci.yml`) runs the
+tests, type-check, build and a client-bundle secret scan on every push; it does not deploy.
+
+## Title tracker
+
+`coach title` (and `coach publish`) recompute the route tracker from the latest FIDE list
+(`coach ingest --source fide`), the calendar and a performance model estimated from rated online
+rapid/classical results. Regulations are cited in `src/coach/titles/routes.py`; the source PDFs
+and HTML are kept in `data/reference/`.
