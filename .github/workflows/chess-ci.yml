@@ -27,7 +27,13 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npx tsc --noEmit
       - run: node scripts/copy-engine.mjs
-      # Secrets must never reach the client bundle (spec §12).
+      # src/app/api/* route files are inert under `output: 'export'` (the live functions are in
+      # functions/), but they import SDKs that demand a key at module load. Placeholders only.
       - run: npm run build
+        env:
+          RESEND_API_KEY: ci-placeholder
+          ANTHROPIC_API_KEY: ci-placeholder
+          CONTACT_TO_EMAIL: ci@example.invalid
+      # Secrets must never reach the client bundle (spec §12).
       - run: |
           if grep -rEl "sk-ant-|re_[A-Za-z0-9]{24,}|lip_[A-Za-z0-9]{15,}" out/_next 2>/dev/null; then echo "token pattern in client bundle" && exit 1; fi
