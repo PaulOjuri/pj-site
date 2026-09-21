@@ -26,7 +26,16 @@ function buildQueue(d: TrainData): Item[] {
     for (const p of a.endgame_drills ?? []) q.push({ id: p.id, kind: 'endgame', mode: 'playout', item: p, session: s.id, label: s.title })
   }
   const seen = new Set<string>()
-  return q.filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)))
+  const uniq = q.filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)))
+  // Interleave modes so the queue alternates between board work and written calculation
+  // instead of front-loading thirty locked boards.
+  const buckets: Record<Mode, Item[]> = { solve: [], playout: [], calculate: [] }
+  for (const x of uniq) buckets[x.mode].push(x)
+  const out: Item[] = []
+  while (buckets.solve.length || buckets.playout.length || buckets.calculate.length) {
+    for (const m of ['solve', 'playout', 'calculate', 'calculate'] as Mode[]) { const x = buckets[m].shift(); if (x) out.push(x) }
+  }
+  return out
 }
 
 function turnOf(fen: string): 'white' | 'black' { return fen.split(' ')[1] === 'w' ? 'white' : 'black' }
@@ -177,15 +186,35 @@ function Solve({ it, onDone }: { it: Item; onDone: OnDone }) {
 function Calculate({ it, onDone }: { it: Item; onDone: OnDone }) {
   const [text, setText] = useState('')
   const [revealed, setRevealed] = useState(false)
+  const [unlocked, setUnlocked] = useState(false)
+  const [chess] = useState(() => new Chess(it.item.fen))
+  const [, force] = useState(0)
+  const [last, setLast] = useState<string | null>(null)
   const t0 = useRef(Date.now())
   const me = turnOf(it.item.fen)
-  const chess = useMemo(() => new Chess(it.item.fen), [it.item.fen])
   const sanLine = useMemo(() => { const c = new Chess(it.item.fen); const out: string[] = []; for (const u of it.item.solution ?? []) { try { out.push(c.move({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] as 'q' | undefined }).san) } catch { break } } return out }, [it.item])
+  // Free play for both sides once unlocked, so a line can be explored on the board.
+  const onMove = (uci: string) => { chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] as 'q' | undefined }); setLast(uci); force((x) => x + 1) }
+  const undo = () => { chess.undo(); const h = chess.history({ verbose: true }); setLast(h.length ? h[h.length - 1].from + h[h.length - 1].to : null); force((x) => x + 1) }
+  const reset = () => { while (chess.history().length) chess.undo(); setLast(null); force((x) => x + 1) }
+  const moved = chess.history().length
   return (
     <div className="chess-grid chess-grid-2" style={{ alignItems: 'start' }}>
-      <InteractiveBoard chess={chess} flipped={me === 'black'} onMove={() => undefined} disabled />
       <div>
-        <p style={{ color: 'var(--text)', marginBottom: '0.5rem' }}>{me === 'white' ? 'White' : 'Black'} to move. This was an only-move position{it.item.gap_cp ? ` (second best is ${(it.item.gap_cp / 100).toFixed(1)} worse)` : ''}. No board movement: write the full variation, then reveal.</p>
+        <InteractiveBoard chess={chess} flipped={me === 'black'} onMove={onMove} disabled={!unlocked} lastMove={last} />
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {!unlocked
+            ? <button style={btn} onClick={() => setUnlocked(true)}>unlock board (move pieces)</button>
+            : <>
+                <button style={btn} onClick={undo} disabled={!moved}>undo</button>
+                <button style={btn} onClick={reset} disabled={!moved}>reset</button>
+                <span className="label-caps" style={{ color: 'var(--text-muted)' }}>{moved ? `${moved} moves played` : 'both sides move freely'}</span>
+              </>}
+        </div>
+        {unlocked && <MoveInput chess={chess} onMove={onMove} />}
+      </div>
+      <div>
+        <p style={{ color: 'var(--text)', marginBottom: '0.5rem' }}>{me === 'white' ? 'White' : 'Black'} to move. This was an only-move position{it.item.gap_cp ? ` (second best is ${(it.item.gap_cp / 100).toFixed(1)} worse)` : ''}. The board starts locked: write the full variation first, then reveal. Unlock it if you want to check a line on the board; that is recorded as assisted.</p>
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder="1. ... " aria-label="Your variation" disabled={revealed}
           style={{ width: '100%', background: 'var(--bg-inset)', border: '1px solid var(--line-strong)', color: 'var(--text)', padding: '0.6rem', borderRadius: 2, fontFamily: 'var(--font-mono-stack)', fontSize: '0.9rem' }} />
         {!revealed && <button style={{ ...btn, marginTop: '0.5rem' }} onClick={() => setRevealed(true)} disabled={text.trim().length < 2}>reveal engine line</button>}
@@ -195,7 +224,7 @@ function Calculate({ it, onDone }: { it: Item; onDone: OnDone }) {
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>Grade yourself honestly. This feeds judgment_calibration.</p>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {[[1, 'missed it'], [2, 'first move only'], [3, 'main line'], [4, 'line + why']].map(([g, l]) => (
-                <button key={g} style={btn} onClick={() => onDone(Number(g), Number(g) >= 3, Date.now() - t0.current, { written: text })}>{l}</button>
+                <button key={g} style={btn} onClick={() => onDone(Number(g), Number(g) >= 3, Date.now() - t0.current, { written: text, assisted: unlocked })}>{l}</button>
               ))}
             </div>
           </div>
