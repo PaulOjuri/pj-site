@@ -2,7 +2,7 @@
 // Everything here runs in server components during `next build` (static export).
 import fs from 'node:fs'
 import path from 'node:path'
-import type { GameIndex, GameOut, Leaks, Summary } from './types'
+import type { GameIndex, GameOut, Leaks, Plan, PlanHistory, Summary, TrainData } from './types'
 
 const DATA_DIR = path.join(process.cwd(), 'public', 'chess', 'data')
 
@@ -42,4 +42,16 @@ export function slugify(id: string): string {
 
 export function unslug(slug: string): string {
   return slug.replace('_', ':')
+}
+
+export function getPlan(): Plan | null {
+  return readJson<Plan>('plan/current.json')
+}
+
+export function getPlanHistory(): Plan[] {
+  return readJson<PlanHistory>('plan/history.json')?.plans ?? []
+}
+
+export function getTrain(): TrainData | null {
+  return readJson<TrainData>('train.json')
 }

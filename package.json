@@ -17,6 +17,7 @@
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
     "@types/howler": "^2.2.12",
+    "chess.js": "^1.4.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.40.0",
     "gray-matter": "^4.0.3",
@@ -36,6 +37,7 @@
     "remark-gfm": "^4.0.1",
     "resend": "^6.12.3",
     "sharp": "^0.34.5",
+    "stockfish": "^19.0.0",
     "three": "^0.184.0",
     "zustand": "^5.0.13"
   },

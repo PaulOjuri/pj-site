@@ -31,7 +31,6 @@ EVIDENCE_PER_LEAK = 8
 DESCRIPTIONS = {
     "positional_drift": "Slow eval slides over several quiet moves with no single big error",
     "conversion_fail_win": "Reached a clearly winning position (≥ +2) and did not win",
-    "conversion_fail_hold": "Reached a clearly lost position (≤ −2) and still lost it (no swindle)",
     "time_trouble_errors": "Errors made with under 30 seconds on the clock",
     "fast_critical_errors": "Errors in critical positions after thinking under 5 seconds",
     "endgame_errors": "Mistakes and blunders once the game reached an endgame",
@@ -109,8 +108,6 @@ def collect(store: Store, *, now: datetime | None = None) -> dict:
         c = f.get("conversion") or {}
         if c.get("failed_to_win"):
             add("conversion_fail_win", gid, 0, 50.0, None, {"max_eval": c["max_eval"]})
-        if c.get("failed_to_hold"):
-            add("conversion_fail_hold", gid, 0, 50.0, None, {"min_eval": c["min_eval"]})
         for bucket, d in (f.get("time_pressure") or {}).items():
             if bucket in ("<10s", "10-30s"):
                 for _ in range(d["errors"]):

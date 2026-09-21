@@ -1,0 +1,15 @@
+# Tournament calendar (spec §2, §9). Curated by hand; the monthly workflow may append scraped
+# candidates under `candidates` for review. `registered: true` drives the taper rule.
+events: []
+#  - name: "Example Open"
+#    start: 2026-11-01
+#    end: 2026-11-07
+#    city: Antwerp
+#    country: BEL
+#    format: "9-round Swiss, 90+30"
+#    fide_rated: true
+#    registered: false
+#    deadline: 2026-10-20
+#    url: https://example.org
+#    title_relevance: "rating"     # rating | wacc | norm
+candidates: []

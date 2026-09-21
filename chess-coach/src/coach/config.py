@@ -30,6 +30,7 @@ class Player(BaseModel):
 
 class Availability(BaseModel):
     hours_per_week: float = 10
+    hours_by_day: dict[str, float] = Field(default_factory=dict)
     free_days: list[str] = Field(default_factory=lambda: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
     timezone: str = "Europe/Brussels"
     home_city: str | None = None
@@ -39,6 +40,7 @@ class Goals(BaseModel):
     target_title: str = "CM"
     horizon_months: int = 24
     route: str = "both"
+    program_start: str = "2026-09-21"
 
 
 class PlayerConfig(BaseModel):
@@ -62,6 +64,14 @@ def load_config(path: Path | None = None) -> PlayerConfig:
     path = path or Path(os.environ.get("COACH_CONFIG", CONFIG_DIR / "player.yaml"))
     with open(path) as f:
         return PlayerConfig.model_validate(yaml.safe_load(f))
+
+
+def load_yaml(name: str) -> dict:
+    path = CONFIG_DIR / name
+    if not path.exists():
+        return {}
+    with open(path) as f:
+        return yaml.safe_load(f) or {}
 
 
 def db_path() -> Path:

@@ -15,3 +15,6 @@ data/coach.db
 
 # private analyses rendered locally only
 data/private/
+
+# local secrets
+.env

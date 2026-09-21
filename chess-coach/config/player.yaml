@@ -34,6 +34,7 @@ availability:
 goals:
   target_title: CM
   horizon_months: 24
+  program_start: "2026-09-21"   # Monday of week 1; drives macro/meso phases and deload cadence
   route: wacc_u2000           # FIDE World Amateur U2000 podium (answered 2026-09-20); 2200 tracked as secondary
 
 coaching:

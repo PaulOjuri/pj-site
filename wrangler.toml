@@ -5,3 +5,10 @@ pages_build_output_dir = "out"
 
 [vars]
 CONTACT_TO_EMAIL = "hello@paulojuri.com"
+
+# Chess coach write-back store: drill results, session completion, OTB game log.
+# Read by chess-coach `coach sync` (token-gated GET), written by /chess/train and /chess/log.
+[[d1_databases]]
+binding = "CHESS_DB"
+database_name = "chess-coach"
+database_id = "a21ac84f-1024-4b37-ab01-59a2a16e5ab2"

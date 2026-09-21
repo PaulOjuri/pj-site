@@ -1,0 +1,21 @@
+# Security headers site-wide (previously only in vercel.json, which Cloudflare ignores).
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Cross-origin isolation only where the multi-threaded engine runs. Everything else stays untouched.
+/chess/train
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+/chess/train/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+
+/chess/engine/*
+  Cache-Control: public, max-age=31536000, immutable
+  Cross-Origin-Resource-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+/chess/data/*
+  Cache-Control: public, max-age=300

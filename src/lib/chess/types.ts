@@ -104,3 +104,38 @@ export interface Leaks {
   generated_at: string; pool_games: number; pool_weighted: number; pool_by_speed: Record<string, number>
   rules: Record<string, unknown>; leaks: Leak[]
 }
+
+export interface PlanTarget {
+  tag: string; description: string; status: string; role: string; share: number; kind: string; response: string
+  n: number; frequency_per_100: number; severity: number
+  success: { metric: string; baseline: number; target: number; window: { from: string; to: string }; min_games: number; rule: string
+    outcome: { verdict: string; measured: number | null; games: number } | null }
+}
+
+export interface PlanSession {
+  id: string; day: string; duration_min: number; type: string; title: string; leak_targets: string[]
+  assets: Record<string, unknown>; success_criterion: string; notes: string; done: boolean | null
+}
+
+export interface Plan {
+  generated_at: string; week_start: string; week_index: number
+  phase: { name: string; months: string; month_index: number; description: string }
+  meso_block: number; deload: boolean; taper: { name: string; start: string; days_until: number } | null
+  hours_planned: number; hours_available: number; blitz_cap_per_week: number
+  targets: PlanTarget[]; sessions: PlanSession[]; warnings: string[]; rationale: string[]
+  fsrs: { due_today: number; escalations: number; cards_created?: number }; seed: boolean; inputs_hash: string
+}
+
+export interface PlanHistory { generated_at: string; plans: Plan[] }
+
+export interface DrillItem {
+  id: string; fen: string; solution?: string[]; prompt?: string; rating?: number; themes?: string[]; url?: string | null
+  game_id?: string; ply?: number; tag?: string; goal?: 'win' | 'hold'; signature?: string; eval_at_entry?: number; color?: 'white' | 'black'
+  gap_cp?: number | null; found_in_game?: boolean
+}
+
+export interface TrainData {
+  generated_at: string; week_start: string
+  due_cards: { id: string; kind: string; payload: DrillItem; due: string; reps: number; lapses: number }[]
+  sessions: { id: string; day: string; type: string; title: string; assets: Record<string, unknown> }[]
+}

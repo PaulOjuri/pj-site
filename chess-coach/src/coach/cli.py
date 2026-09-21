@@ -137,6 +137,45 @@ def cmd_session(args) -> int:
     return 0
 
 
+def cmd_puzzles(args) -> int:
+    from .planning.assets import index_puzzles, PUZZLE_DB
+    n = index_puzzles()
+    print(f"indexed {n} puzzles into {PUZZLE_DB}")
+    return 0
+
+
+def cmd_plan(args) -> int:
+    from .planning.generate import generate, save_plan, evaluate_cycles
+    from datetime import date
+    cfg = load_config()
+    store = Store(db_path())
+    evaluated = evaluate_cycles(store)
+    for e in evaluated:
+        print(f"cycle {e['week_start']} {e['tag']}: {e['verdict']} (measured {e['measured']}, games {e['games']})")
+    plan = generate(store, cfg, today=date.fromisoformat(args.date) if args.date else None)
+    save_plan(store, plan)
+    print(f"week {plan['week_index']} from {plan['week_start']} · phase {plan['phase']['name']} · "
+          f"{plan['hours_planned']}h planned / {plan['hours_available']}h available · deload={plan['deload']}")
+    for t in plan["targets"]:
+        print(f"  target [{t['role']}] {t['tag']} ({t['status']}, n={t['n']}) -> {t['success']['metric']} "
+              f"{t['success']['baseline']} -> {t['success']['target']} by {t['success']['window']['to']}")
+    for s_ in plan["sessions"]:
+        print(f"  {s_['day']:3s} {s_['duration_min']:4d}m {s_['type']:11s} {s_['title']}")
+    for w in plan["warnings"]:
+        print(f"  ! {w}")
+    store.close()
+    return 0
+
+
+def cmd_sync(args) -> int:
+    from .ingest.sync import run
+    store = Store(db_path())
+    st = run(store)
+    print("  ".join(f"{k}={v}" for k, v in st.items()))
+    store.close()
+    return 0
+
+
 def cmd_validate(args) -> int:
     from .analysis.validate import run, write_report
     res = run(n=args.n, seed=args.seed)
@@ -209,6 +248,16 @@ def main(argv: list[str] | None = None) -> int:
 
     se = sub.add_parser("session", help="tilt / session-length / time-of-day error rates (private)")
     se.set_defaults(fn=cmd_session)
+
+    pz = sub.add_parser("puzzles", help="index the Lichess puzzle CSV into data/puzzles/puzzles.db (one-off)")
+    pz.set_defaults(fn=cmd_puzzles)
+
+    pl = sub.add_parser("plan", help="evaluate last cycles and generate this week's plan")
+    pl.add_argument("--date", help="pretend today is this ISO date")
+    pl.set_defaults(fn=cmd_plan)
+
+    sy = sub.add_parser("sync", help="pull drill results / session completions / OTB logs from the site (D1)")
+    sy.set_defaults(fn=cmd_sync)
 
     va = sub.add_parser("validate", help="validate the motif tagger against the Lichess puzzle DB")
     va.add_argument("--n", type=int, default=3000)

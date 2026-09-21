@@ -130,7 +130,7 @@ def extract(game_row, analysis_row) -> tuple[GameFeatures, list[dict]]:
         mx, mn = max(pov_evals), min(pov_evals)
         conversion = {"max_eval": mx, "min_eval": mn,
                       "failed_to_win": mx >= CONVERSION_CP and game_row["result"] != "win",
-                      "failed_to_hold": mn <= -CONVERSION_CP and game_row["result"] != "loss",
+                      "saved_lost": mn <= -CONVERSION_CP and game_row["result"] != "loss",   # swindle rate, a positive stat
                       "reached_winning": mx >= CONVERSION_CP, "reached_losing": mn <= -CONVERSION_CP}
 
     # --- time pressure and speed vs complexity --------------------------------------------

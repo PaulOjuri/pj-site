@@ -157,6 +157,24 @@ def publish(store: Store, cfg: PlayerConfig, *, now: datetime | None = None) -> 
     )
     _write(SITE_DATA / "summary.json", summary)
 
+    # --- plan ---------------------------------------------------------------------------
+    from ..planning.generate import plan_history
+    from ..planning import fsrs
+    plans = plan_history(store)
+    if plans and pub.get("plan", True):
+        current = plans[0]
+        _write(SITE_DATA / "plan" / "current.json", current)
+        slim = [{k: v for k, v in p.items() if k not in ("sessions", "rationale")} |
+                {"sessions": [{k: v for k, v in s_.items() if k != "assets"} for s_ in p["sessions"]]} for p in plans]
+        _write(SITE_DATA / "plan" / "history.json", {"generated_at": stamp, "plans": slim})
+        # Training queue: due cards plus this week's session assets, for /chess/train.
+        due = fsrs.due_cards(store, now, limit=80)
+        _write(SITE_DATA / "train.json", {"generated_at": stamp, "week_start": current["week_start"], "due_cards": due,
+                                          "sessions": [{"id": s_["id"], "day": s_["day"], "type": s_["type"], "title": s_["title"],
+                                                        "assets": s_["assets"]} for s_ in current["sessions"]
+                                                       if s_["type"] in ("tactics", "calculation", "endgames", "openings")]})
+        out_stats["plan_week"] = current["week_index"]
+
     # --- private ------------------------------------------------------------------------
     PRIVATE_DIR.mkdir(parents=True, exist_ok=True)
     sess = session_mod.run(store, tz=cfg.availability.timezone)
@@ -167,8 +185,20 @@ def publish(store: Store, cfg: PlayerConfig, *, now: datetime | None = None) -> 
     # --- changelog ----------------------------------------------------------------------
     log_path = SITE_DATA / "changelog.json"
     entries = json.loads(log_path.read_text()) if log_path.exists() else []
-    entries.insert(0, {"at": stamp, "kind": "publish", "games_analysed": len(index_rows),
-                       "top_leaks": [l["tag"] for l in leaks_payload.leaks[:3]],
-                       "note": "Artifacts regenerated from the current database."})
+    entry = {"at": stamp, "kind": "publish", "games_analysed": len(index_rows),
+             "top_leaks": [l["tag"] for l in leaks_payload.leaks[:3]],
+             "note": "Artifacts regenerated from the current database."}
+    if plans:
+        cur = plans[0]
+        entry["plan"] = {"week": cur["week_index"], "targets": [t["tag"] for t in cur["targets"]], "why": cur["rationale"]}
+        if len(plans) > 1:
+            prev = plans[1]
+            a, b = [t["tag"] for t in prev["targets"]], [t["tag"] for t in cur["targets"]]
+            if a != b:
+                entry["plan"]["changed_from"] = a
+    if entries and entries[0].get("plan") == entry.get("plan") and entries[0].get("top_leaks") == entry["top_leaks"]:
+        entries[0] = entry          # same state, just refresh the timestamp
+    else:
+        entries.insert(0, entry)
     _write(log_path, entries[:200])
     return out_stats

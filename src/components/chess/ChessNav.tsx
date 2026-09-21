@@ -4,6 +4,8 @@ const LINKS = [
   { href: '/chess', label: 'Overview' },
   { href: '/chess/leaks', label: 'Leaks' },
   { href: '/chess/games', label: 'Games' },
+  { href: '/chess/plan', label: 'Plan' },
+  { href: '/chess/train', label: 'Train' },
 ]
 
 export function ChessNav({ current }: { current: string }) {
