@@ -37,6 +37,17 @@ def cmd_ingest(args) -> int:
                 since=args.since, limit_months=args.limit_months)
         finally:
             client.close()
+    if not args.source or "profiles" in sources:
+        from .ingest.profiles import fetch_chesscom, fetch_lichess
+        client = SerialClient(store, cfg.user_agent)
+        try:
+            if cfg.identities.chesscom:
+                fetch_chesscom(client, store, cfg.identities.chesscom)
+            if cfg.identities.lichess:
+                fetch_lichess(client, store, cfg.identities.lichess)
+            totals["profiles"] = {"fetched": 2}
+        finally:
+            client.close()
     if "lichess" in sources and cfg.identities.lichess:
         from .ingest.lichess import LichessIngester
         # Lichess asks for >=60s after a 429.
@@ -48,6 +59,16 @@ def cmd_ingest(args) -> int:
             client.close()
     for src, st in totals.items():
         print(f"{src:9s} " + "  ".join(f"{k}={v}" for k, v in st.items()))
+    store.close()
+    return 0
+
+
+def cmd_publish(args) -> int:
+    from .publish.artifacts import publish, SITE_DATA
+    cfg = load_config()
+    store = Store(db_path())
+    st = publish(store, cfg)
+    print(f"published to {SITE_DATA}: " + "  ".join(f"{k}={v}" for k, v in st.items()))
     store.close()
     return 0
 
@@ -151,13 +172,16 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     ing = sub.add_parser("ingest", help="fetch new games from every configured source")
-    ing.add_argument("--source", action="append", choices=["otb", "chesscom", "lichess"],
+    ing.add_argument("--source", action="append", choices=["otb", "chesscom", "lichess", "profiles"],
                      help="restrict to one source (repeatable)")
     ing.add_argument("--since", help="chess.com: only archives from YYYY/MM onward")
     ing.add_argument("--limit-months", type=int, help="chess.com: only the N most recent archives")
     ing.add_argument("--max-games", type=int, help="lichess: cap games streamed this run")
     ing.add_argument("--full", action="store_true", help="lichess: ignore the incremental cursor")
     ing.set_defaults(fn=cmd_ingest)
+
+    pb = sub.add_parser("publish", help="write JSON artifacts for the site (public) and data/private (private)")
+    pb.set_defaults(fn=cmd_publish)
 
     an = sub.add_parser("analyse", help="engine-analyse games lacking the current analysis version")
     an.add_argument("--source", action="append", choices=["otb", "chesscom", "lichess"])

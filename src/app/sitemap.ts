@@ -15,6 +15,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/services`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/contact`, lastModified: now, changeFrequency: 'yearly', priority: 0.6 },
+    { url: `${BASE}/chess`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${BASE}/chess/leaks`, lastModified: now, changeFrequency: 'daily', priority: 0.6 },
+    { url: `${BASE}/chess/games`, lastModified: now, changeFrequency: 'daily', priority: 0.5 },
   ]
 
   const workRoutes: MetadataRoute.Sitemap = getWorkSlugs().map((slug) => ({

@@ -1,0 +1,104 @@
+/* /chess — scoped styles. Uses the site's variables from globals.css. Board colours are our own. */
+
+.chess-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.chess-nav a { color: var(--text-muted); }
+.chess-nav a[aria-current='page'] { color: var(--accent); }
+.chess-nav a:hover { color: var(--text); }
+
+.chess-grid { display: grid; gap: 1.5rem; }
+@media (min-width: 720px) { .chess-grid-2 { grid-template-columns: 1fr 1fr; } .chess-grid-3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .chess-grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+.chess-card {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-elevated);
+}
+.chess-card h3 { font-family: var(--font-display-stack), Georgia, serif; font-weight: 400; font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text); }
+
+.stat { display: flex; flex-direction: column; gap: 0.25rem; }
+.stat .label-caps { color: var(--text-muted); }
+.stat .stat-value { font-family: var(--font-display-stack), Georgia, serif; font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.1; color: var(--text); }
+.stat .stat-note { font-size: 0.85rem; color: var(--text-muted); }
+
+.chess-warning {
+  border-left: 2px solid var(--accent);
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  background: rgba(201, 168, 76, 0.06);
+  font-size: 0.95rem;
+}
+
+.chess-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.chess-table th { text-align: left; font-family: var(--font-mono-stack), monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--line-strong); }
+.chess-table td { padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--line); color: var(--text-muted); vertical-align: top; }
+.chess-table td.num, .chess-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.chess-table a { color: var(--text); }
+.chess-table a:hover { color: var(--accent); }
+.chess-table-wrap { overflow-x: auto; }
+
+.result-win { color: #8fbf7f; }
+.result-loss { color: #d08a7a; }
+.result-draw { color: var(--text-muted); }
+
+.cls-blunder { color: #d08a7a; }
+.cls-mistake { color: #d9a45b; }
+.cls-inaccuracy { color: #c9c27a; }
+.cls-best { color: #8fbf7f; }
+.cls-good { color: var(--text-muted); }
+
+/* Board */
+.board { display: block; width: 100%; height: auto; max-width: 100%; }
+.board .sq-light { fill: #d9cdb4; }
+.board .sq-dark { fill: #6f5a45; }
+.board .sq-from, .board .sq-to { fill: rgba(201, 168, 76, 0.55); }
+.board .piece { font-size: 88px; text-anchor: middle; dominant-baseline: central; font-family: 'Apple Symbols', 'Segoe UI Symbol', 'DejaVu Sans', 'Noto Sans Symbols2', sans-serif; }
+.board .piece-w { fill: #f4efe4; stroke: #2a2419; stroke-width: 2.5px; paint-order: stroke fill; }
+.board .piece-b { fill: #1a1613; stroke: #d9cdb4; stroke-width: 1.5px; paint-order: stroke fill; }
+.board .coord text { font-family: var(--font-mono-stack), monospace; font-size: 14px; fill: rgba(0,0,0,0.45); }
+
+/* Move list */
+.moves { display: grid; grid-template-columns: 3rem 1fr 1fr; gap: 0.15rem 0.5rem; font-family: var(--font-mono-stack), monospace; font-size: 0.9rem; max-height: 480px; overflow-y: auto; }
+.moves .mv-no { color: var(--text-muted); }
+.moves button { background: none; border: 0; color: var(--text-muted); text-align: left; padding: 0.15rem 0.4rem; border-radius: 2px; cursor: pointer; font: inherit; }
+.moves button:hover { background: rgba(240,236,226,0.06); color: var(--text); }
+.moves button[aria-current='true'] { background: rgba(201,168,76,0.18); color: var(--text); }
+.moves .badge { margin-left: 0.35rem; font-size: 0.65rem; letter-spacing: 0.05em; }
+
+/* Eval graph */
+.evalgraph { width: 100%; height: auto; display: block; }
+.evalgraph .area { fill: rgba(240,236,226,0.9); }
+.evalgraph .bg { fill: #2a2622; }
+.evalgraph .mid { stroke: rgba(201,168,76,0.5); stroke-width: 1; }
+.evalgraph .marker { cursor: pointer; }
+.evalgraph .cursor { stroke: var(--accent); stroke-width: 1.5; }
+
+/* Leak cards */
+.leak { border: 1px solid var(--line); border-radius: 4px; padding: 1.5rem; background: var(--bg-elevated); display: grid; gap: 1rem; }
+.leak-head { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: baseline; justify-content: space-between; }
+.leak-head h2 { font-family: var(--font-display-stack), Georgia, serif; font-weight: 400; font-size: 1.35rem; color: var(--text); }
+.leak-meta { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: 0.85rem; color: var(--text-muted); }
+.leak-meta b { color: var(--text); font-weight: 500; }
+.leak-evidence { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.leak-evidence figure { margin: 0; }
+.leak-evidence figcaption { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4; }
+.status { font-family: var(--font-mono-stack), monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; border: 1px solid var(--line-strong); }
+.status-confirmed { color: var(--accent); border-color: rgba(201,168,76,0.5); }
+.status-provisional { color: #c9c27a; }
+.status-watch { color: var(--text-muted); }
+
+.chess-footnote { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+.chess-footnote a { color: var(--text-muted); text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) { .board *, .evalgraph * { transition: none !important; } }

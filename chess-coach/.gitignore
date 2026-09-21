@@ -12,3 +12,6 @@ data/*.db-shm
 # coach.db holds every PGN (~300MB+ with full online history) and exceeds GitHub's file limit.
 # It is fully reproducible with `coach ingest`; analysis outputs will publish as JSON artifacts.
 data/coach.db
+
+# private analyses rendered locally only
+data/private/
