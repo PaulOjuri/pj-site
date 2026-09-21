@@ -44,3 +44,6 @@ next-env.d.ts
 # build artifacts (contain injected env vars)
 /.open-next/
 /.wrangler/
+
+# engine builds are copied from node_modules/stockfish at build time (scripts/copy-engine.mjs)
+/public/chess/engine/
