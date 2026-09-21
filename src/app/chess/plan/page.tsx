@@ -68,6 +68,7 @@ export default function PlanPage() {
       {plan.briefing && (
         <section className="chess-card" style={{ marginBottom: '2.5rem' }} aria-labelledby="briefing-h">
           <p className="label-caps" style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Coach&apos;s briefing · generated {plan.briefing.generated_at.slice(0, 10)} · every claim links to its evidence</p>
+          {plan.briefing.stale && <div className="chess-warning" style={{ marginBottom: '1rem' }}>This briefing was written for an earlier version of this week&apos;s plan; the targets below are current, the briefing is not. It will be regenerated on the next successful weekly run.</div>}
           <h2 id="briefing-h" style={{ fontFamily: 'var(--font-display-stack)', fontWeight: 400, fontSize: '1.5rem', color: 'var(--text)', marginBottom: '1rem', lineHeight: 1.3 }}>{plan.briefing.headline}</h2>
           <div className="chess-grid chess-grid-2" style={{ fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: 1.65 }}>
             <div>

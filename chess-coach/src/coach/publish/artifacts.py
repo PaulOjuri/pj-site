@@ -174,7 +174,11 @@ def publish(store: Store, cfg: PlayerConfig, *, now: datetime | None = None) -> 
     if plans and pub.get("plan", True):
         current = dict(plans[0])
         from ..briefing.generate import latest as latest_briefing
-        current["briefing"] = latest_briefing(store, current["week_start"])
+        b = latest_briefing(store, current["week_start"])
+        if b:
+            # A briefing written before the plan was last regenerated may describe different targets.
+            b["stale"] = b["generated_at"] < current["generated_at"]
+        current["briefing"] = b
         _write(SITE_DATA / "plan" / "current.json", current)
         slim = [{k: v for k, v in p.items() if k not in ("sessions", "rationale")} |
                 {"sessions": [{k: v for k, v in s_.items() if k != "assets"} for s_ in p["sessions"]]} for p in plans]

@@ -119,7 +119,7 @@ export interface PlanSession {
 
 export interface BriefingClaim { text: string; leak_tag?: string | null; game_id?: string | null; ply?: number | null; session_id?: string | null }
 export interface Briefing {
-  week_start: string; generated_at: string; model: string; evidence_hash: string
+  week_start: string; generated_at: string; model: string; evidence_hash: string; stale?: boolean
   headline: string; situation: BriefingClaim[]; focus: BriefingClaim[]; progress: BriefingClaim[]; week_ahead: BriefingClaim[]; caveats: string[]
 }
 
