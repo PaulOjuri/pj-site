@@ -1,3 +1,18 @@
+# paulojuri.com
+
+Personal site: Next.js 16 (App Router, static export) on Cloudflare Pages, with Pages Functions for
+the dynamic bits. `npm run dev` to work locally, `npm run build` then
+`npx wrangler pages deploy out --project-name paulojuri` to ship.
+
+## /chess
+
+A closed-loop chess training system lives at `/chess`: games in, Stockfish analysis, recurring
+weaknesses out with evidence and confidence, a weekly plan, a trainer, and a title-route tracker.
+The pipeline that produces its data is in [`chess-coach/`](chess-coach/README.md); design notes and
+the decisions behind it are in [`chess-coach/docs/ARCHITECTURE.md`](chess-coach/docs/ARCHITECTURE.md).
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -4,7 +4,7 @@ import { ChessFooter } from '@/components/chess/ChessFooter'
 import { Trainer } from '@/components/chess/Trainer'
 import { getTrain } from '@/lib/chess/data'
 
-export const metadata: Metadata = { title: 'Train', robots: { index: false } }
+export const metadata: Metadata = { title: 'Train', robots: { index: false, follow: false } }
 
 export default function TrainPage() {
   const data = getTrain()

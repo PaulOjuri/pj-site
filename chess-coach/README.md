@@ -1,6 +1,6 @@
 # chess-coach (Tier 1)
 
-Offline pipeline behind `paulojuri.com/chess`. Spec: `../CHESS_COACH_SPEC.md`. Status: **M6 done** (M1–M6 live at paulojuri.com/chess); M7 polish pending.
+Offline pipeline behind `paulojuri.com/chess`. Spec: `../CHESS_COACH_SPEC.md`. Status: **M1–M7 done**, live at paulojuri.com/chess. Design notes: `docs/ARCHITECTURE.md`.
 
 ## Setup
 
@@ -11,6 +11,23 @@ python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 ```
 
 Config lives in `config/player.yaml`. Optional env: `LICHESS_TOKEN` (raises export throughput; required later for the puzzle dashboard), `COACH_DB` (defaults to `data/coach.db`).
+
+## Running everything locally, end to end
+
+```sh
+brew install stockfish zstd
+cd chess-coach && python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+.venv/bin/coach ingest                 # ~40 min the first time (81k games); seconds afterwards
+.venv/bin/coach analyse --speed rapid --limit 50
+.venv/bin/coach tag && .venv/bin/coach leaks
+.venv/bin/coach plan && .venv/bin/coach brief   # brief needs ANTHROPIC_API_KEY (.env or pj-site/.env.local)
+.venv/bin/coach title && .venv/bin/coach publish
+cd .. && npm install --legacy-peer-deps && npm run build && npx serve out    # open /chess
+```
+
+Optional: `data/puzzles/lichess_db_puzzle.csv.zst` from database.lichess.org, then `coach puzzles`
+(builds the local index used for themed drill sets) and `coach validate` (tagger report).
+Write-back from the site needs `CHESS_TOKEN` in `.env` matching the Cloudflare Pages secret.
 
 ## Commands
 
@@ -27,6 +44,12 @@ coach leaks [--top 15] [--all]         # ranked leaks with confidence; --all sho
 coach session                          # tilt / session length / hour-of-day (private)
 coach tablebase [--max-probes 300]     # Lichess tablebase accuracy for <=7-piece positions
 coach validate [--n 3000]              # tagger precision/recall vs Lichess puzzle DB -> reports/
+coach plan [--date YYYY-MM-DD]         # evaluate closed cycles, generate this week's plan
+coach brief [--dump-pack]              # schema-validated LLM briefing from the evidence pack
+coach title                            # title route tracker (Elo Monte Carlo, WACC eligibility)
+coach publish                          # write public artifacts + private analyses
+coach sync                             # pull drill results / completions / OTB logs from the site
+coach run hourly|nightly|weekly|monthly
 ```
 
 Needs Stockfish on PATH (`brew install stockfish`) and, for `validate`, the puzzle DB at

@@ -33,6 +33,10 @@ export function EvalGraph({ moves, current, onSelect }: { moves: MoveOut[]; curr
             r={m.c === 'blunder' ? 6 : 4}
             fill={m.c === 'blunder' ? '#d08a7a' : '#d9a45b'}
             onClick={() => onSelect(i)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(i) } }}
+            tabIndex={0}
+            role="button"
+            aria-label={`${Math.floor(i / 2) + 1}${i % 2 ? '…' : '.'} ${m.s}, ${m.c}, minus ${m.wl.toFixed(0)} percent`}
           >
             <title>{`${Math.floor(i / 2) + 1}${i % 2 ? '…' : '.'} ${m.s}: ${m.c}, −${m.wl.toFixed(0)}% win chance`}</title>
           </circle>

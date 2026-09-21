@@ -172,7 +172,9 @@ def publish(store: Store, cfg: PlayerConfig, *, now: datetime | None = None) -> 
     from ..planning import fsrs
     plans = plan_history(store)
     if plans and pub.get("plan", True):
-        current = plans[0]
+        current = dict(plans[0])
+        from ..briefing.generate import latest as latest_briefing
+        current["briefing"] = latest_briefing(store, current["week_start"])
         _write(SITE_DATA / "plan" / "current.json", current)
         slim = [{k: v for k, v in p.items() if k not in ("sessions", "rationale")} |
                 {"sessions": [{k: v for k, v in s_.items() if k != "assets"} for s_ in p["sessions"]]} for p in plans]

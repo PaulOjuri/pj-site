@@ -214,6 +214,38 @@ def cmd_run(args) -> int:
     return 0 if all(st["ok"] for st in out["steps"]) else 1
 
 
+def cmd_brief(args) -> int:
+    from .briefing.evidence import build as build_pack
+    from .briefing.generate import generate, save
+    from .planning.generate import plan_history
+    from .scoring.leaks import run as leaks_run
+    cfg = load_config()
+    store = Store(db_path())
+    plans = plan_history(store)
+    if not plans:
+        print("no plan yet; run `coach plan` first")
+        return 1
+    plan = plans[0]
+    title = json.loads(store.get_state("title.latest") or "null")
+    pack = build_pack(store, plan, leaks_run(store), title)
+    if args.dump_pack:
+        print(json.dumps(pack, indent=1))
+        return 0
+    b, meta = generate(pack)
+    save(store, plan["week_start"], b, meta)
+    print(json.dumps(meta, indent=1))
+    if b:
+        print("\n" + b.headline)
+        for sec in ("situation", "focus", "progress", "week_ahead"):
+            print(f"\n[{sec}]")
+            for c in getattr(b, sec):
+                ref = " ".join(f"{k}={v}" for k, v in (("leak", c.leak_tag), ("game", c.game_id), ("ply", c.ply), ("session", c.session_id)) if v is not None)
+                print(f"- {c.text}" + (f"  ({ref})" if ref else ""))
+        print("\n[caveats]"); [print("-", x) for x in b.caveats]
+    store.close()
+    return 0 if b else 1
+
+
 def cmd_validate(args) -> int:
     from .analysis.validate import run, write_report
     res = run(n=args.n, seed=args.seed)
@@ -303,6 +335,10 @@ def main(argv: list[str] | None = None) -> int:
     rn = sub.add_parser("run", help="orchestrated pipeline run: hourly | nightly | weekly | monthly")
     rn.add_argument("mode", choices=["hourly", "nightly", "weekly", "monthly"])
     rn.set_defaults(fn=cmd_run)
+
+    br = sub.add_parser("brief", help="LLM weekly briefing from the evidence pack (schema-validated, traceable)")
+    br.add_argument("--dump-pack", action="store_true", help="print the evidence pack and exit")
+    br.set_defaults(fn=cmd_brief)
 
     va = sub.add_parser("validate", help="validate the motif tagger against the Lichess puzzle DB")
     va.add_argument("--n", type=int, default=3000)

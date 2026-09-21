@@ -33,7 +33,7 @@ export default function TitlePage() {
 
       <section style={{ marginTop: '2.5rem' }} className="chess-grid chess-grid-2">
         <div className="chess-card">
-          <h3>Route B · World Amateur U2000</h3>
+          <h2 style={{ fontFamily: 'var(--font-display-stack)', fontWeight: 400, fontSize: '1.25rem', color: 'var(--text)', marginBottom: '0.5rem' }}>Route B · World Amateur U2000</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.7 }}>
             {w.event.name}, {w.event.city}, {w.event.start} to {w.event.end}. {w.event.rounds}-round Swiss, {w.event.time_control}, fee {w.event.fee_eur} EUR.
             Eligible now: <b style={{ color: w.eligible_now ? '#8fbf7f' : '#d08a7a' }}>{w.eligible_now ? 'yes' : 'no'}</b>. Requirement: no published standard rating ≥ 2000 between {w.lookback_window[0]} and {w.lookback_window[1]}, no title above CM.
@@ -42,7 +42,7 @@ export default function TitlePage() {
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>{w.note} Sources: <a className="link-accent" href={String(w.event.source)} rel="noopener">regulations</a>, <a className="link-accent" href={String(w.event.titles_source)} rel="noopener">direct titles table</a>.</p>
         </div>
         <div className="chess-card">
-          <h3>Route A · rating</h3>
+          <h2 style={{ fontFamily: 'var(--font-display-stack)', fontWeight: 400, fontSize: '1.25rem', color: 'var(--text)', marginBottom: '0.5rem' }}>Route A · rating</h2>
           {t.routes.rating.map((r) => (
             <p key={r.route} style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.7 }}>
               <b style={{ color: 'var(--text)' }}>{r.title} at {r.threshold}</b>: {r.gap} points away. Probability of getting there by {t.goal.program_end} under the scenario below: <b style={{ color: 'var(--text)' }}>{r.p_reach_by_horizon != null ? `${Math.round(r.p_reach_by_horizon * 100)}%` : '—'}</b>.
@@ -53,7 +53,7 @@ export default function TitlePage() {
       </section>
 
       <section style={{ marginTop: '2.5rem' }} className="chess-card">
-        <h3>Monte Carlo · {mc.runs.toLocaleString()} simulated careers</h3>
+        <h2 style={{ fontFamily: 'var(--font-display-stack)', fontWeight: 400, fontSize: '1.25rem', color: 'var(--text)', marginBottom: '0.5rem' }}>Monte Carlo · {mc.runs.toLocaleString()} simulated careers</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.7 }}>
           Scenario: {t.monte_carlo.scenario_assumption}. Performance model: {mc.performance.source} ({mc.performance.n_games} games), offset {mc.performance.offset_mean > 0 ? '+' : ''}{mc.performance.offset_mean} ± {mc.performance.offset_sd}, draw rate {Math.round(mc.performance.draw_rate * 100)}%.
         </p>

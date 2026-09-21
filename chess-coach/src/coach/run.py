@@ -131,7 +131,7 @@ def run(mode: str) -> dict:
         t.step("retag", lambda: tag_run(store, force=True))
 
     # 6. cycle evaluation + weekly plan
-    from .planning.generate import evaluate_cycles, generate, save_plan
+    from .planning.generate import evaluate_cycles, generate, plan_history, save_plan
     t.step("evaluate_cycles", lambda: {"evaluated": len(evaluate_cycles(store))})
     if mode == "weekly":
         def plan():
@@ -139,6 +139,18 @@ def run(mode: str) -> dict:
             save_plan(store, p)
             return {"week": p["week_index"], "targets": [x["tag"] for x in p["targets"]]}
         t.step("plan", plan)
+        from .briefing.evidence import build as build_pack
+        from .briefing.generate import generate as brief_generate, save as brief_save
+        from .scoring.leaks import run as leaks_run
+        from .titles.tracker import build as build_title
+        def brief():
+            p = plan_history(store)[0]
+            title = build_title(store, cfg)
+            pack = build_pack(store, p, leaks_run(store), title)
+            b, meta = brief_generate(pack)
+            brief_save(store, p["week_start"], b, meta)
+            return {"ok": b is not None, "attempts": meta["attempts"], "errors": meta["errors"][:2], "usage": meta["usage"]}
+        t.step("brief", brief)
     elif store.conn.execute("SELECT COUNT(*) FROM plans").fetchone()[0] == 0 if _has_table(store, "plans") else True:
         def first_plan():
             p = generate(store, cfg)

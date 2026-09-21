@@ -117,7 +117,14 @@ export interface PlanSession {
   assets: Record<string, unknown>; success_criterion: string; notes: string; done: boolean | null
 }
 
+export interface BriefingClaim { text: string; leak_tag?: string | null; game_id?: string | null; ply?: number | null; session_id?: string | null }
+export interface Briefing {
+  week_start: string; generated_at: string; model: string; evidence_hash: string
+  headline: string; situation: BriefingClaim[]; focus: BriefingClaim[]; progress: BriefingClaim[]; week_ahead: BriefingClaim[]; caveats: string[]
+}
+
 export interface Plan {
+  briefing?: Briefing | null
   generated_at: string; week_start: string; week_index: number
   phase: { name: string; months: string; month_index: number; description: string }
   meso_block: number; deload: boolean; taper: { name: string; start: string; days_until: number } | null

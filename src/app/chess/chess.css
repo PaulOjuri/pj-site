@@ -102,3 +102,11 @@
 .chess-footnote a { color: var(--text-muted); text-decoration: underline; }
 
 @media (prefers-reduced-motion: reduce) { .board *, .evalgraph * { transition: none !important; } }
+
+/* Keyboard focus must be visible on every interactive element in this section. */
+.chess-nav a:focus-visible, .moves button:focus-visible, .leak a:focus-visible, .chess-table a:focus-visible,
+.chess-card a:focus-visible, .chess-card button:focus-visible, .chess-grid button:focus-visible, .chess-grid input:focus-visible,
+.chess-grid select:focus-visible, .chess-grid textarea:focus-visible, .evalgraph .marker:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

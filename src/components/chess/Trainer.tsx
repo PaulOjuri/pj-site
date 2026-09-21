@@ -85,6 +85,33 @@ export function Trainer({ data }: { data: TrainData }) {
 
 type OnDone = (grade: number, correct: boolean, elapsed_ms: number, detail?: unknown) => void
 
+function MoveInput({ chess, onMove, disabled }: { chess: Chess; onMove: (uci: string) => void; disabled?: boolean }) {
+  // Keyboard alternative to clicking the board: type a move in SAN or UCI.
+  const [v, setV] = useState('')
+  const [err, setErr] = useState('')
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const t = v.trim()
+    if (!t) return
+    try {
+      const probe = new Chess(chess.fen())
+      const m = probe.move(t) ?? null
+      if (!m) throw new Error('illegal')
+      onMove(m.from + m.to + (m.promotion ?? ''))
+      setV(''); setErr('')
+    } catch { setErr('Not a legal move here.') }
+  }
+  return (
+    <form onSubmit={submit} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+      <label htmlFor="move-input" className="label-caps" style={{ color: 'var(--text-muted)' }}>Type a move</label>
+      <input id="move-input" value={v} onChange={(e) => setV(e.target.value)} disabled={disabled} placeholder="Nf3 or g1f3" autoComplete="off"
+        style={{ background: 'var(--bg-inset)', border: '1px solid var(--line-strong)', color: 'var(--text)', padding: '0.4rem 0.6rem', borderRadius: 2, width: 120, font: 'inherit' }} />
+      <button type="submit" style={btn} disabled={disabled}>play</button>
+      {err && <span role="alert" style={{ fontSize: '0.8rem', color: '#d08a7a' }}>{err}</span>}
+    </form>
+  )
+}
+
 function Solve({ it, onDone }: { it: Item; onDone: OnDone }) {
   const solution = it.item.solution ?? []
   const [chess] = useState(() => new Chess(it.item.fen))
@@ -125,12 +152,17 @@ function Solve({ it, onDone }: { it: Item; onDone: OnDone }) {
   }
   return (
     <div className="chess-grid chess-grid-2" style={{ alignItems: 'start' }}>
-      <InteractiveBoard chess={chess} flipped={me === 'black'} onMove={onMove} disabled={state !== 'playing' && state !== 'wrong'} lastMove={last} />
+      <div>
+        <InteractiveBoard chess={chess} flipped={me === 'black'} onMove={onMove} disabled={state !== 'playing' && state !== 'wrong'} lastMove={last} />
+        <MoveInput chess={chess} onMove={onMove} disabled={state !== 'playing' && state !== 'wrong'} />
+      </div>
       <div>
         <p style={{ color: 'var(--text)', marginBottom: '0.5rem' }}>{it.item.prompt ?? `${me === 'white' ? 'White' : 'Black'} to move. Find the best continuation.`}</p>
+        <div role="status" aria-live="polite">
         {state === 'wrong' && <p className="cls-blunder" style={{ marginBottom: '0.5rem' }}>Not that. Try again, or reveal.</p>}
         {state === 'solved' && <p className="cls-best" style={{ marginBottom: '0.5rem' }}>Solved{mistakes.current ? ` with ${mistakes.current} wrong tries` : ' first time'}.</p>}
         {state === 'revealed' && <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Solution: <span className="font-mono">{solution.join(' ')}</span></p>}
+        </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {(state === 'playing' || state === 'wrong') && <button style={btn} onClick={() => setState('playing')} disabled={state === 'playing'}>keep trying</button>}
           {(state === 'playing' || state === 'wrong') && <button style={btn} onClick={reveal}>reveal solution</button>}
@@ -206,12 +238,15 @@ function Playout({ it, engine, onDone }: { it: Item; engine: Engine | null; onDo
   }
   return (
     <div className="chess-grid chess-grid-2" style={{ alignItems: 'start' }}>
-      <InteractiveBoard chess={chess} flipped={me === 'black'} onMove={onMove} disabled={Boolean(over) || thinking || !engine} lastMove={last} />
+      <div>
+        <InteractiveBoard chess={chess} flipped={me === 'black'} onMove={onMove} disabled={Boolean(over) || thinking || !engine} lastMove={last} />
+        <MoveInput chess={chess} onMove={onMove} disabled={Boolean(over) || thinking || !engine} />
+      </div>
       <div>
         <p style={{ color: 'var(--text)', marginBottom: '0.5rem' }}>
           {it.item.signature} · you are {me} · goal: <b>{goal === 'win' ? 'win it' : 'hold the draw'}</b>{it.item.eval_at_entry != null ? ` (engine said ${(it.item.eval_at_entry / 100).toFixed(1)} at entry)` : ''}.
         </p>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{!engine ? 'Engine loading…' : thinking ? 'Engine thinking…' : over ? `Game over: ${over}.` : 'Your move. Stockfish lite replies at depth 16.'}</p>
+        <p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{!engine ? 'Engine loading…' : thinking ? 'Engine thinking…' : over ? `Game over: ${over}.` : 'Your move. Stockfish lite replies at depth 16.'}</p>
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
           {!over && <button style={btn} onClick={() => finish(goal === 'win' ? 'draw' : 'loss')}>give up</button>}
           {!over && <button style={btn} onClick={() => finish('draw')} disabled={goal === 'win'}>claim draw</button>}

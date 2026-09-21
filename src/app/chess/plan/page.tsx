@@ -7,6 +7,7 @@ import { StatusPill } from '@/components/chess/shared'
 import { DoneToggle } from '@/components/chess/PlanChecklist'
 import { TokenBox } from '@/components/chess/TokenBox'
 import { getPlan, getPlanHistory, slugify } from '@/lib/chess/data'
+import type { BriefingClaim } from '@/lib/chess/types'
 
 export const metadata: Metadata = { title: 'Plan' }
 const DAY: Record<string, string> = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' }
@@ -27,6 +28,19 @@ function Assets({ a }: { a: Record<string, unknown> }) {
   }
   if (!items.length) return null
   return <ul style={{ fontSize: '0.85rem', color: 'var(--text-muted)', paddingLeft: '1.2rem', lineHeight: 1.7 }}>{items}</ul>
+}
+
+function Claim({ c }: { c: BriefingClaim }) {
+  const refs: React.ReactNode[] = []
+  if (c.game_id) refs.push(<Link key="g" className="link-accent" href={`/chess/games/${slugify(c.game_id)}`}>game{c.ply != null ? ` · move ${Math.floor(c.ply / 2) + 1}` : ''}</Link>)
+  if (c.leak_tag) refs.push(<Link key="l" className="link-accent" href={`/chess/leaks#${c.leak_tag.replace(':', '-')}`}>leak</Link>)
+  if (c.session_id) refs.push(<a key="s" className="link-accent" href={`#${c.session_id}`}>session</a>)
+  return (
+    <li style={{ marginBottom: '0.5rem' }}>
+      {c.text}
+      {refs.length > 0 && <span className="font-mono" style={{ fontSize: '0.7rem', marginLeft: '0.5rem' }}>[{refs.map((r, i) => <span key={i}>{i > 0 ? ' · ' : ''}{r}</span>)}]</span>}
+    </li>
+  )
 }
 
 export default function PlanPage() {
@@ -50,6 +64,30 @@ export default function PlanPage() {
         <p className="prose" style={{ marginTop: '1rem' }}>{plan.phase.description} {plan.hours_planned} of {plan.hours_available} hours planned. Blitz cap {plan.blitz_cap_per_week} games.</p>
         {plan.warnings.map((w) => <div key={w} className="chess-warning" style={{ marginTop: '1rem' }}>{w}</div>)}
       </header>
+
+      {plan.briefing && (
+        <section className="chess-card" style={{ marginBottom: '2.5rem' }} aria-labelledby="briefing-h">
+          <p className="label-caps" style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Coach&apos;s briefing · generated {plan.briefing.generated_at.slice(0, 10)} · every claim links to its evidence</p>
+          <h2 id="briefing-h" style={{ fontFamily: 'var(--font-display-stack)', fontWeight: 400, fontSize: '1.5rem', color: 'var(--text)', marginBottom: '1rem', lineHeight: 1.3 }}>{plan.briefing.headline}</h2>
+          <div className="chess-grid chess-grid-2" style={{ fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: 1.65 }}>
+            <div>
+              <h3 className="label-caps" style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Where things stand</h3>
+              <ul style={{ paddingLeft: '1.1rem' }}>{plan.briefing.situation.map((c, i) => <Claim key={i} c={c} />)}</ul>
+              <h3 className="label-caps" style={{ color: 'var(--text-muted)', margin: '1rem 0 0.5rem' }}>Why these targets</h3>
+              <ul style={{ paddingLeft: '1.1rem' }}>{plan.briefing.focus.map((c, i) => <Claim key={i} c={c} />)}</ul>
+            </div>
+            <div>
+              <h3 className="label-caps" style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Last cycle</h3>
+              <ul style={{ paddingLeft: '1.1rem' }}>{plan.briefing.progress.map((c, i) => <Claim key={i} c={c} />)}</ul>
+              <h3 className="label-caps" style={{ color: 'var(--text-muted)', margin: '1rem 0 0.5rem' }}>The week ahead</h3>
+              <ul style={{ paddingLeft: '1.1rem' }}>{plan.briefing.week_ahead.map((c, i) => <Claim key={i} c={c} />)}</ul>
+              <h3 className="label-caps" style={{ color: 'var(--text-muted)', margin: '1rem 0 0.5rem' }}>What the data cannot say yet</h3>
+              <ul style={{ paddingLeft: '1.1rem' }}>{plan.briefing.caveats.map((c, i) => <li key={i} style={{ marginBottom: '0.4rem' }}>{c}</li>)}</ul>
+            </div>
+          </div>
+          <p className="chess-footnote" style={{ marginTop: '1rem' }}>Written by {plan.briefing.model} from the pipeline&apos;s evidence pack only; the plan itself is generated deterministically and the model cannot change it. Claims that failed reference checks were rejected before publication.</p>
+        </section>
+      )}
 
       <section className="chess-grid chess-grid-2" style={{ marginBottom: '2.5rem' }}>
         {plan.targets.map((t) => (
