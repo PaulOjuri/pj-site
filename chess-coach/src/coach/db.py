@@ -279,8 +279,10 @@ class Store:
                "WHERE g.variant='standard'" + ("" if force else " AND (f.game_id IS NULL OR f.tagger_version != ?)") +
                " ORDER BY g.played_at DESC" + (f" LIMIT {int(limit)}" if limit else ""))
         params = [] if force else [tagger_version]
-        for r in self.conn.execute(sql, params):
-            yield r, {"moves": r["a_moves"]}
+        # Materialise: writing while a read cursor is open on the same connection cannot wait
+        # on the busy handler when another process has advanced the WAL (snapshot upgrade).
+        rows = self.conn.execute(sql, params).fetchall()
+        return [(r, {"moves": r["a_moves"]}) for r in rows]
 
     def save_features(self, game_id: str, tagger_version: str, data: str, hits: list[dict]) -> None:
         self.conn.execute(

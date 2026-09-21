@@ -128,6 +128,16 @@ def publish(store: Store, cfg: PlayerConfig, *, now: datetime | None = None) -> 
     fide = {"standard": seed.get("standard"), "rapid": seed.get("rapid"), "blitz": seed.get("blitz"),
             "standard_inactive": bool(seed.get("standard_inactive")), "blitz_inactive": bool(seed.get("blitz_inactive")),
             "title": seed.get("title"), "as_of": "2026-09-20", "source": "config seed (ratings.fide.com profile)"}
+    latest = store.get_state("fide.latest")
+    if latest:
+        fl = json.loads(latest).get("lists", {})
+        for k in ("standard", "rapid", "blitz"):
+            if k in fl:
+                fide[k] = fl[k].get("rating")
+                if k != "rapid":
+                    fide[f"{k}_inactive"] = bool(fl[k].get("inactive"))
+        fide["as_of"] = json.loads(latest).get("period", fide["as_of"])
+        fide["source"] = f"FIDE rating lists ({json.loads(latest).get('source')})"
     fide.update({k: v for k, v in (cfg.manual_override or {}).items() if k in fide})
     online = {}
     for key in ("chesscom", "lichess"):
@@ -174,6 +184,18 @@ def publish(store: Store, cfg: PlayerConfig, *, now: datetime | None = None) -> 
                                                         "assets": s_["assets"]} for s_ in current["sessions"]
                                                        if s_["type"] in ("tactics", "calculation", "endgames", "openings")]})
         out_stats["plan_week"] = current["week_index"]
+
+    # --- title tracker -------------------------------------------------------------------
+    from ..titles.tracker import build as build_title
+    if pub.get("title", True):
+        title = build_title(store, cfg, today=now.date())
+        store.set_state("title.latest", json.dumps(title))
+        _write(SITE_DATA / "title.json", title)
+        for wmsg in title["warnings"]:
+            if wmsg not in warnings and "WACC" in wmsg:
+                warnings.append(wmsg)
+        summary.warnings = warnings
+        _write(SITE_DATA / "summary.json", summary)
 
     # --- private ------------------------------------------------------------------------
     PRIVATE_DIR.mkdir(parents=True, exist_ok=True)

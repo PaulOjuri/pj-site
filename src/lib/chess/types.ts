@@ -139,3 +139,24 @@ export interface TrainData {
   due_cards: { id: string; kind: string; payload: DrillItem; due: string; reps: number; lapses: number }[]
   sessions: { id: string; day: string; type: string; title: string; assets: Record<string, unknown> }[]
 }
+
+export interface MonteCarlo {
+  runs: number; events: { name: string; start: string; rounds: number; opp_mean: number }[]; horizon: string; start_rating: number
+  final: { p10: number; p50: number; p90: number; mean: number }; p_reach: Record<string, number>
+  per_event_median: (number | null)[]
+  performance: { offset_mean: number; offset_sd: number; draw_rate: number; source: string; n_games: number }
+}
+
+export interface TitleData {
+  generated_at: string; today: string
+  fide: { standard: number | null; rapid: number | null; blitz: number | null; standard_inactive: boolean; blitz_inactive: boolean; k: number; period: string | null; source: string; games_to_restore_activity: number; rated_games_12m_on_record: number }
+  goal: { title: string; route: string; program_end: string }
+  routes: {
+    rating: { route: string; title: string; threshold: number; current: number | null; gap: number | null; p_reach_by_horizon: number | null; note: string }[]
+    wacc_u2000: { section: string; eligible_now: boolean; rating_breaches: [string, number][]; title_ok: boolean; lookback_window: [string, string]; registration_deadline: string; days_to_registration: number; days_to_start: number; titles: { gold: string; silver_bronze: string | null }; note: string; event: Record<string, string | number> }
+    norms: { note: string }
+  }
+  monte_carlo: { calendar: MonteCarlo | null; scenario: MonteCarlo; scenario_assumption: string; registered_events: number }
+  calendar: { name: string; start: string; end?: string; city?: string; country?: string; format?: string; fide_rated?: boolean; registered?: boolean; deadline?: string; url?: string; title_relevance?: string; days_until: number; days_to_deadline?: number; expected_gain_at_plus150: number; expected_gain_at_plus250: number; assumed?: boolean }[]
+  warnings: string[]
+}

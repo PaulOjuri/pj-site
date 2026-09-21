@@ -48,6 +48,10 @@ def cmd_ingest(args) -> int:
             totals["profiles"] = {"fetched": 2}
         finally:
             client.close()
+    if not args.source or "fide" in sources:
+        from .ingest.fide import run as fide_run
+        snap = fide_run(store, cfg.player.fide_id, cfg.user_agent)
+        totals["fide"] = {k: (v.get("rating"), "inactive" if v.get("inactive") else "active") for k, v in snap["lists"].items()}
     if "lichess" in sources and cfg.identities.lichess:
         from .ingest.lichess import LichessIngester
         # Lichess asks for >=60s after a 429.
@@ -176,6 +180,40 @@ def cmd_sync(args) -> int:
     return 0
 
 
+def cmd_title(args) -> int:
+    from .titles.tracker import build
+    cfg = load_config()
+    store = Store(db_path())
+    out = build(store, cfg)
+    store.set_state("title.latest", json.dumps(out))
+    mc = out["monte_carlo"]["scenario"]
+    print(f"standard {out['fide']['standard']} ({'inactive' if out['fide']['standard_inactive'] else 'active'}) · "
+          f"scenario MC: median {mc['final']['p50']} (p10 {mc['final']['p10']}, p90 {mc['final']['p90']}) by {mc['horizon']} · "
+          f"P(>=2000)={mc['p_reach']['2000']} P(>=2200)={mc['p_reach']['2200']}")
+    print("performance:", mc["performance"])
+    w = out["routes"]["wacc_u2000"]
+    print(f"WACC U2000: eligible={w['eligible_now']} · registration in {w['days_to_registration']} days · start in {w['days_to_start']} days")
+    for wmsg in out["warnings"]:
+        print("  !", wmsg)
+    store.close()
+    return 0
+
+
+def cmd_run(args) -> int:
+    from .run import run
+    from .config import DATA_DIR
+    logs = DATA_DIR / "logs"
+    logs.mkdir(parents=True, exist_ok=True)
+    fh = logging.FileHandler(logs / "run.log")
+    fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    logging.getLogger().addHandler(fh)
+    out = run(args.mode)
+    print(json.dumps({k: v for k, v in out.items() if k != "steps"}))
+    for st in out["steps"]:
+        print(f"  {'ok ' if st['ok'] else 'ERR'} {st['step']:16s} {st['seconds']:7.1f}s  {json.dumps(st['result'])[:160]}")
+    return 0 if all(st["ok"] for st in out["steps"]) else 1
+
+
 def cmd_validate(args) -> int:
     from .analysis.validate import run, write_report
     res = run(n=args.n, seed=args.seed)
@@ -211,7 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     ing = sub.add_parser("ingest", help="fetch new games from every configured source")
-    ing.add_argument("--source", action="append", choices=["otb", "chesscom", "lichess", "profiles"],
+    ing.add_argument("--source", action="append", choices=["otb", "chesscom", "lichess", "profiles", "fide"],
                      help="restrict to one source (repeatable)")
     ing.add_argument("--since", help="chess.com: only archives from YYYY/MM onward")
     ing.add_argument("--limit-months", type=int, help="chess.com: only the N most recent archives")
@@ -258,6 +296,13 @@ def main(argv: list[str] | None = None) -> int:
 
     sy = sub.add_parser("sync", help="pull drill results / session completions / OTB logs from the site (D1)")
     sy.set_defaults(fn=cmd_sync)
+
+    ti = sub.add_parser("title", help="title route tracker: Elo Monte Carlo, WACC eligibility, calendar")
+    ti.set_defaults(fn=cmd_title)
+
+    rn = sub.add_parser("run", help="orchestrated pipeline run: hourly | nightly | weekly | monthly")
+    rn.add_argument("mode", choices=["hourly", "nightly", "weekly", "monthly"])
+    rn.set_defaults(fn=cmd_run)
 
     va = sub.add_parser("validate", help="validate the motif tagger against the Lichess puzzle DB")
     va.add_argument("--n", type=int, default=3000)

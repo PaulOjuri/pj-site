@@ -102,7 +102,7 @@ export default function ChessOverview() {
       </section>
 
       <section style={{ marginTop: '3rem' }} className="chess-card">
-        <h3>Route to a title</h3>
+        <h3><Link href="/chess/title" className="link-accent">Route to a title →</Link></h3>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.7 }}>
           Primary route: a podium in the FIDE World Amateur Championship U2000 section (gold = FM, silver or bronze = CM). Eligibility requires no
           published rating ≥ 2000 in the prior year, so the window closes if the rating climbs first. Secondary: reach 2200 for CM directly.

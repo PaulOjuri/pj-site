@@ -1,0 +1,33 @@
+name: chess-ci
+# Quality gate for the chess coach (Tier 1 tests + Tier 2 type-check). The pipeline itself runs
+# on the owner's Mac via launchd (chess-coach/launchd): the 400MB game database and the engine
+# work live there, and the artifacts it publishes are committed to public/chess/data.
+on:
+  push:
+    branches: [main]
+    paths: ['chess-coach/**', 'src/**', 'functions/**', 'package.json', '.github/workflows/chess-ci.yml']
+  pull_request:
+    paths: ['chess-coach/**', 'src/**', 'functions/**', 'package.json']
+jobs:
+  tier1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: sudo apt-get update -q && sudo apt-get install -y -q stockfish
+      - run: pip install -e "chess-coach[dev]"
+      - run: cd chess-coach && pytest -q
+  tier2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: npm ci --legacy-peer-deps
+      - run: npx tsc --noEmit
+      - run: node scripts/copy-engine.mjs
+      # Secrets must never reach the client bundle (spec §12).
+      - run: npm run build
+      - run: |
+          if grep -rEl "sk-ant-|re_[A-Za-z0-9]{24,}|lip_[A-Za-z0-9]{15,}" out/_next 2>/dev/null; then echo "token pattern in client bundle" && exit 1; fi

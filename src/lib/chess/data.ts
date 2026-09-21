@@ -2,7 +2,7 @@
 // Everything here runs in server components during `next build` (static export).
 import fs from 'node:fs'
 import path from 'node:path'
-import type { GameIndex, GameOut, Leaks, Plan, PlanHistory, Summary, TrainData } from './types'
+import type { GameIndex, GameOut, Leaks, Plan, PlanHistory, Summary, TitleData, TrainData } from './types'
 
 const DATA_DIR = path.join(process.cwd(), 'public', 'chess', 'data')
 
@@ -54,4 +54,8 @@ export function getPlanHistory(): Plan[] {
 
 export function getTrain(): TrainData | null {
   return readJson<TrainData>('train.json')
+}
+
+export function getTitle(): TitleData | null {
+  return readJson<TitleData>('title.json')
 }
