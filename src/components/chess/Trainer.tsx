@@ -40,6 +40,17 @@ function buildQueue(d: TrainData): Item[] {
 
 function turnOf(fen: string): 'white' | 'black' { return fen.split(' ')[1] === 'w' ? 'white' : 'black' }
 
+function Flag({ ok, children }: { ok: boolean | null; children: React.ReactNode }) {
+  if (ok === null) return null
+  return (
+    <span role="status" aria-live="assertive" className="font-mono"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.7rem', borderRadius: 2, fontSize: '0.8rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+        border: `1px solid ${ok ? '#8fbf7f' : '#d08a7a'}`, color: ok ? '#8fbf7f' : '#d08a7a', background: ok ? 'rgba(143,191,127,0.1)' : 'rgba(208,138,122,0.1)' }}>
+      <span aria-hidden="true">{ok ? '✓' : '✗'}</span>{children}
+    </span>
+  )
+}
+
 const btn: React.CSSProperties = { border: '1px solid var(--line-strong)', background: 'transparent', color: 'var(--text)', padding: '0.5rem 0.9rem', borderRadius: 2, cursor: 'pointer', font: 'inherit', fontSize: '0.85rem' }
 
 export function Trainer({ data }: { data: TrainData }) {
@@ -64,10 +75,13 @@ export function Trainer({ data }: { data: TrainData }) {
 
   const cur = queue[i]
   const remaining = queue.filter((q) => !done[q.id]).length
+  const tally = queue.reduce((acc, q) => { const d = done[q.id]; if (d) acc[d.correct ? 'correct' : 'wrong']++; return acc }, { correct: 0, wrong: 0 })
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-        <p className="label-caps" style={{ color: 'var(--text-muted)' }}>{queue.length} items · {remaining} left · engine: {engineMode}</p>
+        <p className="label-caps" style={{ color: 'var(--text-muted)' }}>
+          {queue.length} items · {remaining} left · <span style={{ color: '#8fbf7f' }}>{tally.correct} correct</span> · <span style={{ color: '#d08a7a' }}>{tally.wrong} wrong</span> · engine: {engineMode}
+        </p>
         <TokenBox />
       </div>
       {!cur && <p style={{ color: 'var(--text-muted)' }}>Nothing queued. Run the weekly plan to generate drills.</p>}
@@ -76,7 +90,7 @@ export function Trainer({ data }: { data: TrainData }) {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
             {i + 1}/{queue.length} · {cur.label}{cur.item.tag ? ` · ${cur.item.tag}` : ''}{cur.item.rating ? ` · puzzle ${cur.item.rating}` : ''}
             {cur.item.game_id ? <> · <a className="link-accent" href={`/chess/games/${cur.item.game_id.replace(':', '_')}`}>from your game</a></> : null}
-            {done[cur.id] ? ` · done (grade ${done[cur.id].grade})` : ''}
+            {done[cur.id] ? <> · <Flag ok={done[cur.id].correct}>{done[cur.id].correct ? 'correct' : 'wrong'} · grade {done[cur.id].grade}</Flag></> : null}
           </p>
           {cur.mode === 'solve' && <Solve key={cur.id} it={cur} onDone={(g, c, ms, d) => record(cur, g, c, ms, d)} />}
           {cur.mode === 'calculate' && <Calculate key={cur.id} it={cur} onDone={(g, c, ms, d) => record(cur, g, c, ms, d)} />}
@@ -128,6 +142,8 @@ function Solve({ it, onDone }: { it: Item; onDone: OnDone }) {
   const [step, setStep] = useState(0)
   const [state, setState] = useState<'playing' | 'wrong' | 'solved' | 'revealed'>('playing')
   const [last, setLast] = useState<string | null>(null)
+  const [lastFlag, setLastFlag] = useState<boolean | null>(null)
+  const [attempts, setAttempts] = useState({ correct: 0, wrong: 0 })
   const t0 = useRef(Date.now())
   const me = turnOf(it.item.fen)
   const mistakes = useRef(0)
@@ -141,9 +157,13 @@ function Solve({ it, onDone }: { it: Item; onDone: OnDone }) {
     const expected = solution[step]
     if (uci !== expected && !(expected && uci.slice(0, 4) === expected.slice(0, 4))) {
       mistakes.current += 1
+      setAttempts((a) => ({ ...a, wrong: a.wrong + 1 }))
+      setLastFlag(false)
       setState('wrong')
       return
     }
+    setAttempts((a) => ({ ...a, correct: a.correct + 1 }))
+    setLastFlag(true)
     chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] as 'q' | undefined })
     setLast(uci)
     let s = step + 1
@@ -167,11 +187,14 @@ function Solve({ it, onDone }: { it: Item; onDone: OnDone }) {
       </div>
       <div>
         <p style={{ color: 'var(--text)', marginBottom: '0.5rem' }}>{it.item.prompt ?? `${me === 'white' ? 'White' : 'Black'} to move. Find the best continuation.`}</p>
-        <div role="status" aria-live="polite">
-        {state === 'wrong' && <p className="cls-blunder" style={{ marginBottom: '0.5rem' }}>Not that. Try again, or reveal.</p>}
-        {state === 'solved' && <p className="cls-best" style={{ marginBottom: '0.5rem' }}>Solved{mistakes.current ? ` with ${mistakes.current} wrong tries` : ' first time'}.</p>}
-        {state === 'revealed' && <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Solution: <span className="font-mono">{solution.join(' ')}</span></p>}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem', minHeight: '2rem' }}>
+          {state === 'playing' && lastFlag === true && <Flag ok={true}>correct · keep going ({Math.ceil((solution.length - step) / 2)} to find)</Flag>}
+          {state === 'wrong' && <Flag ok={false}>wrong · try again or reveal</Flag>}
+          {state === 'solved' && <Flag ok={true}>solved{mistakes.current ? ` with ${mistakes.current} wrong ${mistakes.current === 1 ? 'try' : 'tries'}` : ' first time'}</Flag>}
+          {state === 'revealed' && <Flag ok={false}>not solved · revealed</Flag>}
+          {(attempts.correct + attempts.wrong > 0) && <span className="label-caps" style={{ color: 'var(--text-muted)' }}>this puzzle: {attempts.correct} right, {attempts.wrong} wrong</span>}
         </div>
+        {state === 'revealed' && <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Solution: <span className="font-mono">{solution.join(' ')}</span></p>}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {(state === 'playing' || state === 'wrong') && <button style={btn} onClick={() => setState('playing')} disabled={state === 'playing'}>keep trying</button>}
           {(state === 'playing' || state === 'wrong') && <button style={btn} onClick={reveal}>reveal solution</button>}
@@ -193,6 +216,18 @@ function Calculate({ it, onDone }: { it: Item; onDone: OnDone }) {
   const t0 = useRef(Date.now())
   const me = turnOf(it.item.fen)
   const sanLine = useMemo(() => { const c = new Chess(it.item.fen); const out: string[] = []; for (const u of it.item.solution ?? []) { try { out.push(c.move({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] as 'q' | undefined }).san) } catch { break } } return out }, [it.item])
+  // Automatic check: parse what was written as SAN from the start position and compare it
+  // with the engine line move by move. Move numbers, dots, results and annotations are ignored.
+  const check = useMemo(() => {
+    if (!revealed) return null
+    const tokens = text.replace(/\{[^}]*\}/g, ' ').split(/\s+/).map((t) => t.replace(/^\d+\.+/, '').replace(/[?!+#]+$/, '')).filter((t) => t && !/^(1-0|0-1|1\/2-1\/2|\*|\.\.\.)$/.test(t))
+    const c = new Chess(it.item.fen)
+    const written: string[] = []
+    for (const t of tokens) { try { written.push(c.move(t).san) } catch { break } }
+    let matched = 0
+    while (matched < written.length && matched < sanLine.length && written[matched].replace(/[+#]/g, '') === sanLine[matched].replace(/[+#]/g, '')) matched++
+    return { written, matched, firstMove: written.length > 0 && matched >= 1, parsed: written.length, tokens: tokens.length }
+  }, [revealed, text, it.item.fen, sanLine])
   // Free play for both sides once unlocked, so a line can be explored on the board.
   const onMove = (uci: string) => { chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] as 'q' | undefined }); setLast(uci); force((x) => x + 1) }
   const undo = () => { chess.undo(); const h = chess.history({ verbose: true }); setLast(h.length ? h[h.length - 1].from + h[h.length - 1].to : null); force((x) => x + 1) }
@@ -218,13 +253,18 @@ function Calculate({ it, onDone }: { it: Item; onDone: OnDone }) {
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder="1. ... " aria-label="Your variation" disabled={revealed}
           style={{ width: '100%', background: 'var(--bg-inset)', border: '1px solid var(--line-strong)', color: 'var(--text)', padding: '0.6rem', borderRadius: 2, fontFamily: 'var(--font-mono-stack)', fontSize: '0.9rem' }} />
         {!revealed && <button style={{ ...btn, marginTop: '0.5rem' }} onClick={() => setRevealed(true)} disabled={text.trim().length < 2}>reveal engine line</button>}
-        {revealed && (
+        {revealed && check && (
           <div style={{ marginTop: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <Flag ok={check.firstMove}>{check.firstMove ? 'first move correct' : check.parsed === 0 ? 'could not read a legal move from your text' : 'first move wrong'}</Flag>
+              {check.parsed > 0 && <span className="label-caps" style={{ color: 'var(--text-muted)' }}>{check.matched} of {Math.min(sanLine.length, check.parsed)} moves match the engine ({check.parsed} legal moves read)</span>}
+            </div>
             <p style={{ color: 'var(--text-muted)' }}>Engine: <span className="font-mono" style={{ color: 'var(--text)' }}>{sanLine.join(' ')}</span>{it.item.found_in_game === false ? ' · you did not find this in the game' : it.item.found_in_game ? ' · you found it in the game' : ''}</p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>Grade yourself honestly. This feeds judgment_calibration.</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>The flag above is automatic. Now grade the reasoning yourself (suggested: {check.matched >= 3 ? 'main line' : check.firstMove ? 'first move only' : 'missed it'}); this feeds judgment_calibration.</p>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {[[1, 'missed it'], [2, 'first move only'], [3, 'main line'], [4, 'line + why']].map(([g, l]) => (
-                <button key={g} style={btn} onClick={() => onDone(Number(g), Number(g) >= 3, Date.now() - t0.current, { written: text, assisted: unlocked })}>{l}</button>
+                <button key={g} style={{ ...btn, borderColor: (Number(g) === (check.matched >= 3 ? 3 : check.firstMove ? 2 : 1)) ? 'var(--accent)' : undefined }}
+                  onClick={() => onDone(Number(g), check.firstMove, Date.now() - t0.current, { written: text, assisted: unlocked, matched: check.matched, parsed: check.parsed })}>{l}</button>
               ))}
             </div>
           </div>
@@ -276,6 +316,7 @@ function Playout({ it, engine, onDone }: { it: Item; engine: Engine | null; onDo
           {it.item.signature} · you are {me} · goal: <b>{goal === 'win' ? 'win it' : 'hold the draw'}</b>{it.item.eval_at_entry != null ? ` (engine said ${(it.item.eval_at_entry / 100).toFixed(1)} at entry)` : ''}.
         </p>
         <p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{!engine ? 'Engine loading…' : thinking ? 'Engine thinking…' : over ? `Game over: ${over}.` : 'Your move. Stockfish lite replies at depth 16.'}</p>
+        {over && <div style={{ marginTop: '0.5rem' }}><Flag ok={goal === 'win' ? over === 'win' : over !== 'loss'}>{(goal === 'win' ? over === 'win' : over !== 'loss') ? `goal met · ${over}` : `goal not met · ${over}`}</Flag></div>}
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
           {!over && <button style={btn} onClick={() => finish(goal === 'win' ? 'draw' : 'loss')}>give up</button>}
           {!over && <button style={btn} onClick={() => finish('draw')} disabled={goal === 'win'}>claim draw</button>}
