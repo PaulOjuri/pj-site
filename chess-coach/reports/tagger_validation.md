@@ -1,4 +1,4 @@
-# Motif tagger validation — 2026-09-21
+# Motif tagger validation — 2026-10-01
 
 Tagger v1, 3000 Lichess puzzles sampled (rating 1400–2200, popularity ≥ 50, seed 260703).
 Precision is a lower bound (Lichess labels are not exhaustive). A motif is eligible for leak scoring only when precision ≥ 0.7 on ≥ 20 labelled puzzles.
