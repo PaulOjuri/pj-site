@@ -11,6 +11,17 @@ weaknesses out with evidence and confidence, a weekly plan, a trainer, and a tit
 The pipeline that produces its data is in [`chess-coach/`](chess-coach/README.md); design notes and
 the decisions behind it are in [`chess-coach/docs/ARCHITECTURE.md`](chess-coach/docs/ARCHITECTURE.md).
 
+## /heyalf
+
+"Meet Alf", a concept demo of a Nigerian-language voice assistant on Alfera devices, lives at
+`/heyalf`. Copy, translations, per-word timings and screen content come from
+[`src/data/alf-demo.json`](src/data/alf-demo.json); the clips are in `public/heyalf/audio/`. The
+source kit, including the original single-file reference and the voice credits, is in
+[`alf-demo-kit/`](alf-demo-kit/README.md).
+
+Browser tests: `npm run build`, then `npm run test:e2e` (Playwright, against the static export at
+390x844 and 1440x900, plus a reduced-motion pass).
+
 ---
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).

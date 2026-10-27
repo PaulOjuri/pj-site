@@ -47,3 +47,7 @@ next-env.d.ts
 
 # engine builds are copied from node_modules/stockfish at build time (scripts/copy-engine.mjs)
 /public/chess/engine/
+
+# Playwright
+/test-results/
+/playwright-report/
