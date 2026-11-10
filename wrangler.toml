@@ -12,3 +12,10 @@ CONTACT_TO_EMAIL = "hello@paulojuri.com"
 binding = "CHESS_DB"
 database_name = "chess-coach"
 database_id = "a21ac84f-1024-4b37-ab01-59a2a16e5ab2"
+
+# Agent network event log (PaulOjuri/agent-network). Written by POST /api/agents/ingest (token-gated),
+# read by /agents (behind Cloudflare Access). Schema: functions/api/agents/schema.sql
+[[d1_databases]]
+binding = "AGENTS_DB"
+database_name = "agent-network"
+database_id = "REPLACE_WITH_ID_FROM_WRANGLER_D1_CREATE"
