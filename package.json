@@ -3,13 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "app:dev": "wrangler pages dev out --port 8788",
+    "app:icons": "node scripts/app-icons.mjs",
     "build": "next build",
-    "start": "next start",
+    "dev": "next dev",
     "lint": "eslint",
     "prebuild": "node scripts/copy-engine.mjs",
+    "reminders:dev": "wrangler dev --config workers/reminders/wrangler.toml --test-scheduled",
+    "serve:out": "node scripts/serve-out.mjs",
+    "start": "next start",
+    "test:app": "playwright test -c playwright.app.config.ts",
     "test:e2e": "playwright test",
-    "serve:out": "node scripts/serve-out.mjs"
+    "test:unit": "playwright test -c playwright.unit.config.ts",
+    "typecheck": "tsc --noEmit && npm run typecheck:workers",
+    "typecheck:workers": "wrangler types .wrangler/worker-configuration.d.ts --include-env false && tsc -p tsconfig.workers.json --noEmit"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

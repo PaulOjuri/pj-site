@@ -19,3 +19,25 @@
   Cross-Origin-Embedder-Policy: require-corp
 /chess/data/*
   Cache-Control: public, max-age=300
+
+# The agent app (/app). Private: behind Cloudflare Access, never indexed, never cached by anything
+# in between. The service worker claims the whole /app scope, which is above its own folder, so it
+# needs Service-Worker-Allowed.
+/app
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+/app/sw.js
+  Service-Worker-Allowed: /app
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/app/manifest.webmanifest
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/app/*
+  X-Robots-Tag: noindex, nofollow
+/api/app/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
+/api/agent/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow

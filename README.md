@@ -11,6 +11,17 @@ weaknesses out with evidence and confidence, a weekly plan, a trainer, and a tit
 The pipeline that produces its data is in [`chess-coach/`](chess-coach/README.md); design notes and
 the decisions behind it are in [`chess-coach/docs/ARCHITECTURE.md`](chess-coach/docs/ARCHITECTURE.md).
 
+## /app
+
+The agent app: a private, installable web app where Paul's agents reach him and he answers back —
+decisions from the agent inbox, reminders, chat with the orchestrator, and the feed of every run. It sits
+behind Cloudflare Access and pushes to an iPhone over Web Push (RFC 8291, implemented with WebCrypto so it
+runs on Workers). The cron side lives in [`workers/reminders/`](workers/reminders/); the agents are in
+[PaulOjuri/agent-network](https://github.com/PaulOjuri/agent-network).
+
+How it fits together, what the endpoints are, how to run it locally and how to add a card kind:
+[`docs/AGENT-APP.md`](docs/AGENT-APP.md).
+
 ## /heyalf
 
 "Meet Alf", a concept demo of a Nigerian-language voice assistant on Alfera devices, lives at
@@ -21,6 +32,9 @@ source kit, including the original single-file reference and the voice credits, 
 
 Browser tests: `npm run build`, then `npm run test:e2e` (Playwright, against the static export at
 390x844 and 1440x900, plus a reduced-motion pass).
+
+Everything else: `npm run typecheck` (the site, then the Functions and Workers), `npm run test:unit` (no
+browser, no server) and `npm run test:app` (every flow of /app against `wrangler pages dev`).
 
 ---
 

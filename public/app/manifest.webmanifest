@@ -1,0 +1,23 @@
+{
+  "name": "Agent — Paul Ojuri",
+  "short_name": "Agent",
+  "description": "Paul's agents reach him here: decisions, reminders, chat and the run feed.",
+  "id": "/app",
+  "start_url": "/app",
+  "scope": "/app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Inbox", "url": "/app#inbox" },
+    { "name": "New reminder", "url": "/app#reminders" },
+    { "name": "Chat", "url": "/app#chat" }
+  ]
+}

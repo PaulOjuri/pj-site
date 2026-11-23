@@ -1,0 +1,21 @@
+# Copy to .dev.vars (git-ignored) for `wrangler pages dev` and `wrangler dev`.
+# Real values live in Cloudflare as secrets: wrangler pages secret put <NAME> --project-name paulojuri
+
+# node scripts/vapid-keys.mjs prints a throwaway pair for local work.
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=https://paulojuri.com
+
+# Must match AGENT_APP_TOKEN in agent-network's .env. Anything will do locally.
+AGENT_APP_TOKEN=dev-agent-app-token
+
+# A fine-grained PAT with issues read+write on PaulOjuri/agent-network only. Leave empty to work
+# without the inbox; `npm run test:app` uses its own stand-in instead.
+GITHUB_INBOX_TOKEN=
+INBOX_REPO=PaulOjuri/agent-network
+
+# There is no Cloudflare Access in front of a local dev server, so the Access check is bypassed. The
+# bypass is ignored unless ACCESS_TEAM_DOMAIN is empty, so it cannot open the deployed site.
+ACCESS_TEAM_DOMAIN=
+ACCESS_AUD=
+APP_ACCESS_DEV_BYPASS=1

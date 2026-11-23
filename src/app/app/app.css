@@ -1,0 +1,399 @@
+/*
+  /app — the agent app's own styles.
+
+  Scoped under .agent-app so nothing here can reach a public page. It uses the site's variables from
+  globals.css (--bg, --accent, --line…) so the app looks like the rest of paulojuri.com, but it lays
+  itself out as an app: a fixed header, one scrolling column, a bottom tab bar, and nothing wider than
+  a phone unless the screen is.
+*/
+
+/* The site chrome has no place in a standalone app window. SiteHeader sets display:flex inline, so
+   this is one of the few places !important is the honest answer: the alternative is editing a
+   component every public page renders. */
+body:has(#agent-app) > header,
+body:has(#agent-app) > .skip-link {
+  display: none !important;
+}
+body:has(#agent-app) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.agent-app {
+  --app-header: 3.25rem;
+  --app-tabs: 3.75rem;
+  --app-gutter: 1rem;
+  --tone-accent: var(--accent);
+  --tone-warn: #d9a45b;
+  --tone-ok: #8fbf7f;
+  --tone-muted: var(--text-muted);
+
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.55;
+  /* A phone app, centred if the window is wider. */
+  max-width: 34rem;
+  margin-inline: auto;
+  border-inline: 1px solid var(--line);
+}
+
+/* ── Header ── */
+
+.app-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: calc(var(--app-header) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--app-gutter) 0;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.app-head h1 {
+  font-family: var(--font-display-stack), Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.app-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Scrolling body ── */
+
+.app-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 1rem var(--app-gutter) 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+/* A scrolling column must not squash its children: without this the filter pills lose their height. */
+.app-body > * {
+  flex: 0 0 auto;
+}
+
+/* ── Bottom tabs ── */
+
+.app-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--bg-elevated);
+}
+.app-tab {
+  all: unset;
+  cursor: pointer;
+  height: var(--app-tabs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  position: relative;
+  touch-action: manipulation;
+}
+.app-tab .glyph {
+  font-size: 1.15rem;
+  line-height: 1;
+  font-family: var(--font-body-stack), system-ui, sans-serif;
+  letter-spacing: 0;
+}
+.app-tab[aria-current='page'] {
+  color: var(--accent);
+}
+.app-tab .dot {
+  position: absolute;
+  top: 0.55rem;
+  right: 50%;
+  translate: 1.1rem 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--tone-warn);
+}
+
+/* ── Cards ── */
+
+.app-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  padding: 0.85rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.app-card.unread {
+  border-color: var(--line-strong);
+}
+.app-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+.app-badge {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.8rem;
+  border: 1px solid currentColor;
+  opacity: 0.9;
+}
+.tone-accent { color: var(--tone-accent); }
+.tone-warn { color: var(--tone-warn); }
+.tone-ok { color: var(--tone-ok); }
+.tone-muted { color: var(--tone-muted); }
+
+.app-card-title {
+  font-size: 0.98rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.4;
+}
+.app-card-title button {
+  all: unset;
+  cursor: pointer;
+  text-align: left;
+}
+.app-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.app-card p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+/* ── Buttons, inputs ── */
+
+.app-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: transparent;
+  touch-action: manipulation;
+  text-align: center;
+}
+.app-btn:hover { border-color: var(--accent); color: var(--accent); }
+.app-btn[disabled] { opacity: 0.45; cursor: default; }
+.app-btn.primary { background: var(--accent); border-color: var(--accent); color: #0a0a0a; font-weight: 500; }
+.app-btn.primary:hover { background: var(--accent-hover); color: #0a0a0a; }
+.app-btn.small { min-height: 2rem; padding: 0 0.6rem; font-size: 0.78rem; }
+.app-btn.quiet { border-color: transparent; color: var(--text-muted); }
+.app-btn.quiet:hover { color: var(--accent); }
+.app-btn.danger:hover { border-color: #d08a7a; color: #d08a7a; }
+
+.app-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.app-row.end { justify-content: flex-end; }
+
+.app-field { display: flex; flex-direction: column; gap: 0.3rem; }
+.app-field > label {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.agent-app input,
+.agent-app select,
+.agent-app textarea {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  /* 16px or iOS zooms the page on focus. */
+  font-size: 1rem;
+}
+.agent-app textarea { min-height: 5rem; resize: vertical; line-height: 1.5; }
+.agent-app input:focus-visible,
+.agent-app select:focus-visible,
+.agent-app textarea:focus-visible,
+.agent-app button:focus-visible,
+.agent-app a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.app-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+/* ── Small pieces ── */
+
+.app-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--line-strong);
+  padding-left: 0.7rem;
+}
+.app-error {
+  border: 1px solid #d08a7a;
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  color: #e3a899;
+  font-size: 0.88rem;
+  background: rgba(208, 138, 122, 0.07);
+}
+.app-empty { color: var(--text-faint); font-size: 0.9rem; padding: 1.5rem 0; text-align: center; }
+.app-section-title {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 0.75rem;
+}
+.app-pill {
+  all: unset;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.app-pill[aria-pressed='true'] { color: var(--accent); border-color: var(--accent); }
+.app-filters {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+}
+.app-filters .app-pill {
+  flex: none;
+}
+.app-filters::-webkit-scrollbar { display: none; }
+
+.app-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: app-spin 700ms linear infinite;
+}
+@keyframes app-spin { to { rotate: 360deg; } }
+
+/* ── Markdown ── */
+
+.app-md { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.92rem; color: var(--text-muted); }
+.app-md h3, .app-md h4, .app-md h5 {
+  font-family: var(--font-display-stack), Georgia, serif;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 400;
+}
+.app-md ul, .app-md ol { padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.app-md ul li { list-style: disc; }
+.app-md ol li { list-style: decimal; }
+.app-md code {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.85em;
+  background: var(--bg-inset);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+.app-md pre {
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  overflow-x: auto;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.app-md blockquote { border-left: 2px solid var(--accent); padding-left: 0.7rem; color: var(--text-muted); }
+.app-md hr { border: 0; border-top: 1px solid var(--line); }
+.app-md a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.app-md strong { color: var(--text); font-weight: 500; }
+
+/* ── Chat ── */
+
+.app-chat { display: flex; flex-direction: column; gap: 0.5rem; }
+.app-bubble {
+  max-width: 85%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.93rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.app-bubble.from-paul { align-self: flex-end; background: rgba(201, 168, 76, 0.14); border: 1px solid rgba(201, 168, 76, 0.3); }
+.app-bubble.from-agent { align-self: flex-start; background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-muted); }
+.app-bubble-meta { font-family: var(--font-mono-stack), monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-top: 0.25rem; }
+.app-composer { display: flex; gap: 0.5rem; align-items: flex-end; padding-top: 0.5rem; }
+.app-composer textarea { min-height: 2.6rem; }
+
+/* ── Install screen ── */
+
+.app-install { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem var(--app-gutter); }
+.app-install h2 { font-family: var(--font-display-stack), Georgia, serif; font-size: 1.5rem; font-weight: 400; }
+.app-install ol { display: flex; flex-direction: column; gap: 0.75rem; counter-reset: step; }
+.app-install ol li {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+.app-install ol li::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-spinner { animation-duration: 3s; }
+  .agent-app * { transition: none !important; }
+}

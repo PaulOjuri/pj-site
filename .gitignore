@@ -44,6 +44,8 @@ next-env.d.ts
 # build artifacts (contain injected env vars)
 /.open-next/
 /.wrangler/
+# wrangler also writes state and build temp files next to a worker's own config
+**/.wrangler/
 
 # engine builds are copied from node_modules/stockfish at build time (scripts/copy-engine.mjs)
 /public/chess/engine/
@@ -51,3 +53,8 @@ next-env.d.ts
 # Playwright
 /test-results/
 /playwright-report/
+
+# Local secrets for `wrangler pages dev` / `wrangler dev` (VAPID keys, tokens)
+.dev.vars
+.dev.vars.*
+!.dev.vars.example

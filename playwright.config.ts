@@ -8,6 +8,8 @@ const PORT = 4321
  */
 export default defineConfig({
   testDir: './tests',
+  // tests/unit is the no-browser suite; it has its own config (playwright.unit.config.ts).
+  testIgnore: '**/unit/**',
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
