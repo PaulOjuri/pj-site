@@ -1,0 +1,1198 @@
+/*
+  /app — the agent app's own styles.
+
+  Scoped under .agent-app so nothing here can reach a public page. It uses the site's variables from
+  globals.css (--bg, --accent, --line…) so the app belongs to paulojuri.com, but it lays itself out as
+  an app: a collapsing header, one scrolling column, a floating tab bar, and nothing wider than a phone
+  unless the screen is.
+
+  The look: a dark room with one gold lamp in it. Everything on screen is either the paper (the page),
+  a card lifted off it, or a tone — gold for what only Paul can settle, blue for what was looked up,
+  amber for the clock, green for an answer, red for something going wrong. Nothing is coloured for
+  decoration.
+*/
+
+/* The site chrome has no place in a standalone app window. SiteHeader sets display:flex inline, so
+   this is one of the few places !important is the honest answer: the alternative is editing a
+   component every public page renders. */
+body:has(#agent-app) > header,
+body:has(#agent-app) > .skip-link {
+  display: none !important;
+}
+body:has(#agent-app) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.agent-app {
+  --app-head-tall: 5.4rem;
+  --app-head-short: 3.4rem;
+  --app-tabs: 3.5rem;
+  --app-gutter: 1.05rem;
+
+  --tone-accent: var(--accent);
+  --tone-info: #7fa6c9;
+  --tone-warn: #e0a95e;
+  --tone-ok: #88c095;
+  --tone-danger: #d98a7a;
+  --tone-muted: var(--text-muted);
+
+  /* The colour a card borrows from the kind it carries. Gold unless a card says otherwise. */
+  --card-tone: var(--tone-muted);
+
+  --card-bg: color-mix(in srgb, var(--bg-elevated) 94%, var(--text) 1%);
+  --card-radius: 15px;
+  --card-shadow: 0 1px 0 rgba(240, 236, 226, 0.035) inset, 0 14px 28px -22px rgba(0, 0, 0, 0.95);
+  --ease-out: cubic-bezier(0.22, 0.9, 0.3, 1);
+  --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+
+  position: fixed;
+  inset: 0;
+  display: grid;
+  /* Two rows, not three: the header floats over the scroller rather than sitting above it, so the
+     list runs under its blur and shrinking it costs the body no layout. */
+  grid-template-rows: 1fr auto;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.55;
+  isolation: isolate;
+  /* A phone app, centred if the window is wider. */
+  max-width: 34rem;
+  margin-inline: auto;
+  border-inline: 1px solid var(--line);
+}
+
+/* The room's light: one bloom behind the header, one cold corner at the bottom. Absolute, so neither
+   pseudo-element becomes a grid item in flow. */
+.agent-app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(84% 38% at 50% -6%, rgba(201, 168, 76, 0.14), transparent 72%),
+    radial-gradient(62% 30% at 102% 104%, rgba(127, 166, 201, 0.055), transparent 72%);
+}
+
+/* Film grain. An inline SVG rather than a file: /app ships no images at all, and this one is 300 bytes
+   that stop the flat black from banding on an OLED. */
+.agent-app::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.032;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.app-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────
+   A large title that shrinks into a bar as the body scrolls, the way an iOS app's does. It is driven
+   by a scroll-linked animation, so there is no scroll handler and no re-render per frame; where the
+   browser has no scroll timelines the title simply stays large, which is the nicer half of the
+   effect anyway. */
+
+.app-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: calc(var(--app-head-tall) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--app-gutter) 0.7rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, transparent), color-mix(in srgb, var(--bg) 70%, transparent));
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  border-bottom: 1px solid transparent;
+}
+.app-head-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  transform-origin: left bottom;
+}
+.app-eyebrow {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.app-eyebrow .live {
+  color: var(--accent);
+}
+.app-head h1 {
+  font-family: var(--font-display-stack), Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+.app-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-bottom: 0.2rem;
+}
+
+@supports (animation-timeline: scroll()) {
+  .agent-app {
+    timeline-scope: --app-scroll;
+  }
+  .app-body {
+    scroll-timeline: --app-scroll block;
+  }
+  .app-head,
+  .app-head-title,
+  .app-eyebrow {
+    animation: linear both;
+    animation-timeline: --app-scroll;
+    animation-range: 0 66px;
+  }
+  .app-head {
+    animation-name: head-shrink;
+  }
+  .app-head-title {
+    animation-name: title-shrink;
+  }
+  .app-eyebrow {
+    animation-name: eyebrow-out;
+  }
+}
+
+@keyframes head-shrink {
+  to {
+    height: calc(var(--app-head-short) + env(safe-area-inset-top));
+    border-bottom-color: var(--line);
+  }
+}
+@keyframes title-shrink {
+  to {
+    scale: 0.63;
+    translate: 0 0.42rem;
+  }
+}
+@keyframes eyebrow-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── Scrolling body ── */
+
+.app-body {
+  position: relative;
+  z-index: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  /* The header floats over the top of the list and the tab bar over the end of it, so the list
+     starts below one and ends above the other. */
+  padding: calc(var(--app-head-tall) + env(safe-area-inset-top) + 0.65rem) var(--app-gutter) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  scrollbar-width: none;
+}
+.app-body::-webkit-scrollbar {
+  display: none;
+}
+/* A scrolling column must not squash its children: without this the filter pills lose their height. */
+.app-body > * {
+  flex: 0 0 auto;
+}
+/* Keeps the scroll range longer than the header's collapse distance, so a short list cannot bounce
+   the title between its two sizes. */
+.app-body::after {
+  content: '';
+  display: block;
+  flex: 0 0 auto;
+  height: 4.5rem;
+}
+
+/* Everything in a tab arrives together, slightly late, slightly from below. The body is keyed on the
+   route, so this plays on every tab change and never on a re-render inside one. */
+.app-body > *,
+.app-timeline > * {
+  animation: app-rise 420ms var(--ease-out) both;
+}
+.app-body > :nth-child(1) { animation-delay: 0ms; }
+.app-body > :nth-child(2) { animation-delay: 40ms; }
+.app-body > :nth-child(3) { animation-delay: 75ms; }
+.app-body > :nth-child(4) { animation-delay: 105ms; }
+.app-body > :nth-child(n + 5) { animation-delay: 130ms; }
+.app-timeline > :nth-child(1) { animation-delay: 60ms; }
+.app-timeline > :nth-child(2) { animation-delay: 95ms; }
+.app-timeline > :nth-child(3) { animation-delay: 125ms; }
+.app-timeline > :nth-child(n + 4) { animation-delay: 150ms; }
+
+@keyframes app-rise {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+}
+
+/* ── Tab bar ──────────────────────────────────────────────────────────────
+   A floating pill rather than a bar welded to the bottom edge: the list runs underneath it and fades
+   out, which is what makes the app feel like it has depth. The lamp slides between tabs. */
+
+.app-tabs {
+  position: relative;
+  z-index: 4;
+  padding: 0 0.55rem calc(0.45rem + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 82%, transparent) 38%, var(--bg) 76%);
+  margin-top: -1.9rem;
+  pointer-events: none;
+}
+.app-tabbar {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border: 1px solid var(--line-strong);
+  border-radius: 19px;
+  background: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    0 1px 0 rgba(240, 236, 226, 0.05) inset,
+    0 18px 34px -20px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  pointer-events: auto;
+}
+.app-tab-lamp {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 5);
+  border-radius: 15px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 17%, transparent),
+    color-mix(in srgb, var(--accent) 6%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+  translate: calc(var(--tab-index, 0) * 100%) 0;
+  transition: translate 420ms var(--ease-spring);
+  pointer-events: none;
+}
+.app-tab {
+  all: unset;
+  position: relative;
+  cursor: pointer;
+  height: var(--app-tabs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transition:
+    color 220ms var(--ease-out),
+    opacity 220ms var(--ease-out);
+}
+.app-tab .glyph {
+  display: block;
+  line-height: 0;
+  transition: translate 320ms var(--ease-spring);
+}
+.app-tab[aria-current='page'] {
+  color: var(--accent);
+}
+.app-tab[aria-current='page'] .glyph {
+  translate: 0 -1px;
+}
+.app-tab:active .glyph {
+  scale: 0.9;
+}
+.app-tab .dot {
+  position: absolute;
+  top: 0.62rem;
+  right: 50%;
+  translate: 1.05rem 0;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: var(--tone-warn);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+}
+
+/* ── Cards ────────────────────────────────────────────────────────────────
+   One card shape everywhere, with a tone rail down its left edge. The rail is the only thing that
+   tells a decision from a note at arm's length, which is the distance a phone is usually read at. */
+
+.app-card {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  padding: 0.85rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  overflow: hidden;
+}
+/* The rail, and a breath of the tone bleeding in from it. */
+.app-card[data-tone]::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--card-tone), color-mix(in srgb, var(--card-tone) 12%, transparent));
+  opacity: 0.75;
+}
+.app-card[data-tone]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(70% 90% at 0% 0%, color-mix(in srgb, var(--card-tone) 9%, transparent), transparent 70%);
+}
+.app-card[data-tone='accent'] { --card-tone: var(--tone-accent); }
+.app-card[data-tone='info'] { --card-tone: var(--tone-info); }
+.app-card[data-tone='warn'] { --card-tone: var(--tone-warn); }
+.app-card[data-tone='ok'] { --card-tone: var(--tone-ok); }
+.app-card[data-tone='danger'] { --card-tone: var(--tone-danger); }
+.app-card[data-tone='muted'] { --card-tone: var(--tone-muted); }
+
+.app-card.unread {
+  border-color: color-mix(in srgb, var(--card-tone) 26%, var(--line));
+}
+/* Unread: a dot in the card's corner. Inline at the end of the title it ends up alone on a wrapped
+   line, which reads as a bullet point rather than as a state. */
+.app-card.unread > .app-unread {
+  position: absolute;
+  top: 0.62rem;
+  right: 0.62rem;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px -1px var(--accent);
+}
+.app-card.past {
+  opacity: 0.62;
+}
+
+.app-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+.app-card-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-badge {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: var(--badge-tone, var(--tone-muted));
+  background: color-mix(in srgb, var(--badge-tone, var(--tone-muted)) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--badge-tone, var(--tone-muted)) 28%, transparent);
+  box-shadow: 0 0 12px -6px color-mix(in srgb, var(--badge-tone, var(--tone-muted)) 70%, transparent);
+}
+.tone-accent { --badge-tone: var(--tone-accent); }
+.tone-info { --badge-tone: var(--tone-info); }
+.tone-warn { --badge-tone: var(--tone-warn); }
+.tone-ok { --badge-tone: var(--tone-ok); }
+.tone-danger { --badge-tone: var(--tone-danger); }
+.tone-muted { --badge-tone: var(--tone-muted); }
+
+.app-card-title {
+  font-size: 1.02rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.32;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+.app-card-title button {
+  all: unset;
+  cursor: pointer;
+  text-align: left;
+  transition: color 180ms var(--ease-out);
+}
+.app-card-title button:active {
+  color: var(--accent);
+}
+
+.app-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.45rem;
+  margin-top: 0.3rem;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+.app-meta > span:not(:last-child)::after {
+  content: ' ·';
+  margin-left: 0.4rem;
+  opacity: 0.5;
+}
+.app-card p {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--text) 68%, transparent);
+}
+.app-card .lede {
+  color: var(--accent);
+}
+
+/* ── The Feed's timeline ──────────────────────────────────────────────────
+   The Feed is the one list that is a sequence rather than a set, so it is drawn as one: a hairline
+   running down the gutter with a node of the card's own tone where each entry joins it. */
+
+.app-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding-left: 1.35rem;
+}
+.app-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.3rem;
+  top: 0.9rem;
+  bottom: 1.2rem;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--line-strong) 8%, var(--line-strong) 85%, transparent);
+}
+.app-timeline > .app-card {
+  overflow: visible;
+}
+.app-timeline > .app-card > .app-node {
+  position: absolute;
+  left: -1.05rem;
+  top: 1.18rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--card-tone);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 10px -1px color-mix(in srgb, var(--card-tone) 80%, transparent);
+}
+.app-timeline > .app-card > .app-node::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 0.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--card-tone) 50%, transparent), transparent);
+}
+/* The rail would double up with the node, so a timeline card keeps only its tint. */
+.app-timeline > .app-card[data-tone]::before {
+  display: none;
+}
+
+/* ── Buttons, inputs ── */
+
+.app-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.6rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  font-size: 0.86rem;
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+  touch-action: manipulation;
+  text-align: center;
+  transition:
+    transform 160ms var(--ease-out),
+    border-color 180ms var(--ease-out),
+    color 180ms var(--ease-out),
+    background-color 180ms var(--ease-out);
+}
+.app-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent);
+}
+.app-btn:active {
+  transform: scale(0.97);
+}
+.app-btn[disabled] {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+.app-btn.primary {
+  background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+  border-color: color-mix(in srgb, var(--accent) 70%, #000);
+  color: #0d0b05;
+  font-weight: 500;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 22px -14px color-mix(in srgb, var(--accent) 85%, transparent);
+}
+.app-btn.primary:hover {
+  color: #0d0b05;
+  filter: brightness(1.06);
+}
+.app-btn.block {
+  width: 100%;
+}
+/* A lone button inside a card is a link at the end of a thought, not a bar across it. */
+.app-card > .app-btn:not(.block) {
+  align-self: flex-start;
+}
+.app-btn.small {
+  min-height: 2.15rem;
+  padding: 0 0.7rem;
+  font-size: 0.79rem;
+  border-radius: 9px;
+}
+.app-btn.quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted);
+}
+.app-btn.quiet:hover {
+  color: var(--accent);
+}
+.app-btn.icon {
+  min-height: 2.15rem;
+  width: 2.15rem;
+  padding: 0;
+  border-radius: 50%;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted);
+}
+.app-btn.icon:hover {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.app-btn.danger:hover {
+  border-color: var(--tone-danger);
+  color: var(--tone-danger);
+}
+
+.app-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+.app-row.end {
+  justify-content: flex-end;
+}
+
+.app-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+.app-field > label {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.agent-app input,
+.agent-app select,
+.agent-app textarea {
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0.58rem 0.72rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  color: var(--text);
+  font: inherit;
+  /* 16px or iOS zooms the page on focus. */
+  font-size: 1rem;
+  transition:
+    border-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out);
+}
+.agent-app input:focus,
+.agent-app select:focus,
+.agent-app textarea:focus {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.agent-app textarea {
+  min-height: 5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+.agent-app input:focus-visible,
+.agent-app select:focus-visible,
+.agent-app textarea:focus-visible,
+.agent-app button:focus-visible,
+.agent-app a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.app-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+/* ── Small pieces ── */
+
+.app-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-left: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  padding-left: 0.75rem;
+}
+.app-fine,
+.app-card p.app-fine {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  line-height: 1.45;
+}
+.app-fine code {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+.app-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--tone-danger) 45%, transparent);
+  border-radius: 11px;
+  padding: 0.65rem 0.75rem;
+  color: #e9b4a6;
+  font-size: 0.87rem;
+  background: color-mix(in srgb, var(--tone-danger) 9%, transparent);
+}
+.app-error-mark {
+  flex: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.78rem;
+  color: var(--tone-danger);
+  border: 1px solid color-mix(in srgb, var(--tone-danger) 50%, transparent);
+}
+.app-error-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 2.75rem 1.5rem;
+  text-align: center;
+  color: var(--text-faint);
+}
+.app-empty svg {
+  color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.app-empty p {
+  font-size: 0.9rem;
+  max-width: 24ch;
+  line-height: 1.5;
+}
+
+.app-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 0.8rem;
+}
+.app-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+.app-section-count {
+  order: 1;
+  color: var(--accent);
+}
+.app-section-title > span:first-child {
+  flex: none;
+}
+.app-card > .app-section-title:first-child {
+  margin-top: 0;
+}
+
+.app-pill {
+  all: unset;
+  cursor: pointer;
+  padding: 0.34rem 0.68rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition:
+    color 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
+    background-color 180ms var(--ease-out);
+}
+.app-pill:active {
+  scale: 0.96;
+}
+.app-pill[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+}
+.app-filters {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+  /* The row runs off the right edge rather than stopping dead at it. */
+  mask-image: linear-gradient(90deg, #000 88%, transparent);
+}
+.app-filters .app-pill {
+  flex: none;
+}
+.app-filters::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Loading ──
+   Skeletons rather than a spinner: the page keeps its shape, so nothing jumps when the data lands. */
+
+.app-skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.app-skeleton-card {
+  display: flex;
+  gap: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  padding: 0.9rem 0.95rem;
+  animation: app-rise 420ms var(--ease-out) both;
+}
+.sk-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.sk {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text) 5%, transparent) 0%,
+    color-mix(in srgb, var(--text) 10%, transparent) 42%,
+    color-mix(in srgb, var(--text) 5%, transparent) 84%
+  );
+  background-size: 220% 100%;
+  animation: app-shimmer 1.5s ease-in-out infinite;
+}
+.sk-badge {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9px;
+}
+.sk-title { height: 0.95rem; width: 78%; }
+.sk-meta { height: 0.55rem; width: 46%; }
+.sk-body { height: 0.7rem; width: 92%; }
+
+@keyframes app-shimmer {
+  from { background-position: 120% 0; }
+  to { background-position: -60% 0; }
+}
+
+/* ── Markdown ── */
+
+.app-md {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  font-size: 0.93rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+}
+.app-md h3,
+.app-md h4,
+.app-md h5 {
+  font-family: var(--font-display-stack), Georgia, serif;
+  font-size: 1.02rem;
+  color: var(--text);
+  font-weight: 400;
+}
+.app-md ul,
+.app-md ol {
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.app-md ul li { list-style: disc; }
+.app-md ol li { list-style: decimal; }
+.app-md li::marker { color: var(--text-faint); }
+.app-md code {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.85em;
+  background: var(--bg-inset);
+  padding: 0.1rem 0.32rem;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+}
+.app-md pre {
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  overflow-x: auto;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.app-md blockquote {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  padding-left: 0.75rem;
+  color: var(--text-muted);
+}
+.app-md hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+.app-md a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.app-md strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── Chat ── */
+
+.app-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.2rem;
+}
+.app-bubble {
+  position: relative;
+  max-width: 84%;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  animation: app-rise 320ms var(--ease-out) both;
+}
+.app-bubble.from-paul {
+  align-self: flex-end;
+  border-radius: 17px 17px 5px 17px;
+  color: #f4ecd8;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 20%, transparent),
+    color-mix(in srgb, var(--accent) 11%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.app-bubble.from-agent {
+  align-self: flex-start;
+  border-radius: 17px 17px 17px 5px;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  color: color-mix(in srgb, var(--text) 78%, transparent);
+  box-shadow: var(--card-shadow);
+}
+.app-bubble-meta {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  margin-top: 0.3rem;
+}
+.app-typing {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 17px 17px 17px 5px;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+}
+.app-typing i {
+  width: 0.33rem;
+  height: 0.33rem;
+  border-radius: 50%;
+  background: var(--tone-warn);
+  animation: app-blink 1.3s ease-in-out infinite;
+}
+.app-typing i:nth-child(2) { animation-delay: 180ms; }
+.app-typing i:nth-child(3) { animation-delay: 360ms; }
+@keyframes app-blink {
+  0%, 60%, 100% { opacity: 0.25; }
+  30% { opacity: 1; }
+}
+/* A conversation fills the screen and the composer stays under it, the way a phone keyboard expects
+   to find it, instead of floating halfway up a short thread. */
+.app-body > .app-chat {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+.app-body > .app-composer {
+  position: sticky;
+  bottom: 2.2rem;
+  z-index: 1;
+}
+/* The floating tab bar eats 1.9rem of the scroller; the trailing spacer is what keeps the last card
+   clear of it. A composer is already pinned above the bar, so it needs far less. */
+.app-body:has(> .app-composer)::after {
+  height: 2.2rem;
+}
+.app-composer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  padding-top: 0.5rem;
+}
+.app-composer textarea {
+  min-height: 2.7rem;
+  border-radius: 14px;
+  resize: none;
+}
+.app-composer .app-btn {
+  flex: none;
+  min-height: 2.7rem;
+  width: 2.7rem;
+  padding: 0;
+  border-radius: 14px;
+}
+
+/* ── Settings rows ── */
+
+.app-rows {
+  display: flex;
+  flex-direction: column;
+}
+.app-rows > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.88rem;
+}
+.app-rows > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.app-rows dt,
+.app-rows .k {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex: none;
+}
+.app-rows dd,
+.app-rows .v {
+  text-align: right;
+  color: color-mix(in srgb, var(--text) 80%, transparent);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.app-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--text) 80%, transparent);
+}
+.app-status::before {
+  content: '';
+  flex: none;
+  margin-top: 0.5em;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--status-tone, var(--tone-muted));
+  box-shadow: 0 0 10px -1px var(--status-tone, var(--tone-muted));
+}
+.app-status.on { --status-tone: var(--tone-ok); }
+.app-status.off { --status-tone: var(--tone-warn); }
+.app-status.bad { --status-tone: var(--tone-danger); }
+
+.app-kind-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.app-kind-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.app-kind-row .name {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.app-kind-row code {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+/* ── Install screen ── */
+
+.app-install {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 0 0;
+}
+.app-install .app-mark {
+  border-radius: 15px;
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.95);
+  animation: app-float 6s ease-in-out infinite;
+}
+@keyframes app-float {
+  50% { translate: 0 -5px; }
+}
+.app-install h2 {
+  font-family: var(--font-display-stack), Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.app-install > p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.app-install ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  counter-reset: step;
+  width: 100%;
+}
+.app-install ol li {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr;
+  gap: 0.7rem;
+  align-items: start;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+.app-install ol li::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: 50%;
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.74rem;
+}
+.app-install strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-app *,
+  .agent-app *::before,
+  .agent-app *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .app-tab-lamp,
+  .app-skeleton-card .sk {
+    animation: none !important;
+  }
+}
+
+/* Offline: the one state the header says out loud, because nothing else on screen can. */
+.app-head[data-offline] .app-eyebrow {
+  color: var(--tone-warn);
+}
+
+/* The send button while the message is in flight. */
+.app-spinner-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: app-pulse 900ms ease-in-out infinite;
+}
+@keyframes app-pulse {
+  50% { opacity: 0.3; scale: 0.7; }
+}

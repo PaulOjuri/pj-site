@@ -1,0 +1,30 @@
+# The reminders Worker. Pages has no cron, so this runs beside the Pages project on the same D1 database.
+#
+#   npx wrangler deploy   --config workers/reminders/wrangler.toml
+#   npx wrangler dev      --config workers/reminders/wrangler.toml --test-scheduled
+#
+# Secrets (same values as the Pages project; they are separate stores):
+#   npx wrangler secret put VAPID_PUBLIC_KEY  --config workers/reminders/wrangler.toml
+#   npx wrangler secret put VAPID_PRIVATE_KEY --config workers/reminders/wrangler.toml
+#   npx wrangler secret put GITHUB_INBOX_TOKEN --config workers/reminders/wrangler.toml
+name = "paulojuri-reminders"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+workers_dev = false
+
+[triggers]
+# Every minute: fire what is due. Every ten minutes: look for new decisions in the agent inbox.
+crons = ["* * * * *", "*/10 * * * *"]
+
+[vars]
+VAPID_SUBJECT = "https://paulojuri.com"
+INBOX_REPO = "PaulOjuri/agent-network"
+
+# The same database as the Pages project's AGENTS_DB binding (see ../../wrangler.toml).
+[[d1_databases]]
+binding = "AGENTS_DB"
+database_name = "agent-network"
+database_id = "27d5a0bd-6fa3-47aa-b59a-384acea3a27c"
+
+[observability]
+enabled = true
