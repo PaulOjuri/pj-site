@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, ApiError } from '@/lib/app/api'
 import type { Reminder, RemindersResponse } from '@/lib/app/types'
-import { Empty, ErrorNote, KindBadge, Meta, Spinner } from './ui'
+import { BackIcon, PlusIcon } from './icons'
+import { Empty, ErrorNote, KindBadge, Meta, SectionTitle, Spinner } from './ui'
 
 /**
  * Reminders. Everything on screen is Brussels time; the endpoint stores UTC and hands back both, so
@@ -103,7 +104,8 @@ export function RemindersTab({ focus, onFocus, reloadToken }: Props) {
       {focus && (
         <div className="app-row">
           <button className="app-btn small quiet" onClick={() => onFocus(null)}>
-            ← All reminders
+            <BackIcon />
+            All reminders
           </button>
         </div>
       )}
@@ -134,13 +136,14 @@ export function RemindersTab({ focus, onFocus, reloadToken }: Props) {
               }}
             />
           ) : (
-            <button className="app-btn primary" onClick={() => setShowForm(true)}>
-              + New reminder
+            <button className="app-btn primary block" onClick={() => setShowForm(true)}>
+              <PlusIcon />
+              New reminder
             </button>
           )}
 
-          <h3 className="app-section-title">Upcoming</h3>
-          {(data?.upcoming ?? []).length === 0 && <Empty>Nothing scheduled.</Empty>}
+          <SectionTitle count={(data?.upcoming ?? []).length}>Upcoming</SectionTitle>
+          {(data?.upcoming ?? []).length === 0 && <Empty>Nothing scheduled. The agents can file one too.</Empty>}
           {(data?.upcoming ?? []).map((reminder) => (
             <ReminderCard
               key={reminder.id}
@@ -156,7 +159,7 @@ export function RemindersTab({ focus, onFocus, reloadToken }: Props) {
 
           {(data?.done ?? []).length > 0 && (
             <>
-              <h3 className="app-section-title">Done and fired</h3>
+              <SectionTitle count={(data?.done ?? []).length}>Done and fired</SectionTitle>
               {(data?.done ?? []).map((reminder) => (
                 <ReminderCard key={reminder.id} reminder={reminder} onAct={act} onDelete={remove} past />
               ))}
@@ -186,10 +189,10 @@ function ReminderCard({
     ? `${leadLabel(reminder.lead_minutes)} before`
     : null
   return (
-    <article className="app-card" id={`reminder-${reminder.id}`}>
+    <article className={`app-card${past ? ' past' : ''}`} data-tone="warn" id={`reminder-${reminder.id}`}>
       <div className="app-card-head">
         <KindBadge kind="reminder" />
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="app-card-grow">
           <h2 className="app-card-title">{reminder.what}</h2>
           <Meta
             parts={[
@@ -277,9 +280,7 @@ function ReminderForm({
 
   return (
     <section className="app-card">
-      <h3 className="app-section-title" style={{ marginTop: 0 }}>
-        {reminder ? 'Edit reminder' : 'New reminder'}
-      </h3>
+      <SectionTitle>{reminder ? 'Edit reminder' : 'New reminder'}</SectionTitle>
       <div className="app-field">
         <label htmlFor="r-what">What</label>
         <input

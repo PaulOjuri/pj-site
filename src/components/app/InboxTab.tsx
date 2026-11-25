@@ -3,8 +3,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { api, ApiError } from '@/lib/app/api'
 import { plainSummary } from '@/lib/app/markdown'
 import type { InboxIssue } from '@/lib/app/types'
+import { BackIcon } from './icons'
 import { Markdown } from './Markdown'
-import { Empty, ErrorNote, KindBadge, Meta, Spinner, when } from './ui'
+import { Empty, ErrorNote, KindBadge, Meta, SectionTitle, Spinner, toneOf, when } from './ui'
 
 /**
  * Inbox: the open `agent-inbox` issues in PaulOjuri/agent-network.
@@ -54,37 +55,46 @@ export function InboxTab({ focus, onFocus, reloadToken }: Props) {
     <>
       {error && <ErrorNote error={error} onRetry={load} />}
       {open.length === 0 && !error && <Empty>Nothing waiting on you. The agents will file what they can&apos;t settle.</Empty>}
-      {open.map((issue) => (
-        <article key={issue.number} className="app-card">
-          <div className="app-card-head">
-            <KindBadge kind={issue.kind === 'unknown' ? 'note' : issue.kind} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h2 className="app-card-title">
-                <button onClick={() => onFocus(String(issue.number))}>{issue.question}</button>
-              </h2>
-              <Meta
-                parts={[
-                  `#${issue.number}`,
-                  issue.project,
-                  issue.decided ? 'decided' : issue.kind === 'decision' ? 'needs you' : issue.answered ? 'answered' : 'waiting',
-                  when(issue.updatedAt),
-                ]}
-              />
+      {open.map((issue) => {
+        const kind = issue.kind === 'unknown' ? 'note' : issue.kind
+        return (
+          <article key={issue.number} className="app-card" data-tone={toneOf(kind)}>
+            <div className="app-card-head">
+              <KindBadge kind={kind} />
+              <div className="app-card-grow">
+                <h2 className="app-card-title">
+                  <button onClick={() => onFocus(String(issue.number))}>{issue.question}</button>
+                </h2>
+                <Meta
+                  parts={[
+                    `#${issue.number}`,
+                    issue.project,
+                    issue.decided
+                      ? 'decided'
+                      : issue.kind === 'decision'
+                        ? 'needs you'
+                        : issue.answered
+                          ? 'answered'
+                          : 'waiting',
+                    when(issue.updatedAt),
+                  ]}
+                />
+              </div>
             </div>
-          </div>
-          {issue.recommendation && (
-            <p>
-              <span style={{ color: 'var(--accent)' }}>claude.ai: </span>
-              {plainSummary(issue.recommendation, 180)}
-            </p>
-          )}
-          <div className="app-row end">
-            <button className="app-btn small" onClick={() => onFocus(String(issue.number))}>
-              {issue.kind === 'decision' && !issue.decided ? 'Decide' : 'Open'}
-            </button>
-          </div>
-        </article>
-      ))}
+            {issue.recommendation && (
+              <p>
+                <span className="lede">claude.ai: </span>
+                {plainSummary(issue.recommendation, 180)}
+              </p>
+            )}
+            <div className="app-row end">
+              <button className="app-btn small" onClick={() => onFocus(String(issue.number))}>
+                {issue.kind === 'decision' && !issue.decided ? 'Decide' : 'Open'}
+              </button>
+            </div>
+          </article>
+        )
+      })}
     </>
   )
 }
@@ -152,10 +162,10 @@ function IssueDetail({
   return (
     <>
       <BackRow onBack={onBack} />
-      <article className="app-card">
+      <article className="app-card" data-tone={toneOf(issue.kind === 'unknown' ? 'note' : issue.kind)}>
         <div className="app-card-head">
           <KindBadge kind={issue.kind === 'unknown' ? 'note' : issue.kind} />
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="app-card-grow">
             <h2 className="app-card-title">{issue.question}</h2>
             <Meta parts={[`#${issue.number}`, issue.project, issue.decided ? 'decided' : issue.kind, when(issue.createdAt)]} />
           </div>
@@ -168,21 +178,15 @@ function IssueDetail({
 
       {issue.recommendation && (
         <section className="app-card">
-          <h3 className="app-section-title" style={{ marginTop: 0 }}>
-            claude.ai&apos;s recommendation
-          </h3>
+          <SectionTitle>claude.ai&apos;s recommendation</SectionTitle>
           <Markdown source={issue.recommendation} maxBlocks={60} />
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-faint)' }}>
-            Research, not an instruction. Verify anything that matters.
-          </p>
+          <p className="app-fine">Research, not an instruction. Verify anything that matters.</p>
         </section>
       )}
 
       {issue.comments.filter((c) => c.from !== 'claude-ai').length > 0 && (
         <section className="app-card">
-          <h3 className="app-section-title" style={{ marginTop: 0 }}>
-            What you said earlier
-          </h3>
+          <SectionTitle>What you said earlier</SectionTitle>
           {issue.comments
             .filter((c) => c.from !== 'claude-ai')
             .map((comment) => (
@@ -226,7 +230,7 @@ function IssueDetail({
           )}
         </div>
         {isOpenDecision && (
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-faint)' }}>
+          <p className="app-fine">
             Deciding posts your words and adds the <code>decided</code> label. The agents take it from there on their
             next run.
           </p>
@@ -240,7 +244,8 @@ function BackRow({ onBack }: { onBack: () => void }) {
   return (
     <div className="app-row">
       <button className="app-btn small quiet" onClick={onBack}>
-        ← Inbox
+        <BackIcon />
+        Inbox
       </button>
     </div>
   )

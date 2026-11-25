@@ -27,11 +27,11 @@ import { ErrorNote } from './ui'
  */
 
 const TABS = [
-  { id: 'inbox', label: 'Inbox', title: 'Inbox', Icon: InboxIcon },
-  { id: 'reminders', label: 'Remind', title: 'Reminders', Icon: ClockIcon },
-  { id: 'chat', label: 'Chat', title: 'Chat', Icon: ChatIcon },
-  { id: 'feed', label: 'Feed', title: 'Feed', Icon: FeedIcon },
-  { id: 'settings', label: 'Set', title: 'Settings', Icon: SettingsIcon },
+  { id: 'inbox', label: 'Inbox', title: 'Inbox', eyebrow: 'what needs you', Icon: InboxIcon },
+  { id: 'reminders', label: 'Remind', title: 'Reminders', eyebrow: 'brussels time', Icon: ClockIcon },
+  { id: 'chat', label: 'Chat', title: 'Chat', eyebrow: 'the orchestrator', Icon: ChatIcon },
+  { id: 'feed', label: 'Feed', title: 'Feed', eyebrow: 'everything that happened', Icon: FeedIcon },
+  { id: 'settings', label: 'Set', title: 'Settings', eyebrow: 'this device', Icon: SettingsIcon },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
@@ -145,7 +145,10 @@ export function AgentApp() {
     return (
       <div className="agent-app" id="agent-app">
         <header className="app-head">
-          <h1>Agent</h1>
+          <div className="app-head-title">
+            <span className="app-eyebrow">paul&apos;s agents</span>
+            <h1>Agent</h1>
+          </div>
         </header>
         <div className="app-body">
           <InstallScreen
@@ -164,16 +167,16 @@ export function AgentApp() {
 
   return (
     <div className="agent-app" id="agent-app">
-      <header className="app-head">
-        <h1>{current.title}</h1>
+      <header className="app-head" data-offline={offline ? '' : undefined}>
+        <div className="app-head-title">
+          <span className="app-eyebrow">
+            {offline ? 'offline · showing what was cached' : current.eyebrow}
+          </span>
+          <h1>{current.title}</h1>
+        </div>
         <div className="app-head-actions">
-          {offline && (
-            <span className="app-meta" style={{ color: 'var(--tone-warn)' }}>
-              offline
-            </span>
-          )}
           <button
-            className="app-btn small quiet"
+            className="app-btn icon"
             onClick={() => setReloadToken((n) => n + 1)}
             aria-label="Refresh"
             title="Refresh"
@@ -184,7 +187,9 @@ export function AgentApp() {
       </header>
 
       <div className="app-body" key={route.tab}>
-        {configError && <ErrorNote error={configError} onRetry={loadConfig} />}
+        {/* Offline, the header already says so and the tab below says what it could still show; a
+            third note about the same thing would be noise. */}
+        {configError && !offline && <ErrorNote error={configError} onRetry={loadConfig} />}
 
         {route.tab === 'inbox' && (
           <InboxTab
@@ -212,21 +217,28 @@ export function AgentApp() {
       </div>
 
       <nav className="app-tabs" aria-label="Sections">
-        {TABS.map(({ id, label, title, Icon }) => (
-          <button
-            key={id}
-            className="app-tab"
-            aria-current={route.tab === id ? 'page' : undefined}
-            aria-label={title}
-            onClick={() => navigate(`#${id}`)}
-          >
-            <span className="glyph">
-              <Icon />
-            </span>
-            {label}
-            {id === 'feed' && unread > 0 && <span className="dot" aria-label={`${unread} unread`} />}
-          </button>
-        ))}
+        <div
+          className="app-tabbar"
+          style={{ '--tab-index': TABS.findIndex((t) => t.id === current.id) } as React.CSSProperties}
+        >
+          {/* The lamp slides to the tab you picked; the tabs themselves only change colour. */}
+          <span className="app-tab-lamp" aria-hidden="true" />
+          {TABS.map(({ id, label, title, Icon }) => (
+            <button
+              key={id}
+              className="app-tab"
+              aria-current={route.tab === id ? 'page' : undefined}
+              aria-label={title}
+              onClick={() => navigate(`#${id}`)}
+            >
+              <span className="glyph">
+                <Icon />
+              </span>
+              {label}
+              {id === 'feed' && unread > 0 && <span className="dot" aria-label={`${unread} unread`} />}
+            </button>
+          ))}
+        </div>
       </nav>
     </div>
   )

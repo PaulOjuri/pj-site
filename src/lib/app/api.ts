@@ -27,18 +27,36 @@ export class ApiError extends Error {
   get needsSignIn(): boolean {
     return this.status === 401 || this.status === 403
   }
+
+  /** True when the request never reached Cloudflare. */
+  get offline(): boolean {
+    return this.status === 0
+  }
 }
 
+/**
+ * What a call throws when the request never left the phone. The app is installed and used on the move,
+ * so this is an ordinary state, not a failure: `ErrorNote` shows it as the quiet offline card rather
+ * than as red.
+ */
+export const OFFLINE_MESSAGE = 'no connection'
+
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(path, {
-    credentials: 'include',
-    ...init,
-    headers: {
-      accept: 'application/json',
-      ...(init.body ? { 'content-type': 'application/json' } : {}),
-      ...init.headers,
-    },
-  })
+  let response: Response
+  try {
+    response = await fetch(path, {
+      credentials: 'include',
+      ...init,
+      headers: {
+        accept: 'application/json',
+        ...(init.body ? { 'content-type': 'application/json' } : {}),
+        ...init.headers,
+      },
+    })
+  } catch {
+    // fetch only rejects when the network did; status 0 is how the rest of the app recognises it.
+    throw new ApiError(OFFLINE_MESSAGE, 0)
+  }
   const text = await response.text()
   let data: unknown = null
   try {

@@ -118,37 +118,49 @@ export function FeedTab({ onNavigate, reloadToken }: Props) {
         </div>
       )}
 
-      {items.length === 0 && <Empty>Nothing here yet.</Empty>}
+      {items.length === 0 && <Empty>Nothing here yet. The agents will fill this as they work.</Empty>}
 
-      {items.map((item) => {
-        const spec = kindSpec(item.kind)
-        const target = item.url?.startsWith('/app#') ? item.url.slice('/app'.length) : null
-        return (
-          <article key={`${item.source}-${item.id}`} className={`app-card${item.read_at ? '' : ' unread'}`}>
-            <div className="app-card-head">
-              <KindBadge kind={item.kind} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h2 className="app-card-title">
-                  {target ? <button onClick={() => onNavigate(target)}>{item.title}</button> : item.title}
-                </h2>
-                <Meta
-                  parts={[
-                    spec.label,
-                    item.project,
-                    when(item.ts),
-                    item.priority === 'high' ? 'high' : null,
-                    item.source === 'events' ? 'run log' : null,
-                  ]}
-                />
-              </div>
-            </div>
-            {item.body && <p>{item.body}</p>}
-          </article>
-        )
-      })}
+      {/* One sequence, drawn as one: the hairline is the day running downwards and each card joins it
+          at a node in its own tone. */}
+      {items.length > 0 && (
+        <div className="app-timeline">
+          {items.map((item) => {
+            const spec = kindSpec(item.kind)
+            const target = item.url?.startsWith('/app#') ? item.url.slice('/app'.length) : null
+            return (
+              <article
+                key={`${item.source}-${item.id}`}
+                className={`app-card${item.read_at ? '' : ' unread'}`}
+                data-tone={spec.tone}
+              >
+                <span className="app-node" aria-hidden="true" />
+                {!item.read_at && <span className="app-unread" aria-label="unread" />}
+                <div className="app-card-head">
+                  <KindBadge kind={item.kind} />
+                  <div className="app-card-grow">
+                    <h2 className="app-card-title">
+                      {target ? <button onClick={() => onNavigate(target)}>{item.title}</button> : item.title}
+                    </h2>
+                    <Meta
+                      parts={[
+                        spec.label.toLowerCase(),
+                        item.project,
+                        when(item.ts),
+                        item.priority === 'high' ? 'high' : null,
+                        item.source === 'events' ? 'run log' : null,
+                      ]}
+                    />
+                  </div>
+                </div>
+                {item.body && <p>{item.body}</p>}
+              </article>
+            )
+          })}
+        </div>
+      )}
 
       {items.length >= 60 && (
-        <button className="app-btn" disabled={loadingMore} onClick={() => void loadMore()}>
+        <button className="app-btn block" disabled={loadingMore} onClick={() => void loadMore()}>
           {loadingMore ? 'Loading…' : 'Older'}
         </button>
       )}

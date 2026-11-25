@@ -4,7 +4,7 @@ import { api, ApiError } from '@/lib/app/api'
 import { KINDS } from '@/lib/app/kinds'
 import { disablePush, enablePush, existingSubscription, isIos, isStandalone, pushState, type PushState } from '@/lib/app/push'
 import type { AppConfig } from '@/lib/app/types'
-import { ErrorNote, KindBadge } from './ui'
+import { ErrorNote, KindBadge, SectionTitle } from './ui'
 
 /**
  * Settings: notifications on or off, a test notification, and what this build knows about itself.
@@ -79,17 +79,30 @@ export function SettingsTab({ config, onInstallHelp }: Props) {
   }
 
   const installed = isStandalone()
+  const live = state === 'granted' && Boolean(endpoint)
 
   return (
     <>
-      <section className="app-card">
-        <h2 className="app-section-title" style={{ marginTop: 0 }}>
-          Notifications
-        </h2>
+      <section className="app-card" data-tone={live ? 'ok' : 'warn'}>
+        <SectionTitle>Notifications</SectionTitle>
+
+        <p className={`app-status ${live ? 'on' : state === 'denied' ? 'bad' : 'off'}`}>
+          {live
+            ? 'On. This device is subscribed.'
+            : state === 'granted'
+              ? 'Permission is granted, but this device has no subscription yet.'
+              : state === 'denied'
+                ? 'Blocked for this app.'
+                : state === 'needs-install'
+                  ? 'Waiting for the app to be on your Home Screen.'
+                  : state === 'unsupported'
+                    ? 'This browser has no Web Push.'
+                    : 'Off on this device.'}
+        </p>
 
         {state === 'needs-install' && (
           <>
-            <p>Add the app to your Home Screen first. iOS only allows notifications once it is installed.</p>
+            <p className="app-fine">iOS only allows notifications once the app is installed.</p>
             <div className="app-row">
               <button className="app-btn small primary" onClick={onInstallHelp}>
                 How to install
@@ -98,47 +111,36 @@ export function SettingsTab({ config, onInstallHelp }: Props) {
           </>
         )}
 
-        {state === 'unsupported' && <p>This browser has no Web Push.</p>}
-
         {state === 'default' && (
-          <>
-            <p>Notifications are off on this device.</p>
-            <div className="app-row">
-              <button className="app-btn primary" disabled={busy} onClick={() => void turnOn()}>
-                {busy ? 'Asking…' : 'Turn on notifications'}
-              </button>
-            </div>
-          </>
+          <div className="app-row">
+            <button className="app-btn primary" disabled={busy} onClick={() => void turnOn()}>
+              {busy ? 'Asking…' : 'Turn on notifications'}
+            </button>
+          </div>
         )}
 
         {state === 'denied' && (
-          <p>
-            Notifications are blocked for this app. On iOS: Settings → Notifications → Agent. Then come back and turn
-            them on here.
+          <p className="app-fine">
+            On iOS: Settings → Notifications → Agent. Then come back and turn them on here.
           </p>
         )}
 
         {state === 'granted' && (
-          <>
-            <p>
-              {endpoint ? 'On, and this device is subscribed.' : 'Permission is granted, but this device has no subscription yet.'}
-            </p>
-            <div className="app-row">
-              {!endpoint && (
-                <button className="app-btn primary" disabled={busy} onClick={() => void turnOn()}>
-                  Subscribe this device
-                </button>
-              )}
-              <button className="app-btn" disabled={busy || !endpoint} onClick={() => void test()}>
-                {busy ? '…' : 'Send test notification'}
+          <div className="app-row">
+            {!endpoint && (
+              <button className="app-btn primary" disabled={busy} onClick={() => void turnOn()}>
+                Subscribe this device
               </button>
-              {endpoint && (
-                <button className="app-btn quiet" disabled={busy} onClick={() => void turnOff()}>
-                  Turn off
-                </button>
-              )}
-            </div>
-          </>
+            )}
+            <button className="app-btn" disabled={busy || !endpoint} onClick={() => void test()}>
+              {busy ? '…' : 'Send test notification'}
+            </button>
+            {endpoint && (
+              <button className="app-btn quiet" disabled={busy} onClick={() => void turnOff()}>
+                Turn off
+              </button>
+            )}
+          </div>
         )}
 
         {message && <p className="app-note">{message}</p>}
@@ -146,22 +148,28 @@ export function SettingsTab({ config, onInstallHelp }: Props) {
       </section>
 
       <section className="app-card">
-        <h2 className="app-section-title" style={{ marginTop: 0 }}>
-          This install
-        </h2>
-        <dl className="app-meta" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.35rem 0.75rem' }}>
-          <dt>signed in</dt>
-          <dd style={{ textTransform: 'none', letterSpacing: 0 }}>{config?.email ?? '—'}</dd>
-          <dt>home screen</dt>
-          <dd>{installed ? 'yes' : isIos() ? 'not yet' : 'n/a'}</dd>
-          <dt>push keys</dt>
-          <dd>{config?.pushConfigured ? 'set' : 'missing'}</dd>
-          <dt>inbox</dt>
-          <dd style={{ textTransform: 'none', letterSpacing: 0 }}>
-            {config?.inboxConfigured ? (config?.inboxRepo ?? 'set') : 'no GitHub token'}
-          </dd>
-          <dt>time zone</dt>
-          <dd style={{ textTransform: 'none', letterSpacing: 0 }}>{config?.timeZone ?? 'Europe/Brussels'}</dd>
+        <SectionTitle>This install</SectionTitle>
+        <dl className="app-rows">
+          <div>
+            <dt>signed in</dt>
+            <dd>{config?.email ?? '—'}</dd>
+          </div>
+          <div>
+            <dt>home screen</dt>
+            <dd>{installed ? 'yes' : isIos() ? 'not yet' : 'n/a'}</dd>
+          </div>
+          <div>
+            <dt>push keys</dt>
+            <dd>{config?.pushConfigured ? 'set' : 'missing'}</dd>
+          </div>
+          <div>
+            <dt>inbox</dt>
+            <dd>{config?.inboxConfigured ? (config?.inboxRepo ?? 'set') : 'no GitHub token'}</dd>
+          </div>
+          <div>
+            <dt>time zone</dt>
+            <dd>{config?.timeZone ?? 'Europe/Brussels'}</dd>
+          </div>
         </dl>
         {!installed && isIos() && (
           <div className="app-row">
@@ -173,22 +181,20 @@ export function SettingsTab({ config, onInstallHelp }: Props) {
       </section>
 
       <section className="app-card">
-        <h2 className="app-section-title" style={{ marginTop: 0 }}>
-          Card kinds
-        </h2>
-        <p style={{ fontSize: '0.85rem' }}>
+        <SectionTitle>Card kinds</SectionTitle>
+        <p className="app-fine">
           What the agents can send. A new kind is one entry in <code>src/lib/app/kinds.ts</code>, not a new screen —
           see docs/AGENT-APP.md.
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div>
           {Object.entries(KINDS).map(([id, spec]) => (
-            <div key={id} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+            <div key={id} className="app-kind-row">
               <KindBadge kind={id} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '0.9rem' }}>
+                <div className="name">
                   {spec.label} <code>{id}</code>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-faint)' }}>
+                <div className="app-fine">
                   {spec.about} → {spec.tab}
                 </div>
               </div>

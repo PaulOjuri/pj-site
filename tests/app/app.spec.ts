@@ -15,7 +15,9 @@ test.describe.configure({ mode: 'serial' })
 
 async function shot(page: Page, name: string) {
   await mkdir(SHOTS, { recursive: true })
-  await page.screenshot({ path: `${SHOTS}/${name}.png` })
+  // Animations off: the app staggers its cards in, and a screenshot taken mid-flight would show
+  // half-faded ones in the docs.
+  await page.screenshot({ path: `${SHOTS}/${name}.png`, animations: 'disabled' })
 }
 
 /** The tab bar is the app's only navigation. */
@@ -112,7 +114,7 @@ test('decide: the comment is posted, then the decided label, and nothing is clos
 
 test('reminders: create in Brussels time, snooze, and delete', async ({ page }) => {
   await tab(page, 'Reminders').click()
-  await page.getByRole('button', { name: '+ New reminder' }).click()
+  await page.getByRole('button', { name: 'New reminder' }).click()
   await page.getByLabel('What').fill('Call the Alfera client back')
   await page.getByLabel('Date').fill('2026-12-02')
   await page.getByLabel('Time (Brussels)').fill('09:30')
@@ -137,7 +139,7 @@ test('reminders: create in Brussels time, snooze, and delete', async ({ page }) 
 
 test('chat: a message waits for the Mac, then the reply arrives', async ({ page, request }) => {
   await tab(page, 'Chat').click()
-  await page.getByRole('button', { name: '+ New conversation' }).click()
+  await page.getByRole('button', { name: 'New conversation' }).click()
   await page.getByLabel('Message').fill('What is Alfera waiting on this week?')
   await page.getByRole('button', { name: 'Send' }).click()
 
@@ -236,4 +238,30 @@ test('offline: the shell is cached and the app still opens', async ({ page, cont
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible()
   await shot(page, '8-offline')
   await context.setOffline(false)
+})
+
+/**
+ * The install screen is the only part of the app a desktop browser never sees, and it is the one that
+ * decides whether notifications are ever possible, so it gets a run of its own with an iPhone's UA.
+ */
+test.describe('on an iPhone that has not installed it yet', () => {
+  test.use({
+    userAgent:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+  })
+
+  test('install: the Home Screen instructions come first, and dismissing them sticks', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: /Home Screen/ })).toBeVisible()
+    // Nothing competes with them: there is no tab bar to wander off into.
+    await expect(page.getByRole('navigation', { name: 'Sections' })).toHaveCount(0)
+    await shot(page, '9-install')
+
+    await page.getByRole('button', { name: 'Carry on in the browser' }).click()
+    await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible()
+
+    // Dismissed once, dismissed for good on this device.
+    await page.reload()
+    await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Home Screen/ })).toHaveCount(0)
+  })
 })

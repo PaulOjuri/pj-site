@@ -32,6 +32,33 @@ Mac. This repo holds the app, its API and the one cron Worker.
 The Feed is the `/agents` page that step 5 of the agent-network README asked for. It lives inside the app,
 behind the same Access policy, rather than as a separate page.
 
+## The look
+
+The app is the site at phone size, not a second brand: the same near-black, the same gold, the same
+display serif for a title and mono for anything the machine knows. What it adds is the behaviour a
+page does not need and an app does.
+
+- **A collapsing large title.** The section's name is set large over a mono eyebrow and shrinks into a
+  bar as the body scrolls. It is a scroll-linked CSS animation (`animation-timeline`), so there is no
+  scroll handler and no re-render per frame; a browser without scroll timelines simply keeps the large
+  title, which is the better half of the effect.
+- **A floating tab bar.** A blurred pill that the list runs underneath, with a gold lamp that slides to
+  the tab you picked. The tabs themselves only change colour, so nothing reflows on a tap.
+- **Tones, not decoration.** Every kind in `kinds.ts` carries one: gold for what only Paul can settle,
+  blue for what was looked up, amber for the clock, green for an answer from an agent, red for
+  something going wrong. A card borrows its kind's tone for its rail, its badge and its node on the
+  Feed's timeline, so the colour on screen always means the same thing. A new kind gets its tone for
+  free.
+- **The Feed as a timeline.** It is the one list that is a sequence rather than a set, so it is drawn
+  as one: a hairline down the gutter with a node where each entry joins it.
+- **Skeletons, not spinners.** Every tab loads into the shape of what is coming, so nothing jumps when
+  the data lands.
+- **Still no images.** Every mark in the app — the tab icons, the kind badges, the empty states and the
+  app icon on the install screen — is inline SVG in `components/app/icons.tsx`. `tests/app` fails if an
+  `<img>` ever appears inside `#agent-app`.
+
+Reduced motion turns all of it off: no stagger, no shimmer, no sliding lamp.
+
 ## Endpoints
 
 Everything under `/api/app/*` is for the browser and requires a **verified Cloudflare Access JWT**.

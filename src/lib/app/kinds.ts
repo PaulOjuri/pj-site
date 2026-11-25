@@ -12,7 +12,7 @@
  * keep it free of browser and Workers APIs.
  */
 
-export type Tone = 'accent' | 'warn' | 'ok' | 'muted'
+export type Tone = 'accent' | 'info' | 'warn' | 'ok' | 'danger' | 'muted'
 export type Tab = 'inbox' | 'reminders' | 'chat' | 'feed'
 
 export interface NotificationAction {
@@ -23,7 +23,11 @@ export interface NotificationAction {
 export interface KindSpec {
   /** What the card is called on screen. */
   label: string
-  /** One character in the card's corner. Kept to text so there are no icon files to ship. */
+  /**
+   * One character standing for the kind. The card draws an SVG mark instead (`KindMark` in
+   * components/app/icons.tsx); this is the fallback for anywhere there is no room to draw, and it
+   * keeps the registry readable on its own.
+   */
   glyph: string
   tone: Tone
   /** Which tab a card of this kind belongs to. */
@@ -46,7 +50,7 @@ export const KINDS: Record<string, KindSpec> = {
   decision: {
     label: 'Decision',
     glyph: '?',
-    tone: 'warn',
+    tone: 'accent',
     tab: 'inbox',
     actions: [{ action: 'open', title: 'Decide' }],
     about: 'Only Paul can settle it. Filed as a GitHub issue by ask_paul.',
@@ -54,14 +58,14 @@ export const KINDS: Record<string, KindSpec> = {
   research: {
     label: 'Research',
     glyph: 'i',
-    tone: 'accent',
+    tone: 'info',
     tab: 'inbox',
     about: 'claude.ai answers these; the card shows what it found.',
   },
   reminder: {
     label: 'Reminder',
     glyph: '!',
-    tone: 'accent',
+    tone: 'warn',
     tab: 'reminders',
     actions: [
       { action: 'snooze', title: 'Snooze 10m' },
@@ -86,7 +90,7 @@ export const KINDS: Record<string, KindSpec> = {
   alert: {
     label: 'Alert',
     glyph: '△',
-    tone: 'warn',
+    tone: 'danger',
     tab: 'feed',
     about: 'Something an agent thinks is going wrong.',
   },

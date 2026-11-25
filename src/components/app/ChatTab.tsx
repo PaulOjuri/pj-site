@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, ApiError } from '@/lib/app/api'
 import type { ChatThread } from '@/lib/app/types'
+import { BackIcon, PlusIcon, SendIcon } from './icons'
 import { Empty, ErrorNote, ErrorNote as Note, Spinner, when } from './ui'
 
 /**
@@ -80,19 +81,22 @@ export function ChatTab({ focus, onFocus, reloadToken }: Props) {
     return (
       <>
         {error && <ErrorNote error={error} onRetry={load} />}
-        <button className="app-btn primary" onClick={() => onFocus('new')}>
-          + New conversation
+        <button className="app-btn primary block" onClick={() => onFocus('new')}>
+          <PlusIcon />
+          New conversation
         </button>
         {(threads ?? []).length === 0 && <Empty>No conversations yet.</Empty>}
         {(threads ?? []).map((t) => {
           const last = t.messages[t.messages.length - 1]
           return (
-            <article key={t.thread_id} className="app-card">
+            <article key={t.thread_id} className="app-card" data-tone={t.pending ? 'warn' : 'ok'}>
               <h2 className="app-card-title">
                 <button onClick={() => onFocus(t.thread_id)}>{t.messages[0]?.body.slice(0, 90) || 'Conversation'}</button>
               </h2>
               <div className="app-meta">
-                <span>{t.messages.length} message{t.messages.length === 1 ? '' : 's'}</span>
+                <span>
+                  {t.messages.length} message{t.messages.length === 1 ? '' : 's'}
+                </span>
                 <span>{when(t.last_at)}</span>
                 {t.pending && <span style={{ color: 'var(--tone-warn)' }}>waiting for your Mac</span>}
                 {!t.pending && last?.role === 'agent' && <span>{last.agent}</span>}
@@ -109,7 +113,8 @@ export function ChatTab({ focus, onFocus, reloadToken }: Props) {
     <>
       <div className="app-row">
         <button className="app-btn small quiet" onClick={() => onFocus(null)}>
-          ← Conversations
+          <BackIcon />
+          Conversations
         </button>
       </div>
       {error && <Note error={error} />}
@@ -131,6 +136,11 @@ export function ChatTab({ focus, onFocus, reloadToken }: Props) {
             </div>
           </div>
         ))}
+        {waiting && (
+          <div className="app-typing" role="status" aria-label="Waiting for your Mac">
+            <i /> <i /> <i />
+          </div>
+        )}
         <div ref={endRef} />
       </div>
 
@@ -149,8 +159,13 @@ export function ChatTab({ focus, onFocus, reloadToken }: Props) {
             }
           }}
         />
-        <button className="app-btn primary" disabled={busy || !draft.trim()} onClick={() => void send()}>
-          {busy ? '…' : 'Send'}
+        <button
+          className="app-btn primary"
+          aria-label="Send"
+          disabled={busy || !draft.trim()}
+          onClick={() => void send()}
+        >
+          {busy ? <span className="app-spinner-dot" /> : <SendIcon />}
         </button>
       </div>
     </>
