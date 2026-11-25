@@ -15,12 +15,15 @@
 */
 
 const VERSION = 'agent-app-v1'
-const SHELL = ['/app', '/app/manifest.webmanifest', '/app/offline.html', '/app/icon-192.png']
+const SHELL = ['/app', '/app/manifest.webmanifest', '/app/offline.html', '/app/offline', '/app/icon-192.png']
 
 /** Everything the app needs to boot: the shell, plus the hashed Next chunks the shell references. */
 async function precache() {
   const cache = await caches.open(VERSION)
-  await cache.addAll(SHELL).catch(() => undefined)
+  // One URL at a time. addAll() throws the whole batch away if a single entry fails, and on the
+  // deployed site /app/offline.html is a 308 to /app/offline — exactly the kind of thing that would
+  // otherwise take the rest of the shell down with it.
+  await Promise.all(SHELL.map((url) => cache.add(url).catch(() => undefined)))
   try {
     // Pull the chunk URLs out of the page itself, so a first launch offline still works. One request
     // at a time: addAll() throws the whole batch away if a single URL 404s, and the page's inlined
@@ -82,6 +85,7 @@ self.addEventListener('fetch', (event) => {
           return (
             (await cache.match('/app', options)) ||
             (await cache.match('/app/offline.html', options)) ||
+            (await cache.match('/app/offline', options)) ||
             Response.error()
           )
         }
