@@ -267,7 +267,8 @@ body:has(#agent-app) {
 .app-tabbar {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  /* As many columns as there are tabs; AgentApp passes the count, so adding one is a one-line change. */
+  grid-template-columns: repeat(var(--tab-count, 5), 1fr);
   border: 1px solid var(--line-strong);
   border-radius: 19px;
   background: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
@@ -284,7 +285,7 @@ body:has(#agent-app) {
   top: 4px;
   bottom: 4px;
   left: 4px;
-  width: calc((100% - 8px) / 5);
+  width: calc((100% - 8px) / var(--tab-count, 5));
   border-radius: 15px;
   background: linear-gradient(
     180deg,
@@ -520,6 +521,208 @@ body:has(#agent-app) {
 /* The rail would double up with the node, so a timeline card keeps only its tint. */
 .app-timeline > .app-card[data-tone]::before {
   display: none;
+}
+
+/* ── The network map ──────────────────────────────────────────────────────
+   The Agents tab. The same hairline and nodes as the Feed's timeline, turned on their side: there the
+   line is time running downwards, here it is delegation. A sub-agent's rail starts inside its parent's,
+   so the indent and the line say the same thing twice, which is what makes it readable at a glance on a
+   phone rather than needing a legend. */
+
+.app-tree,
+.app-subtree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.app-branch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.app-subtree {
+  position: relative;
+  padding-left: 1.35rem;
+}
+.app-subtree::before {
+  content: '';
+  position: absolute;
+  left: 0.3rem;
+  top: -0.5rem;
+  bottom: 1.2rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--line-strong) 0%, var(--line-strong) 85%, transparent);
+}
+.app-subtree > .app-branch > .app-agent {
+  overflow: visible;
+}
+.app-subtree > .app-branch > .app-agent > .app-node {
+  position: absolute;
+  left: -1.05rem;
+  top: 1.35rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--card-tone);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 10px -1px color-mix(in srgb, var(--card-tone) 80%, transparent);
+}
+.app-subtree > .app-branch > .app-agent > .app-node::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 0.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--card-tone) 50%, transparent), transparent);
+}
+/* The node already carries the tone; the rail would double it up. */
+.app-subtree > .app-branch > .app-agent[data-tone]::before {
+  display: none;
+}
+
+.app-agent .app-card-title button {
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+/* An agent that is working: the one thing on this screen that changes while you look at it. */
+.app-agent[data-tone='warn'] > .app-node {
+  animation: app-pulse 1.6s ease-in-out infinite;
+}
+
+/* ── The sheet ──
+   One agent, over the map instead of in place of it, so tapping a node never loses your place in the
+   graph. It is routed (#agents/alfera), so it survives a reload. */
+
+/* The body is its own stacking context (z-index: 1) and the tab bar sits above it at 4, so a sheet
+   inside the body cannot cover the bar on its own: the body is lifted for as long as one is open. */
+.app-body:has(> .app-sheet-scrim) {
+  z-index: 8;
+}
+.app-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: color-mix(in srgb, #000 55%, transparent);
+  backdrop-filter: blur(2px);
+  animation: app-fade 220ms var(--ease-out) both;
+}
+@keyframes app-fade {
+  from { opacity: 0; }
+}
+.app-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 86%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  background: var(--bg-elevated);
+  box-shadow: 0 -24px 60px -30px rgba(0, 0, 0, 0.95);
+  animation: app-sheet-up 320ms var(--ease-spring) both;
+}
+.app-sheet[data-tone='accent'] { --card-tone: var(--tone-accent); }
+.app-sheet[data-tone='info'] { --card-tone: var(--tone-info); }
+.app-sheet[data-tone='warn'] { --card-tone: var(--tone-warn); }
+.app-sheet[data-tone='ok'] { --card-tone: var(--tone-ok); }
+.app-sheet[data-tone='danger'] { --card-tone: var(--tone-danger); }
+.app-sheet[data-tone='muted'] { --card-tone: var(--tone-muted); }
+.app-sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-tone), transparent);
+  opacity: 0.6;
+}
+@keyframes app-sheet-up {
+  from { translate: 0 100%; }
+}
+.app-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.1rem var(--app-gutter) 0.6rem;
+}
+.app-sheet-grip {
+  position: absolute;
+  top: 0.45rem;
+  left: 50%;
+  translate: -50% 0;
+  width: 2.2rem;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+.app-sheet-head h2 {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono-stack), monospace;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text);
+}
+.app-sheet-head .app-btn.icon {
+  rotate: -90deg; /* the back chevron, pointing down: this closes rather than goes back */
+}
+.app-sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--app-gutter) calc(1.4rem + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  -webkit-overflow-scrolling: touch;
+}
+.app-sheet-body p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.app-sheet-body dd a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.app-run {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-left: 2px solid var(--line-strong);
+  padding: 0.1rem 0 0.1rem 0.65rem;
+}
+.app-run[data-outcome='ok'] { border-left-color: color-mix(in srgb, var(--tone-ok) 55%, transparent); }
+.app-run[data-outcome='failed'] { border-left-color: color-mix(in srgb, var(--tone-danger) 65%, transparent); }
+.app-run[data-outcome='budget'] { border-left-color: color-mix(in srgb, var(--tone-warn) 65%, transparent); }
+.app-run[data-outcome='running'] { border-left-color: var(--tone-warn); }
+.app-run p,
+.app-run-title {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  /* A run's label is Paul's own request, which can be a paragraph; two lines is enough to recognise it. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.app-run.as-button {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  border-left: 2px solid color-mix(in srgb, var(--tone-accent) 55%, transparent);
+  padding: 0.1rem 0 0.1rem 0.65rem;
+}
+.app-run.as-button:active {
+  scale: 0.995;
 }
 
 /* ── Buttons, inputs ── */
@@ -1175,7 +1378,8 @@ body:has(#agent-app) {
     transition-duration: 1ms !important;
   }
   .app-tab-lamp,
-  .app-skeleton-card .sk {
+  .app-skeleton-card .sk,
+  .app-agent[data-tone='warn'] > .app-node {
     animation: none !important;
   }
 }

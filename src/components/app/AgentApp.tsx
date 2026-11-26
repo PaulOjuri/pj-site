@@ -3,13 +3,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { api, ApiError } from '@/lib/app/api'
 import { isIos, isStandalone, registerServiceWorker } from '@/lib/app/push'
 import type { AppConfig } from '@/lib/app/types'
+import { AgentsTab } from './AgentsTab'
 import { ChatTab } from './ChatTab'
 import { FeedTab } from './FeedTab'
 import { InboxTab } from './InboxTab'
 import { InstallScreen } from './InstallScreen'
 import { RemindersTab } from './RemindersTab'
 import { SettingsTab } from './SettingsTab'
-import { ChatIcon, ClockIcon, FeedIcon, InboxIcon, RefreshIcon, SettingsIcon } from './icons'
+import { ChatIcon, ClockIcon, FeedIcon, InboxIcon, NetworkIcon, RefreshIcon, SettingsIcon } from './icons'
 import { ErrorNote } from './ui'
 
 /**
@@ -23,15 +24,22 @@ import { ErrorNote } from './ui'
  *   #reminders  #reminders/<uuid>  one reminder
  *   #chat       #chat/<thread>     one conversation ("new" starts one)
  *   #feed
+ *   #agents     #agents/alfera     one agent's sheet, over the map
  *   #settings
  */
 
+/**
+ * `label` is the word under the icon, short enough for a sixth of a phone; `name` is what the tab is
+ * called out loud (its aria-label, and what the tests ask for); `title` is the large serif heading the
+ * section wears, which is not always the same thing.
+ */
 const TABS = [
-  { id: 'inbox', label: 'Inbox', title: 'Inbox', eyebrow: 'what needs you', Icon: InboxIcon },
-  { id: 'reminders', label: 'Remind', title: 'Reminders', eyebrow: 'brussels time', Icon: ClockIcon },
-  { id: 'chat', label: 'Chat', title: 'Chat', eyebrow: 'the orchestrator', Icon: ChatIcon },
-  { id: 'feed', label: 'Feed', title: 'Feed', eyebrow: 'everything that happened', Icon: FeedIcon },
-  { id: 'settings', label: 'Set', title: 'Settings', eyebrow: 'this device', Icon: SettingsIcon },
+  { id: 'inbox', label: 'Inbox', name: 'Inbox', title: 'Inbox', eyebrow: 'what needs you', Icon: InboxIcon },
+  { id: 'reminders', label: 'Remind', name: 'Reminders', title: 'Reminders', eyebrow: 'brussels time', Icon: ClockIcon },
+  { id: 'chat', label: 'Chat', name: 'Chat', title: 'Chat', eyebrow: 'the orchestrator', Icon: ChatIcon },
+  { id: 'feed', label: 'Feed', name: 'Feed', title: 'Feed', eyebrow: 'everything that happened', Icon: FeedIcon },
+  { id: 'agents', label: 'Agents', name: 'Agents', title: 'the network', eyebrow: 'who works for you', Icon: NetworkIcon },
+  { id: 'settings', label: 'Set', name: 'Settings', title: 'Settings', eyebrow: 'this device', Icon: SettingsIcon },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
@@ -213,22 +221,35 @@ export function AgentApp() {
           />
         )}
         {route.tab === 'feed' && <FeedTab onNavigate={navigate} reloadToken={reloadToken} />}
+        {route.tab === 'agents' && (
+          <AgentsTab
+            focus={route.focus}
+            onFocus={(name) => navigate(name ? `#agents/${name}` : '#agents')}
+            onNavigate={navigate}
+            reloadToken={reloadToken}
+          />
+        )}
         {route.tab === 'settings' && <SettingsTab config={config} onInstallHelp={() => setShowInstall(true)} />}
       </div>
 
       <nav className="app-tabs" aria-label="Sections">
         <div
           className="app-tabbar"
-          style={{ '--tab-index': TABS.findIndex((t) => t.id === current.id) } as React.CSSProperties}
+          style={
+            {
+              '--tab-index': TABS.findIndex((t) => t.id === current.id),
+              '--tab-count': TABS.length,
+            } as React.CSSProperties
+          }
         >
           {/* The lamp slides to the tab you picked; the tabs themselves only change colour. */}
           <span className="app-tab-lamp" aria-hidden="true" />
-          {TABS.map(({ id, label, title, Icon }) => (
+          {TABS.map(({ id, label, name, Icon }) => (
             <button
               key={id}
               className="app-tab"
               aria-current={route.tab === id ? 'page' : undefined}
-              aria-label={title}
+              aria-label={name}
               onClick={() => navigate(`#${id}`)}
             >
               <span className="glyph">

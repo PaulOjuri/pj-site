@@ -5,6 +5,7 @@
  * cookie and the edge turns that into the signed header the Functions verify. A 401 or 403 means the
  * Access session has run out, which is a reload, not an error message.
  */
+import type { AgentsResponse } from './agents'
 import type {
   AppConfig,
   ChatResponse,
@@ -85,6 +86,8 @@ export const api = {
   },
   markRead: (payload: { ids?: string[]; all?: boolean }) =>
     call<{ marked: number }>('/api/app/feed/read', { method: 'POST', body: body(payload) }),
+
+  agents: () => call<AgentsResponse>('/api/app/agents'),
 
   reminders: () => call<RemindersResponse>('/api/app/reminders'),
   createReminder: (payload: {
