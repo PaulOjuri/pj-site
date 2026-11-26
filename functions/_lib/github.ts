@@ -178,6 +178,16 @@ export async function listInbox(env: AppEnv, limit = 25): Promise<InboxIssue[]> 
   })
 }
 
+/**
+ * The open inbox without its comments: one GitHub call, so a screen that only needs to know *that* an
+ * agent has something waiting (the Agents tab) does not pay for 26 of them.
+ */
+export async function listInboxBrief(env: AppEnv, limit = 50): Promise<InboxIssue[]> {
+  const repo = inboxRepo(env)
+  const issues = await gh<GhIssue[]>(env, `/repos/${repo}/issues?state=open&labels=agent-inbox&per_page=${limit}`)
+  return issues.filter((i) => !i.pull_request).map((issue) => toInboxIssue(issue, []))
+}
+
 export async function addComment(env: AppEnv, number: number, body: string): Promise<{ id: number }> {
   return gh<{ id: number }>(env, `/repos/${inboxRepo(env)}/issues/${number}/comments`, {
     method: 'POST',

@@ -17,6 +17,7 @@
     ".wrangler/worker-configuration.d.ts",
     "functions/**/*.ts",
     "workers/**/*.ts",
+    "src/lib/app/agents.ts",
     "src/lib/app/kinds.ts",
     "src/lib/app/markdown.ts",
     "tests/unit/**/*.ts"

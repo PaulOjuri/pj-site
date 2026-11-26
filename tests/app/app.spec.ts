@@ -1,5 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
+import { INGEST_TOKEN } from '../../playwright.app.config'
+import type { AgentNode, AgentsResponse } from '../../src/lib/app/agents'
 
 /**
  * Every flow of /app, against `wrangler pages dev`: the Functions, a local D1 and a stand-in GitHub API.
@@ -28,9 +30,9 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('#agent-app')).toBeVisible()
 })
 
-test('the shell: five tabs, no site chrome, nothing wider than the phone', async ({ page }) => {
+test('the shell: six tabs, no site chrome, nothing wider than the phone', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible()
-  for (const name of ['Inbox', 'Reminders', 'Chat', 'Feed', 'Settings']) {
+  for (const name of ['Inbox', 'Reminders', 'Chat', 'Feed', 'Agents', 'Settings']) {
     await expect(tab(page, name)).toBeVisible()
   }
   // The public site's header and skip link must not be in an installed app.
@@ -196,6 +198,312 @@ test('feed: agent events and pushed cards in one list, filterable', async ({ pag
   const projects = await page.locator('.app-card .app-meta').allTextContents()
   expect(projects.length).toBeGreaterThan(0)
   expect(projects.every((text) => text.includes('unalone'))).toBe(true)
+})
+
+
+/**
+ * The network map. The API is faked here on purpose: the reducer behind it has its own tests
+ * (tests/unit/agents.test.ts), and a fixed answer is what makes the screenshot and the tones
+ * repeatable — four agents, one running, one failed, one waiting on a decision.
+ */
+const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString()
+
+const node = (over: Partial<AgentNode> & Pick<AgentNode, 'name'>): AgentNode => ({
+  description: '',
+  model: 'sonnet',
+  tools: ['Read', 'Grep', 'Glob'],
+  repo: null,
+  canWrite: false,
+  parent: null,
+  role: '',
+  depth: 0,
+  children: [],
+  state: 'quiet',
+  tone: 'muted',
+  running: false,
+  last_run_at: null,
+  last_outcome: null,
+  last_cost_usd: null,
+  blocked_7d: 0,
+  runs: [],
+  issues: [],
+  ...over,
+})
+
+const NETWORK: AgentsResponse = {
+  roster_at: ago(14),
+  agents: [
+    node({
+      name: 'orchestrator',
+      description:
+        "The orchestrator of Paul's agent network. It takes a request, decides which specialists it concerns and combines their reports. It never does the work itself.",
+      role: "The orchestrator of Paul's agent network.",
+      tools: ['Agent', 'mcp__inbox__ask_paul'],
+      repo: 'PaulOjuri/agent-network',
+      children: ['unalone', 'alfera'],
+      state: 'ok',
+      tone: 'ok',
+      last_run_at: ago(14),
+      last_outcome: 'ok',
+      last_cost_usd: 0.42,
+      runs: [
+        {
+          run_id: 'r1',
+          started_at: ago(22),
+          ended_at: ago(14),
+          outcome: 'ok',
+          cost_usd: 0.42,
+          label: "Give me this week's briefing across all my projects.",
+          tool_calls: 0,
+          blocked: 0,
+        },
+      ],
+    }),
+    node({
+      name: 'unalone',
+      description:
+        'Status reporter for Unalone, the mentorship and accountability app. Use for any question about the pilot, what shipped, or what is waiting on Paul.',
+      role: 'Status reporter for Unalone, the mentorship and accountability app.',
+      repo: 'PaulOjuri/unalone',
+      parent: 'orchestrator',
+      depth: 1,
+      children: ['founder-proxy'],
+      tools: ['Read', 'Grep', 'Glob', 'Bash'],
+      state: 'failed',
+      tone: 'danger',
+      last_run_at: ago(15),
+      last_outcome: 'failed',
+      last_cost_usd: 0.11,
+      blocked_7d: 3,
+      issues: [{ number: 12, question: 'Which launch date for the v2 site?', kind: 'decision', decided: false }],
+      runs: [
+        {
+          run_id: 'r1',
+          started_at: ago(21),
+          ended_at: ago(15),
+          outcome: 'failed',
+          cost_usd: 0.11,
+          label: 'Report on the 22 November pilot and what is waiting on Paul.',
+          tool_calls: 12,
+          blocked: 3,
+        },
+        {
+          run_id: 'r0',
+          started_at: ago(1500),
+          ended_at: ago(1495),
+          outcome: 'ok',
+          cost_usd: 0.24,
+          label: 'What is on the board right now?',
+          tool_calls: 9,
+          blocked: 0,
+        },
+      ],
+    }),
+    node({
+      name: 'founder-proxy',
+      description:
+        "Unalone's founder proxy. It reads the product rules and the earlier decisions and returns a recommendation with its options and its confidence. It recommends only and never decides.",
+      role: "Unalone's founder proxy.",
+      model: 'fable',
+      repo: 'PaulOjuri/unalone',
+      parent: 'unalone',
+      depth: 2,
+    }),
+    node({
+      name: 'alfera',
+      description:
+        'Account manager and build lead for Alfera Technik, Paul\u2019s client. Use for anything about the live site, the v2 redesign and scoping new builds.',
+      role: 'Account manager and build lead for Alfera Technik, Paul\u2019s client.',
+      repo: 'PaulOjuri/alfera',
+      parent: 'orchestrator',
+      depth: 1,
+      canWrite: true,
+      tools: ['Read', 'Grep', 'Glob', 'Bash', 'Write', 'Edit'],
+      state: 'running',
+      tone: 'warn',
+      running: true,
+      last_run_at: ago(1480),
+      last_outcome: 'ok',
+      last_cost_usd: 0.31,
+      runs: [
+        {
+          run_id: 'r2',
+          started_at: ago(3),
+          ended_at: null,
+          outcome: null,
+          cost_usd: null,
+          label: 'Update the client file and the v2 launch checklist.',
+          tool_calls: 4,
+          blocked: 0,
+        },
+      ],
+    }),
+  ],
+}
+
+test('agents: the orchestrator at the top, its specialists under it, a sub-agent under its parent', async ({ page }) => {
+  await page.route('**/api/app/agents', (route) => route.fulfill({ json: NETWORK }))
+  await page.goto('/app#agents')
+
+  await expect(page.getByRole('heading', { name: 'the network' })).toBeVisible()
+  await expect(page.getByText('who works for you')).toBeVisible()
+
+  const cards = page.locator('.app-agent')
+  await expect(cards).toHaveCount(4)
+  // Drawing order is the graph: the orchestrator, then each specialist, then what answers to it.
+  expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-agent')))).toEqual([
+    'orchestrator',
+    'unalone',
+    'founder-proxy',
+    'alfera',
+  ])
+
+  // One tone each, and they mean what the legend says.
+  const tone = (name: string) => page.locator(`.app-agent[data-agent="${name}"]`)
+  await expect(tone('orchestrator')).toHaveAttribute('data-tone', 'ok')
+  await expect(tone('unalone')).toHaveAttribute('data-tone', 'danger')
+  await expect(tone('alfera')).toHaveAttribute('data-tone', 'warn')
+  await expect(tone('founder-proxy')).toHaveAttribute('data-tone', 'muted')
+
+  // The badge says what each one may touch, and the line underneath says how its last run went.
+  await expect(tone('alfera')).toContainText('writes notes/alfera')
+  await expect(tone('alfera')).toContainText('running now')
+  await expect(tone('unalone')).toContainText('read-only')
+  await expect(tone('unalone')).toContainText('failed')
+  await expect(tone('unalone')).toContainText('3 blocked this week')
+  await expect(tone('unalone')).toContainText('1 decision waiting')
+  await expect(tone('founder-proxy')).toContainText('fable')
+
+  // The sub-agent sits inside its parent's branch, not beside it.
+  await expect(page.locator('.app-subtree .app-subtree .app-agent[data-agent="founder-proxy"]')).toBeVisible()
+  await shot(page, '10-agents')
+})
+
+test('agents: tapping a node opens the sheet with the description, the repo, the tools and the last runs', async ({
+  page,
+}) => {
+  await page.route('**/api/app/agents', (route) => route.fulfill({ json: NETWORK }))
+  await page.goto('/app#agents')
+
+  await page.locator('.app-agent[data-agent="unalone"] .app-card-title button').click()
+  const sheet = page.getByRole('dialog', { name: 'unalone' })
+  await expect(sheet).toBeVisible()
+  // The sheet is routed, so it survives a reload and a deep link can open it.
+  expect(new URL(page.url()).hash).toBe('#agents/unalone')
+
+  await expect(sheet).toContainText('what is waiting on Paul')
+  await expect(sheet).toContainText('PaulOjuri/unalone')
+  await expect(sheet).toContainText('Read, Grep, Glob, Bash')
+  await expect(sheet).toContainText('3 in the last 7 days')
+  await expect(sheet.locator('.app-run')).toHaveCount(3) // two runs and one inbox issue
+  await expect(sheet).toContainText('Report on the 22 November pilot')
+  await expect(sheet).toContainText('Which launch date for the v2 site?')
+  await shot(page, '11-agent-sheet')
+
+  // An issue in the sheet goes to the Inbox, which is where it is answered.
+  await sheet.getByRole('button', { name: /Which launch date/ }).click()
+  expect(new URL(page.url()).hash).toBe('#inbox/12')
+  await expect(page.getByRole('heading', { name: 'Which launch date for the v2 site?' })).toBeVisible()
+
+  // Closing it leaves the map where it was.
+  await page.goto('/app#agents/alfera')
+  await expect(page.getByRole('dialog', { name: 'alfera' })).toBeVisible()
+  await page.getByRole('button', { name: 'Close' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.locator('.app-agent')).toHaveCount(4)
+})
+
+test('agents: a roster event posted by the Mac comes back as a graph', async ({ page, request }) => {
+  const runId = `roster-run-${Date.now()}`
+  const ingested = await request.post('/api/agents/ingest', {
+    headers: { authorization: `Bearer ${INGEST_TOKEN}` },
+    data: {
+      events: [
+        {
+          id: `${runId}-roster`,
+          runId,
+          ts: ago(4),
+          agent: 'network',
+          type: 'roster',
+          summary: '2 agents: orchestrator, alfera',
+          roster: [
+            {
+              name: 'orchestrator',
+              description: "The orchestrator of Paul's agent network. It only delegates.",
+              model: 'sonnet',
+              tools: ['Agent'],
+              repo: 'PaulOjuri/agent-network',
+              canWrite: false,
+              parent: null,
+            },
+            {
+              name: 'alfera',
+              description: 'Account manager and build lead for Alfera Technik. It keeps its own notes.',
+              model: 'sonnet',
+              tools: ['Read', 'Write'],
+              repo: 'PaulOjuri/alfera',
+              canWrite: true,
+              parent: 'orchestrator',
+            },
+          ],
+        },
+        {
+          id: `${runId}-started`,
+          runId,
+          ts: ago(4),
+          agent: 'alfera',
+          type: 'run_started',
+          summary: 'update the client file',
+        },
+        { id: `${runId}-done`, runId, ts: ago(3), agent: 'alfera', type: 'run_finished', summary: 'done', costUsd: 0.18 },
+      ],
+    },
+  })
+  expect(ingested.status()).toBe(200)
+  expect(await ingested.json()).toMatchObject({ ok: true, rejected: [] })
+
+  // The same batch again: a retried send must not add a second roster.
+  const again = await request.post('/api/agents/ingest', {
+    headers: { authorization: `Bearer ${INGEST_TOKEN}` },
+    data: {
+      events: [
+        {
+          id: `${runId}-roster`,
+          runId,
+          ts: ago(4),
+          agent: 'network',
+          type: 'roster',
+          summary: '2 agents',
+          roster: [
+            {
+              name: 'orchestrator',
+              description: 'x'.repeat(30),
+              model: 'sonnet',
+              tools: [],
+              repo: null,
+              canWrite: false,
+              parent: null,
+            },
+          ],
+        },
+      ],
+    },
+  })
+  expect(await again.json()).toMatchObject({ inserted: 0, duplicates: 1 })
+
+  await page.goto('/app#agents')
+  const alfera = page.locator('.app-agent[data-agent="alfera"]')
+  await expect(alfera).toBeVisible()
+  await expect(alfera).toContainText('writes notes/alfera')
+  await expect(alfera).toContainText('ok')
+  await expect(alfera).toContainText('$0.18')
+  // The orchestrator is on the map because the roster says so, at the top, with nothing above it.
+  const orchestrator = page.locator('.app-agent[data-agent="orchestrator"]')
+  await expect(orchestrator).toBeVisible()
+  await expect(orchestrator).toContainText('read-only')
+  await expect(page.locator('.app-tree > .app-branch > .app-agent')).toHaveCount(1)
+  // The roster decides who exists: unalone sent no roster entry, so it is not on the map.
+  await expect(page.locator('.app-agent[data-agent="unalone"]')).toHaveCount(0)
 })
 
 test('settings: the push button, and the kind registry documenting itself', async ({ page }) => {

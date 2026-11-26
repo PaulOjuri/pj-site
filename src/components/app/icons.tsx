@@ -59,6 +59,18 @@ export function FeedIcon() {
   )
 }
 
+/** The network: one hub delegating to two, the same geometry as the app's own mark. */
+export function NetworkIcon() {
+  return (
+    <svg {...base}>
+      <path d="M10 6.2v2.2M10 8.4 5.6 12.2M10 8.4l4.4 3.8" />
+      <circle cx="10" cy="4.6" r="2.1" />
+      <circle cx="4.6" cy="14.2" r="2.1" />
+      <circle cx="15.4" cy="14.2" r="2.1" />
+    </svg>
+  )
+}
+
 export function SettingsIcon() {
   return (
     <svg {...base}>
@@ -244,6 +256,37 @@ export function AppMark({ size = 68 }: { size?: number }) {
           <stop offset="1" stopColor="rgba(240,236,226,0.05)" />
         </linearGradient>
       </defs>
+    </svg>
+  )
+}
+
+/**
+ * A node's mark on the network map. Three, so the shape says where an agent sits before the indent
+ * does: the orchestrator is the hub everything leaves, a specialist is a node with a repo behind it,
+ * and a sub-agent is a node hanging off another one.
+ */
+export function AgentMark({ depth }: { depth: number }) {
+  if (depth === 0) {
+    return (
+      <svg {...base} width={18} height={18}>
+        <circle cx="10" cy="10" r="2.4" />
+        <path d="M10 2.6v5M10 12.4v5M2.6 10h5M12.4 10h5" opacity={0.7} />
+      </svg>
+    )
+  }
+  if (depth === 1) {
+    return (
+      <svg {...base} width={18} height={18}>
+        <circle cx="10" cy="10" r="3" />
+        <path d="M10 2.8v4.2" opacity={0.7} />
+        <path d="M5.4 15.5h9.2" opacity={0.45} />
+      </svg>
+    )
+  }
+  return (
+    <svg {...base} width={18} height={18}>
+      <path d="M5 4v7a3 3 0 0 0 3 3h3" opacity={0.7} />
+      <circle cx="13.6" cy="14" r="2.3" />
     </svg>
   )
 }

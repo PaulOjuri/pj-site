@@ -1,8 +1,9 @@
 # The agent app (paulojuri.com/app)
 
 A private, installable web app where Paul's agents reach him and he answers back: decisions and research
-from the agent inbox, reminders, a chat with the orchestrator, and the feed of everything the network has
-done. It is one page with five tabs, behind Cloudflare Access, pushing to an iPhone over Web Push.
+from the agent inbox, reminders, a chat with the orchestrator, the feed of everything the network has done,
+and a map of the network itself. It is one page with six tabs, behind Cloudflare Access, pushing to an
+iPhone over Web Push.
 
 The agents live in [PaulOjuri/agent-network](https://github.com/PaulOjuri/agent-network) and run on Paul's
 Mac. This repo holds the app, its API and the one cron Worker.
@@ -11,7 +12,8 @@ Mac. This repo holds the app, its API and the one cron Worker.
   iPhone (installed app)                 Cloudflare                          Paul's Mac
   ──────────────────────                 ──────────                          ──────────
   /app  ─ Access ──────────────▶ Pages Functions  ──▶  D1 "agent-network"  ◀── /api/agents/ingest
-   │                             /api/app/*             app_feed                 (step 4 events)
+   │                             /api/app/*             app_feed                 (events, and the
+   │                                                    agent_roster              roster each run sends)
    │                                                    app_reminders
    │  ◀── Web Push ──────────── reminders Worker ──▶    app_messages        ◀── /api/agent/notify
    │      (aes128gcm)           every minute            app_subscriptions       /api/agent/reminders
@@ -19,7 +21,7 @@ Mac. This repo holds the app, its API and the one cron Worker.
    └── taps a notification ──▶ /app#inbox/12
 ```
 
-## The five tabs
+## The six tabs
 
 | Tab | What it is | Reads | Writes |
 |---|---|---|---|
@@ -27,6 +29,7 @@ Mac. This repo holds the app, its API and the one cron Worker.
 | **Reminders** | What, when (Brussels), optional lead time and repeat | `app_reminders` | create, edit, snooze, done, delete |
 | **Chat** | Ask the orchestrator something; the Mac answers | `app_messages` | a `pending` message |
 | **Feed** | Everything: pushed cards and the agents' run events | `app_feed` + `events` | marks cards read |
+| **Agents** | The network as a map: who exists, who they answer to, how their last run went | `agent_roster` + `events` + GitHub | — |
 | **Settings** | Notifications on/off, a test push, what this build knows | — | subscription rows |
 
 The Feed is the `/agents` page that step 5 of the agent-network README asked for. It lives inside the app,
@@ -51,6 +54,12 @@ page does not need and an app does.
   free.
 - **The Feed as a timeline.** It is the one list that is a sequence rather than a set, so it is drawn
   as one: a hairline down the gutter with a node where each entry joins it.
+- **The network as a map.** The Agents tab is the one screen that is a shape rather than a list, and it
+  is drawn with the Feed's own hairline and nodes turned on their side: there the line is time running
+  downwards, here it is delegation. A node's tone is the same legend the rest of the app uses, read in
+  one order — amber if it is running right now, red if its last run failed or ran out of budget, gold if
+  it has an open decision waiting on Paul, green if its last run was fine, grey if it has never run. A
+  fault outranks a queue; anything live outranks both.
 - **Skeletons, not spinners.** Every tab loads into the shape of what is coming, so nothing jumps when
   the data lands.
 - **Still no images.** Every mark in the app — the tab icons, the kind badges, the empty states and the
@@ -71,6 +80,7 @@ never overlap: a browser cannot use the token endpoints and the Mac cannot use t
 | POST/DELETE | `/api/app/subscriptions` | store or remove this device's push subscription |
 | POST | `/api/app/test-push` | Settings → "Send test notification" |
 | GET | `/api/app/feed` | `?project=&kind=&before=&limit=` |
+| GET | `/api/app/agents` | the network: the latest roster, each agent's last runs, cost, blocked calls and open issues |
 | POST | `/api/app/feed/read` | `{ids}` or `{all:true}` |
 | GET/POST | `/api/app/reminders` | list / create |
 | PATCH/DELETE | `/api/app/reminders/:id` | edit, `{snooze_minutes}`, `{state}` / delete |
@@ -132,6 +142,28 @@ notifying twice about the same issue.
 - `/app` is `noindex` in the metadata, in `public/_headers` and in `robots.ts`.
 - Secrets live in Cloudflare (`wrangler secret put`), never in git. `.dev.vars` is git-ignored.
 
+## Where the roster comes from
+
+Nothing in this repo knows which agents exist. The first event of every run on Paul's Mac is a `roster`
+event — every agent with its description, model, tools, repo, whether it may write and who it answers to
+— sent through the same sink as every other event
+([agent-network's `src/roster.ts`](https://github.com/PaulOjuri/agent-network/blob/main/src/roster.ts)).
+`POST /api/agents/ingest` tells it apart from an ordinary event and stores it whole in `agent_roster`,
+one row per roster rather than one per agent, so **the newest row is the network**: an agent that has
+been taken out of the roster simply is not in it, and nothing has to be deleted.
+
+`GET /api/app/agents` then reduces that roster against the `events` table and the inbox
+(`src/lib/app/agents.ts`, tested in `tests/unit/agents.test.ts`):
+
+| Per agent | Where it comes from |
+|---|---|
+| last run, its outcome and its cost | the newest run with a `run_finished` / `run_failed` in `events` |
+| running now | a run with no finished event and something in it in the last 10 minutes |
+| blocked calls | `tool_blocked` rows from the last 7 days |
+| open questions | the `agent-inbox` issues labelled `project:<name>` |
+
+So adding an agent is one change, in the other repo. Nothing here needs editing for it to appear.
+
 ## Adding a card kind
 
 "Anything the agents need me for" should be a new kind, not a new screen.
@@ -167,6 +199,7 @@ node scripts/vapid-keys.mjs               # throwaway keys for local work
 
 npx wrangler d1 execute agent-network --local --file functions/api/agents/schema.sql
 npx wrangler d1 execute agent-network --local --file migrations/agent-network/0001_agent_app.sql
+npx wrangler d1 execute agent-network --local --file migrations/agent-network/0002_agent_roster.sql
 
 npm run build
 npm run app:dev                           # wrangler pages dev out --port 8788
@@ -193,6 +226,11 @@ npm run build
 npm run test:app      # every flow against wrangler pages dev, at iPhone size
 ```
 
+The Agents tab is covered twice: the reducer on its own in `tests/unit/agents.test.ts`, and the screen
+against a faked `/api/app/agents` in `tests/app/app.spec.ts`, which also posts a real roster event through
+`/api/agents/ingest` and reads it back as a graph. `tests/unit/agents.test.ts` also calls the endpoint
+with no Access token and expects a 401, because the dev bypass means `wrangler pages dev` cannot show that.
+
 `npm run test:app` runs against stand-ins for the two things a test cannot have: a GitHub API
 (`tests/app/github-stub.mjs`, which also fails loudly if the app ever tries to close an issue) and a push
 service (`tests/app/push-stub.mjs`, which records what arrived and can answer 410). The screenshots in
@@ -202,6 +240,7 @@ service (`tests/app/push-stub.mjs`, which records what arrived and can answer 41
 
 ```bash
 npm run build
+npx wrangler d1 execute agent-network --remote --file migrations/agent-network/0002_agent_roster.sql
 npx wrangler pages deploy out --project-name paulojuri
 npx wrangler deploy --config workers/reminders/wrangler.toml
 ```

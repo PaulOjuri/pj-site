@@ -12,6 +12,8 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = 8788
 const GITHUB_STUB_PORT = 8791
 const PUSH_STUB_PORT = 8792
+/** The agents' own write token, so a test can post a roster event the way Paul's Mac does. */
+export const INGEST_TOKEN = 'dev-ingest-token'
 
 export default defineConfig({
   testDir: './tests/app',
@@ -45,7 +47,7 @@ export default defineConfig({
       timeout: 15_000,
     },
     {
-      command: `npx wrangler pages dev out --port ${PORT} --binding GITHUB_INBOX_TOKEN=stub-token GITHUB_API_BASE=http://127.0.0.1:${GITHUB_STUB_PORT}`,
+      command: `npx wrangler pages dev out --port ${PORT} --binding GITHUB_INBOX_TOKEN=stub-token GITHUB_API_BASE=http://127.0.0.1:${GITHUB_STUB_PORT} AGENTS_INGEST_TOKEN=${INGEST_TOKEN}`,
       url: `http://localhost:${PORT}/app`,
       reuseExistingServer: false,
       timeout: 60_000,
